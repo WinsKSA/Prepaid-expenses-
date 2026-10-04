@@ -1,6 +1,6 @@
 <title>Muqeem Desk</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: operations console — fixed left rail of modules, a status bar on top, dense tables in the work area. */
 :root{
@@ -157,19 +157,122 @@ select.sel{border:1px solid var(--line);background:var(--surface);border-radius:
 .pipeline b{display:block;font-family:var(--f-mono);font-size:20px}
 .pipeline span{font-size:11.5px;color:var(--muted)}
 
-@media (max-width:900px){
-  .shell{grid-template-columns:minmax(0,1fr)}
-  .rail{position:sticky;top:0;height:auto;z-index:10;padding-block:8px;border-right:0;border-bottom:1px solid var(--line)}
-  .brand{display:none}
-  .nav{flex-direction:row;overflow-x:auto}
-  .nav .grp{display:none}
-  .nav button{width:auto;white-space:nowrap}
-  .nav button small{display:none}
-  .main{padding-inline:16px}
-  .top{position:static}
-  .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
-  .pipeline{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* ===== Redesign layer: ink rail + paper work area; phone = bottom tabs + cards + sheets ===== */
+:root{--f-display:"Readex Pro","IBM Plex Sans Arabic","IBM Plex Sans",system-ui,sans-serif;
+  --rail:#0f1f19;--rail-2:#1a3128;--rail-fg:#dfe9e4;--rail-muted:#87a196;--gold:#a8782a;--gold-soft:#f4e9d3;--paper:#f6f8f7}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--rail:#070d0b;--rail-2:#13241d;--rail-fg:#dfe9e4;--rail-muted:#7d958b;--gold:#dcae55;--gold-soft:#2e2412;--paper:#0f1714}}
+:root[data-theme="dark"]{--rail:#070d0b;--rail-2:#13241d;--rail-fg:#dfe9e4;--rail-muted:#7d958b;--gold:#dcae55;--gold-soft:#2e2412;--paper:#0f1714}
+body{background:var(--paper)}
+h1,h2,h3,.kpi .v,.brand b,.pipeline b{font-family:var(--f-display)}
+.shell{grid-template-columns:248px minmax(0,1fr)}
+.rail{background:var(--rail);color:var(--rail-fg);border-right:0;padding-block:20px 16px;display:flex;flex-direction:column}
+.brand{display:flex;gap:11px;align-items:center;border-bottom:1px solid rgba(255,255,255,.07);padding:0 18px 18px}
+.brand .mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(140deg,#1f6b4f,#0b3a2b);display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.brand .mark svg{width:22px;height:22px;color:#f1d79c}
+.brand b{color:#fff;font-size:17px;font-weight:600}
+.brand span{color:var(--rail-muted);font-size:11.5px}
+.nav button{color:var(--rail-fg);padding:8px 10px;border-radius:9px;justify-content:flex-start;position:relative}
+.nav button .ico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;color:var(--rail-muted)}
+.nav button .ico svg{width:18px;height:18px}
+.nav button .lbl{flex:1;min-width:0;line-height:1.25}
+.nav button small{color:var(--rail-muted)}
+.nav button:hover{background:var(--rail-2)}
+.nav button[aria-current="true"]{background:var(--rail-2);color:#fff;font-weight:600}
+.nav button[aria-current="true"] .ico{background:var(--gold);color:#1a1205}
+.nav .grp{color:var(--rail-muted);opacity:.85}
+.rail-foot{margin-top:auto;padding:14px 18px 0;font-size:11.5px;color:var(--rail-muted);border-top:1px solid rgba(255,255,255,.07)}
+.main{padding-inline:28px}
+.top{background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding-block:16px}
+.top h1{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.datechip{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 11px 5px 8px}
+.datechip svg{width:18px;height:18px;color:var(--gold)}
+.datechip b{display:block;font-size:12.5px;font-weight:600;line-height:1.2}
+.datechip span{display:block;font-size:11.5px;color:var(--muted);font-family:var(--f-ar);line-height:1.2}
+.bell{border-radius:10px;padding:8px 11px}
+.kpi,.kpi.red,.kpi.amber,.kpi.blue,.kpi.green{border:1px solid var(--line);border-radius:14px;padding:16px 18px;gap:6px}
+.kpi .v{font-size:30px;font-weight:600}
+.kpi .l{font-size:12.5px}
+.kpi .tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.kpi .tag i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.kpi.red .tag i{background:var(--red)}.kpi.amber .tag i{background:var(--amber)}.kpi.blue .tag i{background:var(--blue)}.kpi.green .tag i{background:var(--accent)}
+.kpi.green .v{color:var(--accent)}
+.panel{border-radius:14px;padding:18px}
+.panel h2{font-size:15.5px;font-weight:600}
+.tbl-wrap{border-radius:12px}
+th{background:var(--surface-2)}
+.btn{border-radius:9px}
+.only-mob{display:none}
+.tabbar,.fab{display:none}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;text-align:left;width:100%;cursor:pointer}
+.mcard .t{font-weight:600;font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mcard .s{grid-column:1/-1;color:var(--muted);font-size:12.5px;display:flex;gap:6px 12px;flex-wrap:wrap}
+.mcard .r{justify-self:end;align-self:start}
+.mcard .acts{grid-column:1/-1;display:flex;gap:8px;margin-top:6px}
+/* tablet: icon rail */
+@media (max-width:1100px) and (min-width:761px){
+  .shell{grid-template-columns:76px minmax(0,1fr)}
+  .brand{padding:0 0 16px;justify-content:center}.brand>div{display:none}
+  .nav .grp{display:none}.nav{padding:0 10px;gap:6px}
+  .nav button{justify-content:center;padding:6px}.nav button .lbl{display:none}
+  .nav button .badge{position:absolute;top:0;right:2px}
+  .rail-foot{display:none}
+  .grid3{grid-template-columns:minmax(0,1fr)}
 }
+/* phone: bottom tabs, cards, sheets */
+@media (max-width:760px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .main{padding-inline:16px;padding-block:0 calc(96px + env(safe-area-inset-bottom,0px))}
+  .top{gap:8px;padding-block:12px;margin-bottom:14px}
+  .top h1{font-size:20px;flex-basis:100%;order:-1}
+  .top h1 small{display:block;margin:0}
+  .conn{display:none}
+  .datechip{flex:1}
+  .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kpi{padding:13px 14px}.kpi .v{font-size:24px}
+  .pipeline{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .only-desk{display:none!important}
+  .only-mob{display:block}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:10px;font-size:11px;color:var(--muted);position:relative;cursor:pointer}
+  .tabbar button svg{width:22px;height:22px}
+  .tabbar button[aria-current="true"]{color:var(--accent);font-weight:600}
+  .tabbar button[aria-current="true"] .tico{background:var(--accent-soft)}
+  .tabbar .tico{width:46px;height:28px;border-radius:14px;display:grid;place-items:center;transition:background .2s}
+  .tabbar .badge{position:absolute;top:2px;left:calc(50% + 6px)}
+  .fab{display:grid;place-items:center;position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;background:var(--accent);color:var(--accent-fg);border:0;box-shadow:0 8px 24px rgba(0,0,0,.22);z-index:41;cursor:pointer}
+  .fab[hidden]{display:none!important}
+  .fab svg{width:26px;height:26px}
+  .overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:20px 20px 0 0;max-height:94vh;display:flex;flex-direction:column;animation:sheet .32s cubic-bezier(.2,.8,.2,1)}
+  .modal .body{overflow:auto;padding-bottom:20px}
+  .modal footer{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .modal footer .btn{flex:1}
+  .chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+  .chip{flex:none}
+  input.search{width:100%}
+  .alert{grid-template-columns:4px minmax(0,1fr)}
+  .alert>.row{grid-column:2}
+}
+@keyframes sheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+/* ===== Language: Arabic (RTL) ===== */
+.langsw{display:flex;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:3px;gap:2px}
+.langsw button{border:0;background:none;border-radius:7px;padding:5px 10px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted)}
+.langsw button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.langsw button:last-child{font-family:var(--f-ar)}
+.nav button,.kpi,.mcard,th,td{text-align:start}
+td.n,th.n{text-align:end}
+.chart svg{direction:ltr}
+html[lang="ar"]{--f-sans:"IBM Plex Sans Arabic","IBM Plex Sans",Tahoma,sans-serif}
+html[lang="ar"] body{font-size:14.5px}
+html[lang="ar"] .nav button small,html[lang="ar"] .top h1 small,html[lang="ar"] .panel h2 small,html[lang="ar"] th .ar,html[lang="ar"] .field label .ar{display:none}
+html[lang="ar"] .kpi .tag{letter-spacing:0}
+html[lang="ar"] .nav .grp{letter-spacing:0}
+html[dir="rtl"] .rail{border-left:0}
+html[dir="rtl"] .alert .stripe{order:0}
+@media (max-width:760px){.fab{right:auto;inset-inline-end:16px}.tabbar .badge{left:auto;inset-inline-start:calc(50% + 6px)}}
 /* data-viz series (validated categorical order) + status */
 :root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#4a3aa7;--st-crit:#d03b3b;--st-serious:#ec835a;--st-warn:#fab219;--st-info:#2a78d6;--st-good:#0ca30c;--grid:#e1e0d9;--axis:#c3c2b7}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--st-info:#3987e5;--grid:#2c2c2a;--axis:#383835}}
@@ -203,14 +306,16 @@ select.sel{border:1px solid var(--line);background:var(--surface);border-radius:
 
 <div class="shell">
   <aside class="rail">
-    <div class="brand"><b id="brandName">Muqeem Desk</b><span>Iqama · Jawazat · Prepaids</span></div>
+    <div class="brand"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.2c.6-1.5 1.8-2.2 3.2-2.2s2.6.7 3.2 2.2M14.5 10h4M14.5 13.5h3"/></svg></span><div><b id="brandName">Muqeem Desk</b><span>Iqama · Jawazat · Prepaids</span></div></div>
     <nav class="nav" id="nav"></nav>
+    <div class="rail-foot">Fees per MHRSD / Jawazat · Oct 2026</div>
   </aside>
   <main class="main">
     <div class="top">
       <h1 id="viewTitle">Dashboard</h1>
-      <span class="asof" id="asof"></span>
+      <div class="datechip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><div><b id="asofG"></b><span id="asofH"></span></div></div>
       <span class="conn" id="conn">Connecting…</span>
+      <div class="langsw" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
       <button class="bell" id="bellBtn" aria-label="Open notifications">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <span class="badge" id="bellCount">0</span>
@@ -219,12 +324,54 @@ select.sel{border:1px solid var(--line);background:var(--surface);border-radius:
     <div id="view"></div>
   </main>
 </div>
+<nav class="tabbar" id="tabbar" aria-label="Main"></nav>
+<button class="fab" id="fab" hidden aria-label="Add new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="engine.js"></script>
 <script src="io.js"></script>
+<script src="lease.js"></script>
+<script src="i18n_ar.js"></script>
+<script>
+/* Language layer: translates rendered text nodes + attributes when Arabic is on; flips the page to RTL. */
+(function(){
+  let lang="en"; try{ lang=localStorage.getItem("mqd-lang")||((navigator.language||"").startsWith("ar")?"ar":"en"); }catch(e){}
+  const D=()=>window.I18N_AR||{exact:{},patterns:[]};
+  let pats=null; const compiled=()=>pats||(pats=(D().patterns||[]).map(([re,to])=>{ try{ return [new RegExp("^"+re+"$"),to]; }catch(e){ return null; } }).filter(Boolean));
+  function tr(s){
+    const t=s.trim(); if(!t||!/[A-Za-z]/.test(t)) return null;
+    const ex=D().exact||{}; let out=ex[t];
+    if(out==null){ for(const [re,to] of compiled()){ if(re.test(t)){ out=t.replace(re,to); break; } } }
+    if(out==null) return null;
+    return s.replace(t,out);
+  }
+  function walk(root){
+    if(lang!=="ar"||!root) return;
+    if(root.nodeType===3){ const v=tr(root.nodeValue); if(v!=null&&v!==root.nodeValue) root.nodeValue=v; return; }
+    if(root.nodeType!==1) return;
+    if(root.closest&&root.closest("script,style,.no-tr,.mono,.chart text")) return;
+    ["placeholder","title","aria-label","data-tip"].forEach(a=>{ if(root.hasAttribute&&root.hasAttribute(a)){ const v=tr(root.getAttribute(a)); if(v!=null) root.setAttribute(a,v); } });
+    const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,{acceptNode(n){
+      if(n.nodeType===1){ if(/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.tagName)||n.classList.contains("no-tr")) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_SKIP; }
+      return NodeFilter.FILTER_ACCEPT; }});
+    let n; const nodes=[]; while((n=tw.nextNode())) nodes.push(n);
+    nodes.forEach(t=>{ const v=tr(t.nodeValue); if(v!=null&&v!==t.nodeValue) t.nodeValue=v; });
+    root.querySelectorAll&&root.querySelectorAll("[placeholder],[title],[aria-label],[data-tip],option").forEach(el=>{
+      ["placeholder","title","aria-label","data-tip"].forEach(a=>{ if(el.hasAttribute(a)){ const v=tr(el.getAttribute(a)); if(v!=null) el.setAttribute(a,v); } });
+    });
+  }
+  function apply(){
+    document.documentElement.lang=lang; document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+    document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));
+  }
+  const mo=new MutationObserver(ms=>{ if(lang!=="ar") return; ms.forEach(m=>{ if(m.type==="characterData") walk(m.target); else m.addedNodes.forEach(walk); }); });
+  window.I18N={ get lang(){return lang;}, tr:s=>lang==="ar"?(tr(s)||s):s,
+    set(l){ lang=l; try{ localStorage.setItem("mqd-lang",l); }catch(e){} apply(); if(window.__rerender) window.__rerender(); if(l==="ar") walk(document.body); },
+    start(){ apply(); mo.observe(document.body,{childList:true,subtree:true,characterData:true}); walk(document.body); } };
+})();
+</script>
 <script>
 (function(){
 "use strict";
@@ -238,7 +385,8 @@ const $ = (s,r=document)=>r.querySelector(s);
 const h = v => String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = v => (Number(v)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const money0 = v => (Number(v)||0).toLocaleString("en-US",{maximumFractionDigits:0});
-const fd = d => d ? E.fmtDate(d) : "—";
+const LOC=()=>window.I18N&&I18N.lang==="ar"?"ar-SA-u-ca-gregory-nu-latn":"en-GB";
+const fd = d => d ? (window.I18N&&I18N.lang==="ar"?new Date(d+"T00:00:00Z").toLocaleDateString(LOC(),{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):E.fmtDate(d)) : "—";
 const hj = d => { if(!d) return ""; try{return E.toHijri(d)||"";}catch(e){return "";} };
 const today = () => E.todayISO();
 const safeId = id => String(id).replace(/[^A-Za-z0-9_\-.~:@+]/g,"_").replace(/^\.+$/,"_");
@@ -247,6 +395,7 @@ function settings(){
   return Object.assign({}, d, s, {accounts:Object.assign({}, d.accounts, s.accounts||{})});
 }
 function state(){ return {employees:S.employees, renewals:S.renewals, visas:S.visas, contracts:S.contracts}; }
+function stateP(){ return {employees:S.employees, renewals:S.renewals, visas:S.visas, contracts:S.contracts.filter(c=>leaseModel(c)==="prepaid")}; }
 const empBy = no => S.employees.find(e=>e.empNo===no);
 function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; $("#toastRoot").appendChild(t); setTimeout(()=>t.remove(),3200); }
 function sevPill(sev,label){ const c={expired:"p-red",critical:"p-red",warning:"p-amber",notice:"p-blue",ok:"p-green"}[sev]||"p-grey"; return `<span class="pill ${c}">${h(label||sev)}</span>`; }
@@ -369,16 +518,43 @@ const VIEWS=[
   {id:"renewals",en:"Iqama Renewals",ar:"تجديد الإقامات"},
   {id:"visas",en:"Jawazat Services",ar:"خدمات الجوازات"},
   {grp:"Prepaids & Accounting"},
-  {id:"contracts",en:"Rent & Contracts",ar:"الإيجارات والعقود"},
+  {id:"leases",en:"Leases",ar:"عقود الإيجار"},
+  {id:"contracts",en:"Contracts & Payments",ar:"العقود والدفعات"},
   {id:"amort",en:"Monthly Amortization",ar:"الإطفاء الشهري"},
   {id:"journal",en:"Journal Entries",ar:"القيود المحاسبية"},
   {grp:"System"},
   {id:"settings",en:"Fees & Settings",ar:"الرسوم والإعدادات"},
   {id:"guide",en:"Guide & KSA Rules",ar:"الدليل والأنظمة"}
 ];
+const IC={
+  dashboard:'<rect x="3" y="3" width="7.5" height="9" rx="2"/><rect x="13.5" y="3" width="7.5" height="5" rx="2"/><rect x="13.5" y="11" width="7.5" height="10" rx="2"/><rect x="3" y="15" width="7.5" height="6" rx="2"/>',
+  alerts:'<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  employees:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.7.8 2.7 2.5 3 5.2"/>',
+  renewals:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.2c.6-1.5 1.8-2.2 3.2-2.2s2.6.7 3.2 2.2M14.5 10h4M14.5 13.5h3"/>',
+  visas:'<path d="M2.5 16.5 21 9.5l-1.3-2.8-6.2 2.3L7 4.5l-2 .8 4 5.3-4.3 1.6-2-1.4-1.4.6 1.6 3.4z"/><path d="M3 20.5h18"/>',
+  contracts:'<path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7M3 21h18"/>',
+  leases:'<path d="M4 21V6a2 2 0 0 1 2-2h8l6 6v11"/><path d="M14 4v6h6M8 13h8M8 17h5"/>',
+  amort:'<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx="1"/><rect x="12" y="8" width="3" height="10" rx="1"/><rect x="17" y="5" width="3" height="13" rx="1"/>',
+  journal:'<path d="M5 3h11l3 3v15H5z"/><path d="M9 9h7M9 13h7M9 17h4"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  guide:'<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19.5V4.5M9 7h7M9 11h5"/>',
+  more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
+};
+const svgI=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||""}</svg>`;
+const TABS=["dashboard","alerts","employees","renewals"];
 function renderNav(cnt){
   $("#nav").innerHTML=VIEWS.map(v=>v.grp?`<div class="grp">${h(v.grp)}</div>`:
-    `<button data-nav="${v.id}" aria-current="${S.ui.view===v.id}"><span>${h(v.en)}<br><small>${h(v.ar)}</small></span>${v.badge&&cnt?`<span class="badge">${cnt}</span>`:""}</button>`).join("");
+    `<button data-nav="${v.id}" aria-current="${S.ui.view===v.id}" title="${h(v.en)}"><span class="ico">${svgI(v.id)}</span><span class="lbl">${h(v.en)}<br><small>${h(v.ar)}</small></span>${v.badge&&cnt?`<span class="badge">${cnt}</span>`:""}</button>`).join("");
+  const short={dashboard:"Home",alerts:"Alerts",employees:"People",renewals:"Renewals"};
+  const inMore=!TABS.includes(S.ui.view);
+  $("#tabbar").innerHTML=TABS.map(id=>`<button data-nav="${id}" aria-current="${S.ui.view===id}"><span class="tico">${svgI(id)}</span>${short[id]}${id==="alerts"&&cnt?`<span class="badge">${cnt}</span>`:""}</button>`).join("")+
+    `<button data-act="more" aria-current="${inMore}"><span class="tico">${svgI("more")}</span>More</button>`;
+  const fabAct={employees:"addEmp",renewals:"addRen",visas:"addVisa",contracts:"addCon",leases:"addCon"}[S.ui.view];
+  const fab=$("#fab"); fab.hidden=!fabAct; if(fabAct) fab.dataset.act=fabAct;
+}
+function openMore(){
+  const items=VIEWS.filter(v=>v.id&&!TABS.includes(v.id));
+  openModal("More · المزيد",`<div class="mlist">${items.map(v=>`<button class="mcard" data-nav="${v.id}" data-close="1"><span class="t" style="display:flex;gap:10px;align-items:center"><span style="width:22px;height:22px;color:var(--accent)">${svgI(v.id)}</span>${h(v.en)}</span><span class="r ar sub">${h(v.ar)}</span></button>`).join("")}</div>`,[]);
 }
 function go(view){ S.ui.view=view; S.ui.animate=true; render(); window.scrollTo(0,0); }
 
@@ -386,14 +562,15 @@ function go(view){ S.ui.view=view; S.ui.animate=true; render(); window.scrollTo(
 function render(){
   const st=settings();
   $("#brandName").textContent = st.company && st.company!=="Company name" ? st.company : "Muqeem Desk";
-  $("#asof").textContent = `Today ${fd(today())} · ${hj(today())} هـ`;
+  $("#asofG").textContent = new Date(today()+"T00:00:00Z").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});
+  try{ $("#asofH").textContent = new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(today()+"T00:00:00Z")); }catch(e){ $("#asofH").textContent=hj(today())+" هـ"; }
   const act=activeAlerts();
   const urgent=act.filter(a=>a.severity==="expired"||a.severity==="critical").length;
   $("#bellCount").textContent=act.length; $("#bellCount").style.background = urgent? "var(--red)":"var(--amber)";
   renderNav(act.length);
   const v=VIEWS.find(x=>x.id===S.ui.view)||VIEWS[1];
   $("#viewTitle").innerHTML=`${h(v.en)}<small>${h(v.ar)}</small>`;
-  const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
+  const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,leases:vLeases,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
   const loaded=COLS.every(c=>S.loaded[c]);
   const vw=$("#view"); vw.classList.toggle("enter",!!S.ui.animate&&loaded);
   $("#bellBtn").classList.toggle("urgent",urgent>0&&!S.ui.rang&&loaded); if(urgent&&loaded) S.ui.rang=true;
@@ -410,7 +587,7 @@ function vDashboard(){
   const open=S.renewals.filter(r=>E.renewalStatus(r)!=="Completed").length;
   const outside=S.visas.filter(v=>E.visaStatus(v,t)==="Outside KSA").length;
   const notRet=S.visas.filter(v=>E.visaStatus(v,t)==="Not Returned").length;
-  let rf=null; try{ rf=E.prepaidRollforward(state(),st,E.monthStart(t),t); }catch(e){}
+  let rf=null; try{ rf=E.prepaidRollforward(stateP(),st,E.monthStart(t),t); }catch(e){}
   const rfo = rf ? (rf.overall||rf) : {};
   let fc=[]; try{ fc=E.forecast(state(),st,E.monthStart(t),12,t)||[]; }catch(e){}
   const pipe=STATUS_ORDER.map(s=>({s,n:S.renewals.filter(r=>E.renewalStatus(r)===s).length}));
@@ -422,16 +599,17 @@ function vDashboard(){
   if(!S.employees.length && !S.contracts.length){
     return `<div class="panel"><div class="empty"><b>No records yet</b>Start by importing your employee sheet (Excel) or adding employees one by one. Employee numbers are generated automatically.<div class="row" style="justify-content:center;margin-top:14px"><button class="btn pri" data-act="import">Import employees from Excel</button><button class="btn" data-act="addEmp">Add employee</button><button class="btn" data-act="addCon">Add rent contract</button></div></div></div>`;
   }
-  return `
+  const noExp=activeEmps.filter(e=>!e.saudi&&!E.effectiveExpiry(e,S.renewals)).length;
+  return `${noExp?`<div class="warnbox row" style="margin-bottom:14px"><span><b>${noExp} active employees have no Iqama expiry date</b>, so they cannot get reminders yet. Add the dates (or re-import with an expiry column).</span><span class="spacer"></span><button class="btn sm" data-act="showNoExp">Show them</button></div>`:""}
   <div class="kpis">
-    <button class="kpi red" data-goalert="expired"><span class="v" data-n="${health[0].v}">${health[0].v}</span><span class="l">Iqamas expired · منتهية</span></button>
-    <button class="kpi red" data-goalert="critical"><span class="v" data-n="${health[1].v}">${health[1].v}</span><span class="l">Iqamas due ≤ 15 days</span></button>
-    <button class="kpi amber" data-goalert="warning"><span class="v" data-n="${health[1].v+health[2].v}">${health[1].v+health[2].v}</span><span class="l">Iqamas due ≤ 30 days</span></button>
-    <button class="kpi blue" data-nav="renewals"><span class="v" data-n="${open}">${open}</span><span class="l">Open renewal requests</span></button>
-    <button class="kpi blue" data-nav="visas"><span class="v">${outside}${notRet?` <small style="color:var(--red);font-size:14px">+${notRet} late</small>`:""}</span><span class="l">Employees outside KSA</span></button>
-    <button class="kpi green" data-nav="amort"><span class="v" data-n="${rfo.closing||0}" data-fmt="m">${money0(rfo.closing)}</span><span class="l">Prepaid balance (SAR) · month end</span></button>
-    <button class="kpi green" data-nav="journal"><span class="v" data-n="${rfo.amortization||0}" data-fmt="m">${money0(rfo.amortization)}</span><span class="l">Amortization this month (SAR)</span></button>
-    <button class="kpi" data-nav="employees"><span class="v" data-n="${active}">${active}</span><span class="l">Active employees</span></button>
+    <button class="kpi red" data-goalert="expired"><span class="tag"><i></i>Expired</span><span class="v" data-n="${health[0].v}">${health[0].v}</span><span class="l">Iqamas expired · منتهية</span></button>
+    <button class="kpi red" data-goalert="critical"><span class="tag"><i></i>Urgent</span><span class="v" data-n="${health[1].v}">${health[1].v}</span><span class="l">Iqamas due ≤ 15 days</span></button>
+    <button class="kpi amber" data-goalert="warning"><span class="tag"><i></i>This month</span><span class="v" data-n="${health[1].v+health[2].v}">${health[1].v+health[2].v}</span><span class="l">Iqamas due ≤ 30 days</span></button>
+    <button class="kpi blue" data-nav="renewals"><span class="tag"><i></i>Workflow</span><span class="v" data-n="${open}">${open}</span><span class="l">Open renewal requests</span></button>
+    <button class="kpi blue" data-nav="visas"><span class="tag"><i></i>Jawazat</span><span class="v">${outside}${notRet?` <small style="color:var(--red);font-size:14px">+${notRet} late</small>`:""}</span><span class="l">Employees outside KSA</span></button>
+    <button class="kpi green" data-nav="amort"><span class="tag"><i></i>Prepaid</span><span class="v" data-n="${rfo.closing||0}" data-fmt="m">${money0(rfo.closing)}</span><span class="l">Prepaid balance (SAR) · month end</span></button>
+    <button class="kpi green" data-nav="journal"><span class="tag"><i></i>Expense</span><span class="v" data-n="${rfo.amortization||0}" data-fmt="m">${money0(rfo.amortization)}</span><span class="l">Amortization this month (SAR)</span></button>
+    <button class="kpi" data-nav="employees"><span class="tag"><i></i>Workforce</span><span class="v" data-n="${active}">${active}</span><span class="l">Active employees</span></button>
   </div>
   <div class="grid2">
     <div class="panel"><h2>Needs attention <small>يحتاج إجراء</small><span class="spacer"></span><button class="btn sm" data-nav="alerts">All notifications</button></h2>
@@ -454,8 +632,8 @@ function vDashboard(){
     <div class="panel"><h2>Rent & contracts</h2>${cnt("Rent")+cnt("Contract")} installments or contracts need action.</div>
   </div>`;
 }
-const mShort=m=>new Date(m+"T00:00:00Z").toLocaleString("en-US",{month:"short",timeZone:"UTC"});
-const mLong=m=>new Date(m+"T00:00:00Z").toLocaleString("en-US",{month:"short",year:"numeric",timeZone:"UTC"});
+const mShort=m=>new Date(m+"T00:00:00Z").toLocaleString(LOC(),{month:"short",timeZone:"UTC"});
+const mLong=m=>new Date(m+"T00:00:00Z").toLocaleString(LOC(),{month:"short",year:"numeric",timeZone:"UTC"});
 const kfmt=v=>Math.abs(v)>=1e6?(v/1e6).toFixed(v%1e6?1:0)+"M":Math.abs(v)>=1000?(v/1000).toFixed(v%1000?1:0)+"k":String(Math.round(v));
 /* stacked bars: series=[{label,color,values[]}], one y-axis */
 function stackedBars(months,series,aria){
@@ -555,27 +733,32 @@ function vEmployees(){
   const t=today(); const q=S.ui.empQ.trim().toLowerCase();
   const rows=S.employees.map(e=>{ const eff=E.effectiveExpiry(e,S.renewals); return {e,eff,days:eff?E.daysBetween(t,eff):null}; })
     .filter(x=>(!S.ui.empStatus||S.ui.empStatus==="All"||x.e.status===S.ui.empStatus||(S.ui.empStatus==="Active"&&x.e.status==="On Vacation")))
-    .filter(x=>!q||[x.e.empNo,x.e.nameEn,x.e.nameAr,x.e.iqamaNo,x.e.nationality,x.e.department,x.e.branch,x.e.jobTitle].join(" ").toLowerCase().includes(q))
-    .filter(x=>!S.ui.empAlert||(S.ui.empAlert==="exp"&&x.days<0)||(S.ui.empAlert==="30"&&x.days>=0&&x.days<=30)||(S.ui.empAlert==="90"&&x.days>=0&&x.days<=90))
+    .filter(x=>!q||[x.e.empNo,x.e.hrNo,x.e.nameEn,x.e.nameAr,x.e.iqamaNo,x.e.nationalId,x.e.nationality,x.e.department,x.e.branch,x.e.jobTitle].join(" ").toLowerCase().includes(q))
+    .filter(x=>!S.ui.empAlert||(S.ui.empAlert==="exp"&&x.days<0)||(S.ui.empAlert==="30"&&x.days>=0&&x.days<=30)||(S.ui.empAlert==="90"&&x.days>=0&&x.days<=90)||(S.ui.empAlert==="none"&&!x.eff&&!x.e.saudi))
+    .filter(x=>!S.ui.empFees||(x.e.iqamaFeesBy||"Company")===S.ui.empFees)
     .sort((a,b)=>(a.days==null?1e9:a.days)-(b.days==null?1e9:b.days));
   const shown=rows.slice(0,S.ui.empLimit||300);
   return `<div class="row" style="margin-bottom:12px">
     <input class="search" id="empQ" placeholder="Search name, iqama, emp no…" value="${h(S.ui.empQ)}">
-    <select class="sel" id="empStatus">${["Active","All","On Vacation","Final Exit","Huroob","Transferred"].map(s=>`<option ${S.ui.empStatus===s?"selected":""}>${s}</option>`).join("")}</select>
-    <select class="sel" id="empAlert"><option value="">Any expiry</option><option value="exp" ${S.ui.empAlert==="exp"?"selected":""}>Expired</option><option value="30" ${S.ui.empAlert==="30"?"selected":""}>Due ≤ 30 days</option><option value="90" ${S.ui.empAlert==="90"?"selected":""}>Due ≤ 90 days</option></select>
+    <select class="sel" id="empStatus">${["Active","All","On Vacation","Suspended","Final Exit","Huroob","Transferred"].map(s=>`<option ${S.ui.empStatus===s?"selected":""}>${s}</option>`).join("")}</select>
+    <select class="sel" id="empAlert"><option value="">Any expiry</option><option value="exp" ${S.ui.empAlert==="exp"?"selected":""}>Expired</option><option value="30" ${S.ui.empAlert==="30"?"selected":""}>Due ≤ 30 days</option><option value="90" ${S.ui.empAlert==="90"?"selected":""}>Due ≤ 90 days</option><option value="none" ${S.ui.empAlert==="none"?"selected":""}>No expiry date recorded</option></select>
+    <select class="sel" id="empFees"><option value="">Iqama fees: all</option>${["Company","Not company","Not applicable (Saudi)"].map(v=>`<option ${S.ui.empFees===v?"selected":""}>${v}</option>`).join("")}</select>
     <span class="spacer"></span>
     <button class="btn" data-act="template">Import template</button>
     <button class="btn" data-act="import">Import Excel</button>
     <button class="btn" data-act="export">Export all</button>
     <button class="btn pri" data-act="addEmp">Add employee</button></div>
   <div class="sub" style="margin-bottom:8px">${rows.length} employees · sorted by days to Iqama expiry · click a row to edit</div>
-  <div class="tbl-wrap"><table><thead><tr>
+  <div class="mlist only-mob">${shown.slice(0,S.ui.empLimit?9999:60).map(({e,eff,days})=>`<button class="mcard" data-editemp="${h(e.empNo)}"><span class="t">${h(e.nameEn||e.nameAr)}</span><span class="r">${e.saudi?`<span class="pill p-grey">Saudi</span>`:eff?daysPill(days):`<span class="pill p-amber">no date</span>`}</span>
+    <span class="s"><span class="mono">${h(e.empNo)}</span>${e.hrNo?`<span>HR ${h(e.hrNo)}</span>`:""}<span class="mono">${h(e.saudi?e.nationalId:e.iqamaNo||"")}</span><span>${h(e.nationality||"")}</span>${eff?`<span>${fd(eff)} · ${h(hj(eff))}</span>`:""}</span></button>`).join("")}</div>
+  <div class="tbl-wrap only-desk"><table><thead><tr>
     <th>Emp No<span class="ar">الرقم الوظيفي</span></th><th>Name<span class="ar">الاسم</span></th><th>Nationality<span class="ar">الجنسية</span></th><th>Iqama No<span class="ar">رقم الإقامة</span></th>
     <th>Iqama expiry<span class="ar">انتهاء الإقامة</span></th><th>Days left</th><th>Passport expiry</th><th>Insurance expiry</th><th class="n">Dep.</th><th>Branch / Dept</th><th>Status</th><th></th></tr></thead><tbody>
     ${shown.map(({e,eff,days})=>`<tr class="clk" data-editemp="${h(e.empNo)}">
-      <td class="mono">${h(e.empNo)}${e.example?` <span class="pill p-grey">Example</span>`:""}</td>
-      <td>${h(e.nameEn)}${e.nameAr?`<div class="sub ar">${h(e.nameAr)}</div>`:""}</td><td>${h(e.nationality)}</td><td class="mono">${h(e.iqamaNo)}</td>
-      <td>${fd(eff)}<div class="sub">${h(hj(eff))}</div></td><td>${e.status==="Active"||e.status==="On Vacation"?daysPill(days):`<span class="pill p-grey">${h(e.status)}</span>`}</td>
+      <td class="mono">${h(e.empNo)}${e.hrNo?`<div class="sub">HR ${h(e.hrNo)}</div>`:""}${e.example?` <span class="pill p-grey">Example</span>`:""}</td>
+      <td>${e.nameEn?h(e.nameEn)+(e.nameAr?`<div class="sub ar">${h(e.nameAr)}</div>`:""):`<span class="ar">${h(e.nameAr)}</span>`}<div class="sub">${h(e.jobTitle||"")}</div></td><td>${h(e.nationality)}</td>
+      <td class="mono">${e.saudi?h(e.nationalId||""):h(e.iqamaNo)||`<span class="pill p-amber">missing</span>`}<div class="sub">${e.saudi?"Saudi ID":"Fees: "+h(e.iqamaFeesBy||"Company")}</div></td>
+      <td>${e.saudi?`<span class="sub">n/a</span>`:eff?`${fd(eff)}<div class="sub">${h(hj(eff))}</div>`:`<span class="pill p-amber">not recorded</span>`}</td><td>${e.saudi?`<span class="pill p-grey">Saudi</span>`:e.status==="Active"||e.status==="On Vacation"?daysPill(days):`<span class="pill p-grey">${h(e.status)}</span>`}</td>
       <td>${expCell(e.passportExpiry,settings().passportAlertDays)}</td><td>${expCell(e.insuranceExpiry,settings().insuranceAlertDays)}</td>
       <td class="n">${h(e.dependents||0)}</td><td>${h(e.branch||"")}${e.department?`<div class="sub">${h(e.department)}</div>`:""}</td><td>${h(e.status)}</td>
       <td><button class="btn sm" data-renewemp="${h(e.empNo)}">Renew</button></td></tr>`).join("")}
@@ -585,12 +768,13 @@ function vEmployees(){
 function expCell(d,alertDays){ if(!d) return `<span class="sub">—</span>`; const n=E.daysBetween(today(),d); const c=n<0?"p-red":n<=alertDays?"p-amber":""; return c?`<span class="pill ${c}">${fd(d)}</span>`:fd(d); }
 
 const EMP_FIELDS=[
-  ["empNo","Employee No","الرقم الوظيفي","text"],["nameEn","Name (English)","الاسم بالإنجليزي","text"],["nameAr","Name (Arabic)","الاسم بالعربي","text"],
-  ["nationality","Nationality","الجنسية","text"],["jobTitle","Profession (on Iqama)","المهنة","text"],["department","Department","القسم","text"],["branch","Branch","الفرع","text"],
+  ["empNo","Employee No (auto)","الرقم الآلي","text"],["hrNo","HR number","الرقم الوظيفي","text"],["nameAr","Name (Arabic)","الاسم بالعربي","text"],["nameEn","Name (English)","الاسم بالإنجليزي","text"],
+  ["gender","Gender","الجنس","sel:Male,Female"],["nationality","Nationality","الجنسية","text"],["nationalId","National ID (Saudis)","رقم الهوية","text"],
+  ["molFile","Labour office file no","رقم ملف مكتب العمل","text"],["iqamaFeesBy","Iqama fees paid by","رسوم الإقامة على","sel:Company,Not company,Not applicable (Saudi)"],["jobTitle","Profession (on Iqama)","المهنة","text"],["department","Department","القسم","text"],["branch","Branch","الفرع","text"],
   ["iqamaNo","Iqama No","رقم الإقامة","text"],["iqamaExpiry","Iqama expiry (last known)","تاريخ انتهاء الإقامة","date"],
   ["passportNo","Passport No","رقم الجواز","text"],["passportExpiry","Passport expiry","انتهاء الجواز","date"],["insuranceExpiry","Medical insurance expiry","انتهاء التأمين الطبي","date"],
   ["dependents","Dependents","عدد المرافقين","number"],["depPayer","Dependents fee paid by","رسوم المرافقين على","sel:Employee,Company"],
-  ["status","Status","الحالة","sel:Active,On Vacation,Final Exit,Huroob,Transferred"],["levyExempt","Levy exempt (small establishment)","معفى من المقابل المالي","sel:No,Yes"],
+  ["status","Status","الحالة","sel:Active,On Vacation,Suspended,Final Exit,Huroob,Transferred"],["levyExempt","Levy exempt (small establishment)","معفى من المقابل المالي","sel:No,Yes"],
   ["phone","Mobile","الجوال","text"],["email","Email","البريد","text"],["notes","Notes","ملاحظات","text"]];
 function fieldHtml(prefix,[k,en,ar,type],val){
   const id=prefix+k; let inp;
@@ -628,7 +812,10 @@ function vRenewals(){
   const counts=s=>S.renewals.filter(r=>s==="All"||(s==="Open"&&E.renewalStatus(r)!=="Completed")||E.renewalStatus(r)===s).length;
   const tot=list.reduce((a,x)=>(a.t+=x.c.total||0,a.p+=x.c.companyPrepaid||0,a.f+=x.c.lateFine||0,a),{t:0,p:0,f:0});
   return `<div class="row" style="margin-bottom:12px"><div class="chips" style="margin:0">${["Open","All",...STATUS_ORDER].map(s=>`<button class="chip" data-renfilter="${h(s)}" aria-pressed="${f===s}">${h(s)}<b>${counts(s)}</b></button>`).join("")}</div><span class="spacer"></span><button class="btn pri" data-act="addRen">New renewal request</button></div>
-  <div class="tbl-wrap"><table><thead><tr><th>Request</th><th>Employee</th><th class="n">Months</th><th>Current expiry → New expiry</th><th class="n">Iqama</th><th class="n">Levy + WP</th><th class="n">Dependents</th><th class="n">Late fine</th><th class="n">Total SAR</th><th>Status</th><th>Next step</th></tr></thead><tbody>
+  <div class="mlist only-mob">${list.map(({r,e,c,s})=>`<div class="mcard" data-openren="${h(r.id)}"><span class="t">${h(e.nameEn||e.nameAr||r.empNo)}</span><span class="r">${statusPill(s)}</span>
+    <span class="s"><span class="mono">${h(r.id)}</span><span>${h(r.months)} months</span><span>${fd(r.oldExpiry)} → ${fd(c.newExpiry)}</span><b class="mono">${money(c.total)} SAR</b>${c.lateFine?`<span style="color:var(--red)">fine ${money(c.lateFine)}</span>`:""}</span>
+    <span class="acts">${nextStepBtn(r,s)}</span></div>`).join("")||`<div class="empty"><b>No renewal requests here</b>Tap + to create one.</div>`}</div>
+  <div class="tbl-wrap only-desk"><table><thead><tr><th>Request</th><th>Employee</th><th class="n">Months</th><th>Current expiry → New expiry</th><th class="n">Iqama</th><th class="n">Levy + WP</th><th class="n">Dependents</th><th class="n">Late fine</th><th class="n">Total SAR</th><th>Status</th><th>Next step</th></tr></thead><tbody>
   ${list.map(({r,e,c,s})=>`<tr class="clk" data-openren="${h(r.id)}"><td class="mono">${h(r.id)}<div class="sub">${fd(r.requestDate)}</div></td>
     <td>${h(e.nameEn||e.nameAr||r.empNo)}<div class="sub">${h(r.empNo)} · ${h(e.iqamaNo||"")}</div></td><td class="n">${h(r.months)}</td>
     <td>${fd(r.oldExpiry)} → <b>${fd(c.newExpiry)}</b><div class="sub">${h(hj(c.newExpiry))}</div></td>
@@ -719,7 +906,9 @@ function vVisas(){
    .sort((a,b)=>(b.v.requestDate||"").localeCompare(a.v.requestDate||""));
   const sts=["Open","All","Requested","Paid","Issued","Outside KSA","Not Returned","Expired Unused","Returned"];
   return `<div class="row" style="margin-bottom:12px"><div class="chips" style="margin:0">${sts.map(s=>`<button class="chip" data-visafilter="${h(s)}" aria-pressed="${f===s}">${h(s)}</button>`).join("")}</div><span class="spacer"></span><button class="btn pri" data-act="addVisa">New Jawazat service</button></div>
-  <div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Employee</th><th>Service</th><th class="n">Months</th><th class="n">Fee SAR</th><th>Paid by</th><th>Issued</th><th>Departed</th><th>Return before</th><th>Returned</th><th>Status</th></tr></thead><tbody>
+  <div class="mlist only-mob">${list.map(({v,e,s,fee,rb})=>`<button class="mcard" data-openvisa="${h(v.id)}"><span class="t">${h(e.nameEn||e.nameAr||v.empNo)}</span><span class="r">${statusPill(s)}</span>
+    <span class="s"><span class="mono">${h(v.id)}</span><span>${h(v.type)}</span><span>${money(fee)} SAR</span>${rb?`<span>return by ${fd(rb)}</span>`:""}</span></button>`).join("")||`<div class="empty"><b>No Jawazat services here</b>Tap + to add one.</div>`}</div>
+  <div class="tbl-wrap only-desk"><table><thead><tr><th>Ref</th><th>Employee</th><th>Service</th><th class="n">Months</th><th class="n">Fee SAR</th><th>Paid by</th><th>Issued</th><th>Departed</th><th>Return before</th><th>Returned</th><th>Status</th></tr></thead><tbody>
   ${list.map(({v,e,s,fee,rb})=>`<tr class="clk" data-openvisa="${h(v.id)}"><td class="mono">${h(v.id)}<div class="sub">${fd(v.requestDate)}</div></td><td>${h(e.nameEn||e.nameAr||v.empNo)}<div class="sub">${h(v.empNo)}</div></td><td>${h(v.type)}</td><td class="n">${h(v.months||"")}</td><td class="n">${money(fee)}</td><td>${h(v.payer)}</td><td>${fd(v.issueDate)}</td><td>${fd(v.departureDate)}</td><td>${rb?fd(rb):"—"}${rb&&v.departureDate&&!v.returnDate?`<div>${daysPill(E.daysBetween(t,rb))}</div>`:""}</td><td>${fd(v.returnDate)}</td><td>${statusPill(s)}</td></tr>`).join("")}
   </tbody></table>${list.length?"":`<div class="empty"><b>No Jawazat services here</b>Record exit/re-entry visas, final exits and Iqama replacements.</div>`}</div>`;
 }
@@ -773,7 +962,15 @@ function openContract(id){
     <div class="field"><label for="c_total">Contract value excl. VAT (SAR)</label><input id="c_total" type="number" step="0.01" min="0" value="${h(c.totalAmount)}"></div>
     <div class="field"><label for="c_freq">Payment frequency</label><select id="c_freq">${["Annual","Semi-annual","Quarterly","Monthly"].map(x=>`<option ${c.frequency===x?"selected":""}>${x}</option>`).join("")}</select></div>
     <div class="field"><label for="c_vat">VAT 15%</label><select id="c_vat"><option value="1" ${c.vatApplicable?"selected":""}>Yes — landlord VAT registered</option><option value="0" ${!c.vatApplicable?"selected":""}>No VAT</option></select></div>
-    <div class="field"><label for="c_notes">Notes</label><input id="c_notes" value="${h(c.notes||"")}"></div></div>
+    <div class="field"><label for="c_notes">Notes</label><input id="c_notes" value="${h(c.notes||"")}"></div>
+    <div class="field"><label for="c_model">Accounting model</label><select id="c_model">${[["auto","Company default"],["prepaid","Prepaid"],["straightline","Straight-line"],["ifrs16","IFRS 16"]].map(([v,l])=>`<option value="${v}" ${(c.model||"auto")===v?"selected":""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><label for="c_ibr">Incremental borrowing rate</label><input id="c_ibr" type="number" step="0.0001" value="${h(c.ibr!=null?c.ibr:(st.defaultIbr||0.065))}"></div>
+    <div class="field"><label for="c_notice">Notice period (days)</label><input id="c_notice" type="number" min="0" value="${h(c.noticeDays!=null?c.noticeDays:90)}"></div>
+    <div class="field"><label for="c_city">City</label><input id="c_city" value="${h(c.city||"")}"></div>
+    <div class="field"><label for="c_ptype">Property type</label><select id="c_ptype">${["Shop","Drive-thru","Lounge","Cafe","Office","Warehouse","Staff housing","Other"].map(x=>`<option ${c.propertyType===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label for="c_area">Area (m²)</label><input id="c_area" type="number" min="0" value="${h(c.areaSqm||"")}"></div>
+    <div class="field"><label for="c_dep">Security deposit (SAR)</label><input id="c_dep" type="number" min="0" step="0.01" value="${h(c.securityDeposit||0)}"></div>
+    <div class="field"><label for="c_phone">Landlord phone</label><input id="c_phone" value="${h(c.landlordPhone||"")}"></div></div>
     ${anyPaid?`<div class="warnbox">Some installments are already paid. Changing the dates, value or frequency rebuilds unpaid installments. Payment dates on matching installment numbers are kept.</div>`:""}
     <div id="c_prev"></div>`,
    [c0?{label:"Delete",cls:"danger",fn:()=>confirmBox(`Delete contract ${c0.id} and its schedule?`,async()=>{await del("contracts",c0.id);closeModal();})}:null,
@@ -784,7 +981,8 @@ function openContract(id){
     $("#c_prev").innerHTML=ins.length?`<div class="sub" style="margin-bottom:6px">Installment schedule preview</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Period</th><th>Due</th><th class="n">Amount</th><th class="n">VAT</th><th class="n">Monthly amortization</th></tr></thead><tbody>${ins.map(i=>`<tr><td>${i.no}</td><td>${fd(i.periodStart)} → ${fd(i.periodEnd)}</td><td>${fd(i.dueDate)}</td><td class="n">${money(i.amount)}</td><td class="n">${money(i.vat)}</td><td class="n">≈ ${money(i.amount/Math.max(1,Math.round(E.daysBetween(i.periodStart,i.periodEnd)/30.4)))}</td></tr>`).join("")}</tbody></table></div>`:""; };
   ["c_start","c_end","c_total","c_freq","c_vat"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
 }
-function readCon(c){ const o=Object.assign({},c,{category:$("#c_cat").value,branch:$("#c_branch").value.trim(),vendor:$("#c_vendor").value.trim(),refNo:$("#c_ref").value.trim(),startDate:$("#c_start").value,endDate:$("#c_end").value,totalAmount:parseFloat($("#c_total").value)||0,frequency:$("#c_freq").value,vatApplicable:$("#c_vat").value==="1",notes:$("#c_notes").value.trim()}); delete o._id; return o; }
+function readCon(c){ const o=Object.assign({},c,{category:$("#c_cat").value,branch:$("#c_branch").value.trim(),vendor:$("#c_vendor").value.trim(),refNo:$("#c_ref").value.trim(),startDate:$("#c_start").value,endDate:$("#c_end").value,totalAmount:parseFloat($("#c_total").value)||0,frequency:$("#c_freq").value,vatApplicable:$("#c_vat").value==="1",notes:$("#c_notes").value.trim(),
+  model:$("#c_model").value,ibr:parseFloat($("#c_ibr").value)||0,noticeDays:parseInt($("#c_notice").value||"0",10)||0,city:$("#c_city").value.trim(),propertyType:$("#c_ptype").value,areaSqm:parseFloat($("#c_area").value)||0,securityDeposit:parseFloat($("#c_dep").value)||0,landlordPhone:$("#c_phone").value.trim()}); delete o._id; return o; }
 function payInstallment(cid,no){
   const c=S.contracts.find(x=>x.id===cid); const i=(c.installments||[]).find(x=>x.no===+no); if(!i) return;
   openModal(`Pay installment ${no} · ${c.branch}`,`<div class="calc"><div><span>Amount</span><b>${money(i.amount)}</b></div><div><span>VAT (input)</span><b>${money(i.vat)}</b></div><div><span>Total to bank</span><b>${money((+i.amount||0)+(+i.vat||0))}</b></div><div><span>Period</span><b>${fd(i.periodStart)} → ${fd(i.periodEnd)}</b></div></div>
@@ -792,14 +990,85 @@ function payInstallment(cid,no){
    [{label:"Record payment",cls:"pri",fn:async()=>{ const o=Object.assign({},c); delete o._id; o.installments=c.installments.map(x=>x.no===+no?Object.assign({},x,{paidDate:$("#p_date").value,paymentRef:$("#p_ref").value.trim()}):x); await put("contracts",c.id,o); closeModal(); toast("Payment recorded"); }}]);
 }
 
+/* ---------- leases (portfolio, register, IFRS 16 / straight-line) ---------- */
+const LZ=()=>window.Lease;
+function leaseModel(c){ try{ return LZ()?LZ().resolveModel(c,settings()):"prepaid"; }catch(e){ return "prepaid"; } }
+const MODEL_LBL={prepaid:"Prepaid",straightline:"Straight-line",ifrs16:"IFRS 16"};
+function vLeases(){
+  const st=settings(), t=today(), L=LZ();
+  const leases=S.contracts.filter(c=>c.category==="Branch Rent");
+  if(!L) return `<div class="warnbox">The lease engine did not load. Reload the page.</div>`;
+  let pf={rows:[],totals:{}}; try{ pf=L.portfolio(leases,st,t)||pf; }catch(e){ console.error(e); }
+  let mat=null; try{ mat=L.maturityAnalysis(leases,st,t); }catch(e){}
+  const crit=[]; leases.forEach(c=>{ try{ (L.criticalDates(c,st,t)||[]).forEach(d=>crit.push(Object.assign({c},d))); }catch(e){} });
+  const upcoming=crit.filter(d=>d.daysLeft!=null&&d.daysLeft<=120).sort((a,b)=>a.daysLeft-b.daysLeft);
+  const rows=pf.rows||[]; const T=pf.totals||{};
+  const next30=leases.reduce((a,c)=>a+(c.installments||[]).filter(i=>!i.paidDate&&i.dueDate>=t&&E.daysBetween(t,i.dueDate)<=30).reduce((x,i)=>x+(+i.amount||0)+(+i.vat||0),0),0);
+  const overdue=leases.reduce((a,c)=>a+(c.installments||[]).filter(i=>!i.paidDate&&i.dueDate<t).reduce((x,i)=>x+(+i.amount||0)+(+i.vat||0),0),0);
+  const annual=rows.reduce((a,r)=>a+(+r.annualCost||0),0);
+  const months=[]; for(let i=0;i<24;i++) months.push(E.addMonths(E.monthStart(t),i));
+  const byBranch={}; leases.forEach(c=>{ const v=months.map(m=>(c.installments||[]).filter(i=>!i.paidDate&&E.monthStart(i.dueDate)===m).reduce((x,i)=>x+(+i.amount||0)+(+i.vat||0),0)); byBranch[c.branch]=v; });
+  // overdue goes into the current month bar
+  leases.forEach(c=>{ const od=(c.installments||[]).filter(i=>!i.paidDate&&i.dueDate<months[0]).reduce((x,i)=>x+(+i.amount||0)+(+i.vat||0),0); if(od) byBranch[c.branch][0]+=od; });
+  const names=Object.keys(byBranch).sort((a,b)=>byBranch[b].reduce((x,y)=>x+y,0)-byBranch[a].reduce((x,y)=>x+y,0));
+  const cols=["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)","var(--s7)"];
+  const series=names.slice(0,6).map((n,i)=>({label:n,color:cols[i],values:byBranch[n]}));
+  if(names.length>6){ const o=months.map((_,i)=>names.slice(6).reduce((a,n)=>a+byBranch[n][i],0)); series.push({label:"Other branches",color:cols[6],values:o}); }
+  const B=["≤1y","1–2y","2–3y","3–4y","4–5y",">5y"]; const mo=mat&&(mat.overall||mat.total||mat)||{};
+  return `
+  <div class="row" style="margin-bottom:14px"><div class="sub prose">Accounting model: <b>${h(MODEL_LBL[st.leaseStandard||"prepaid"]||"Prepaid")}</b> (change in Fees & Settings). Leases of 12 months or less always use the prepaid method.</div><span class="spacer"></span><button class="btn pri" data-act="addCon">New lease</button></div>
+  <div class="kpis">
+    <div class="kpi"><span class="tag"><i></i>Portfolio</span><span class="v">${leases.length}</span><span class="l">Active leases</span></div>
+    <div class="kpi green"><span class="tag"><i></i>Commitment</span><span class="v">${money0(annual)}</span><span class="l">Annual cost (SAR)</span></div>
+    <div class="kpi amber"><span class="tag"><i></i>Next 30 days</span><span class="v">${money0(next30)}</span><span class="l">Payments due incl. VAT</span></div>
+    <div class="kpi red"><span class="tag"><i></i>Overdue</span><span class="v">${money0(overdue)}</span><span class="l">Unpaid past due incl. VAT</span></div>
+    <div class="kpi blue"><span class="tag"><i></i>Critical dates</span><span class="v">${upcoming.filter(d=>/Notice|end/i.test(d.type)).length}</span><span class="l">Notice deadlines / ends ≤ 120 days</span></div>
+    ${T.liability!=null&&T.liability>0?`<div class="kpi"><span class="tag"><i></i>IFRS 16</span><span class="v">${money0(T.liability)}</span><span class="l">Lease liability (SAR)</span></div>`:""}
+  </div>
+  <div class="panel" style="margin-bottom:16px"><h2>Payment calendar — next 24 months <small>تقويم الدفعات</small></h2>${stackedBars(months,series,"Lease payments due per month by branch")}</div>
+  <div class="grid2">
+    <div class="panel"><h2>Critical dates <small>التواريخ الحرجة</small></h2>
+      ${upcoming.length?upcoming.slice(0,10).map(d=>`<div class="alert s-${d.daysLeft<0?"expired":d.daysLeft<=30?"critical":d.daysLeft<=60?"warning":"notice"}"><span class="stripe"></span><div style="min-width:0"><div class="t">${h(d.type)} ${sevPill(d.daysLeft<0?"expired":d.daysLeft<=30?"critical":"warning",d.daysLeft<0?Math.abs(d.daysLeft)+"d overdue":d.daysLeft+"d")}</div><div class="m">${h(d.c.branch)} · ${fd(d.date)} · ${h(hj(d.date))}</div></div><div class="row"><button class="btn sm" data-lease="${h(d.c.id)}">Open</button></div></div>`).join(""):`<div class="empty"><b>Nothing in the next 120 days</b></div>`}
+    </div>
+    <div class="panel"><h2>Maturity analysis <small>تحليل الاستحقاقات</small></h2>
+      <div class="sub" style="margin-bottom:8px">Undiscounted unpaid lease payments, excl. VAT (IFRS 16.58)</div>
+      <div class="tbl-wrap"><table><thead><tr>${B.map(b=>`<th class="n">${h(b)}</th>`).join("")}<th class="n">Total</th></tr></thead><tbody><tr>${B.map(b=>`<td class="n">${money0(mo[b])}</td>`).join("")}<td class="n"><b>${money0(mo.total)}</b></td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div class="panel" style="padding:0"><div style="padding:16px 18px 0"><h2>Lease register <small>سجل عقود الإيجار</small></h2></div>
+   <div class="tbl-wrap only-desk" style="border:0;border-radius:0 0 14px 14px"><table><thead><tr><th>Lease</th><th>Branch</th><th>Model</th><th>Term</th><th class="n">Monthly cost</th><th class="n">Annual cost</th><th>Next payment</th><th class="n">Overdue</th><th>Notice deadline</th>${T.liability>0?`<th class="n">Liability</th><th class="n">ROU NBV</th>`:""}</tr></thead><tbody>
+   ${rows.map(r=>`<tr class="clk" data-lease="${h(r.id)}"><td class="mono">${h(r.id)}</td><td>${h(r.branch)}</td><td><span class="pill p-grey">${h(MODEL_LBL[r.model]||r.model)}</span></td><td>${h(r.termMonths)} m<div class="sub">${h(r.remainingMonths)} m left</div></td><td class="n">${money(r.monthlyCost)}</td><td class="n">${money(r.annualCost)}</td><td>${r.nextPayment&&r.nextPayment.date?`${fd(r.nextPayment.date)}<div class="sub mono">${money(r.nextPayment.amount)}</div>`:"—"}</td><td class="n">${r.overdueAmount?`<span style="color:var(--red)">${money(r.overdueAmount)}</span>`:"—"}</td><td>${r.noticeDeadline?`${fd(r.noticeDeadline)}<div>${daysPill(E.daysBetween(t,r.noticeDeadline))}</div>`:"—"}</td>${T.liability>0?`<td class="n">${r.liability!=null?money(r.liability):"—"}</td><td class="n">${r.rouNbv!=null?money(r.rouNbv):"—"}</td>`:""}</tr>`).join("")}
+   </tbody></table></div>
+   <div class="mlist only-mob" style="padding:0 12px 12px">${rows.map(r=>`<button class="mcard" data-lease="${h(r.id)}"><span class="t">${h(r.branch)}</span><span class="r"><span class="pill p-grey">${h(MODEL_LBL[r.model]||r.model)}</span></span><span class="s"><span>${money0(r.monthlyCost)} SAR / month</span>${r.nextPayment&&r.nextPayment.date?`<span>next ${fd(r.nextPayment.date)}</span>`:""}${r.overdueAmount?`<span style="color:var(--red)">overdue ${money0(r.overdueAmount)}</span>`:""}</span></button>`).join("")}</div>
+  </div>`;
+}
+function openLease(id){
+  const c=S.contracts.find(x=>x.id===id); if(!c) return; const st=settings(), t=today(), L=LZ(); const model=leaseModel(c);
+  let sched=null, sl=null; try{ if(model==="ifrs16") sched=L.ifrs16(c,st); else sl=L.straightLine(c,t); }catch(e){ console.error(e); }
+  const inst=c.installments||[];
+  const instRows=inst.map(i=>`<tr><td class="mono">${i.no}</td><td>${fd(i.dueDate)}</td><td>${fd(i.periodStart)} → ${fd(i.periodEnd)}</td><td class="n">${money(i.amount)}</td><td class="n">${money(i.vat)}</td><td>${i.paidDate?`<span class="pill p-green">Paid ${fd(i.paidDate)}</span>`:`<button class="btn sm pri" data-payinst="${h(c.id)}|${i.no}">Record payment</button>`}</td></tr>`).join("");
+  const schedHtml = sched?`<div class="calc"><div><span>PV at commencement</span><b>${money(sched.pv)}</b></div><div><span>Right-of-use asset</span><b>${money(sched.rouInitial)}</b></div><div><span>Incremental borrowing rate</span><b>${((sched.ibr||0)*100).toFixed(2)}%</b></div><div><span>Liability today</span><b>${money(L.liabilityAt(c,st,t))}</b></div><div><span>Current portion</span><b>${money(L.currentPortion(c,st,t))}</b></div></div>
+    <div class="tbl-wrap" style="max-height:340px"><table><thead><tr><th>Month</th><th class="n">Opening liability</th><th class="n">Interest</th><th class="n">Payments</th><th class="n">Closing liability</th><th class="n">Depreciation</th><th class="n">ROU NBV</th></tr></thead><tbody>${(sched.months||[]).map(m=>`<tr><td>${mLong(m.month)}</td><td class="n">${money(m.openingLiab)}</td><td class="n">${money(m.interest)}</td><td class="n">${money(m.payments)}</td><td class="n">${money(m.closingLiab)}</td><td class="n">${money(m.depreciation)}</td><td class="n">${money(m.rouNbv)}</td></tr>`).join("")}</tbody></table></div>`
+    : sl?`<div class="calc"><div><span>Daily expense</span><b>${money(sl.dailyExpense)}</b></div><div><span>Monthly cost (avg)</span><b>${money(sl.dailyExpense*30.4375)}</b></div><div><span>Expense to date</span><b>${money(sl.expenseToDate)}</b></div><div><span>Paid to date</span><b>${money(sl.paidToDate)}</b></div><div><span>${sl.balance>=0?"Prepaid rent":"Accrued rent"}</span><b>${money(Math.abs(sl.balance))}</b></div></div>`:"";
+  let crit=[]; try{ crit=L.criticalDates(c,st,t)||[]; }catch(e){}
+  openModal(`${c.branch} · ${c.id}`,`
+    <div class="row" style="gap:8px">${[["Landlord",c.vendor],["Ejar contract no",c.refNo],["City",c.city],["Property type",c.propertyType],["Area (m²)",c.areaSqm],["Accounting model",MODEL_LBL[model]]].filter(x=>x[1]).map(([l,v])=>`<span class="pill p-grey">${h(l)}: ${h(v)}</span>`).join("")}</div>
+    <div class="calc"><div><span>Lease term</span><b>${fd(c.startDate)} → ${fd(c.endDate)}</b></div><div><span>Total payments excl. VAT</span><b>${money(inst.reduce((a,i)=>a+(+i.amount||0),0))}</b></div><div><span>Paid</span><b>${inst.filter(i=>i.paidDate).length} / ${inst.length}</b></div>${c.securityDeposit?`<div><span>Security deposit</span><b>${money(c.securityDeposit)}</b></div>`:""}</div>
+    ${crit.length?`<div class="row">${crit.map(d=>`<span class="pill ${d.daysLeft<0?"p-red":d.daysLeft<=60?"p-amber":"p-blue"}">${h(d.type)}: ${fd(d.date)}</span>`).join("")}</div>`:""}
+    ${schedHtml}
+    <div><div class="sub" style="margin-bottom:6px">Payment schedule</div><div class="tbl-wrap" style="max-height:300px"><table><thead><tr><th>#</th><th>Due</th><th>Period covered</th><th class="n">Amount</th><th class="n">VAT</th><th>Payment</th></tr></thead><tbody>${instRows}</tbody></table></div></div>
+    ${c.notes?`<div class="sub">${h(c.notes)}</div>`:""}`,
+    [{label:"Edit lease",fn:()=>{ closeModal(); openContract(c.id); }}]);
+}
+
 /* ---------- amortization ---------- */
 function vAmort(){
   const st=settings(), t=today(); S.ui.amFrom=S.ui.amFrom||(t.slice(0,4)+"-01-01"); S.ui.rfMonth=S.ui.rfMonth||E.monthStart(t);
-  let sch={months:[],rows:[],totals:[],byAccount:{}}; try{ sch=E.amortSchedule(state(),st,S.ui.amFrom,S.ui.amN,t); }catch(e){ console.error(e); }
+  let sch={months:[],rows:[],totals:[],byAccount:{}}; try{ sch=E.amortSchedule(stateP(),st,S.ui.amFrom,S.ui.amN,t); }catch(e){ console.error(e); }
   const cat=S.ui.amCat; const rows=sch.rows.filter(r=>cat==="All"||(cat==="Iqama"?r.item.source==="renewal":r.item.category===cat));
   const mlab=m=>new Date(m+"T00:00:00Z").toLocaleString("en-US",{month:"short",year:"2-digit",timeZone:"UTC"});
   const colTot=sch.months.map((m,i)=>rows.reduce((a,r)=>a+(r.byMonth[i]||0),0));
-  let rf=null; try{ rf=E.prepaidRollforward(state(),st,S.ui.rfMonth,t); }catch(e){}
+  let rf=null; try{ rf=E.prepaidRollforward(stateP(),st,S.ui.rfMonth,t); }catch(e){}
   const rfo=rf?(rf.overall||rf):null; const rfa=rf?(rf.accounts||rf.byAccount||null):null;
   const accName=k=>st.accounts[k]||k;
   return `<div class="row" style="margin-bottom:12px">
@@ -810,7 +1079,7 @@ function vAmort(){
   <div class="panel" style="margin-bottom:16px"><h2>Monthly amortization expense <small>مصروف الإطفاء الشهري</small></h2>
    ${stackedBars(sch.months,amSeries(sch,cat,rows),"Monthly amortization expense by account")}</div>
   <div class="panel" style="margin-bottom:16px"><h2>Prepaid balance at month end <small>رصيد المدفوع مقدماً</small></h2>
-   ${lineChart(sch.months,sch.months.map(m=>{ try{ const r=E.prepaidRollforward(state(),st,m,t); return (r.overall||r).closing||0; }catch(e){ return 0; } }),"Prepaid balance trend")}</div>
+   ${lineChart(sch.months,sch.months.map(m=>{ try{ const r=E.prepaidRollforward(stateP(),st,m,t); return (r.overall||r).closing||0; }catch(e){ return 0; } }),"Prepaid balance trend")}</div>
   <div class="grid2">
    <div class="panel"><h2>Prepaid roll-forward <small>حركة المصروفات المدفوعة مقدماً</small><span class="spacer"></span><input id="rfMonth" type="month" value="${h(S.ui.rfMonth.slice(0,7))}" class="sel"></h2>
     ${rfo?`<div class="tbl-wrap"><table><thead><tr><th>Account</th><th class="n">Opening</th><th class="n">+ Paid</th><th class="n">− Amortized</th><th class="n">Closing</th></tr></thead><tbody>
@@ -846,9 +1115,14 @@ function amSeries(sch,cat,rows){
 }
 
 /* ---------- journal ---------- */
+function fullJournal(month){
+  const st=settings(), t=today(); const j=E.monthlyJournal(stateP(),st,month,t);
+  try{ if(LZ()){ const lj=LZ().leaseJournal(S.contracts.filter(c=>c.category==="Branch Rent"&&leaseModel(c)!=="prepaid"),st,month,t); if(lj&&lj.entries&&lj.entries.length){ j.entries=j.entries.concat(lj.entries); j.balanced=j.balanced&&lj.balanced!==false; } } }catch(e){ console.error(e); }
+  return j;
+}
 function vJournal(){
   const st=settings(), t=today(); S.ui.jeMonth=S.ui.jeMonth||E.monthStart(t);
-  let j={entries:[],balanced:true}; try{ j=E.monthlyJournal(state(),st,S.ui.jeMonth,t); }catch(e){ console.error(e); }
+  let j={entries:[],balanced:true}; try{ j=fullJournal(S.ui.jeMonth); }catch(e){ console.error(e); }
   const tot=j.entries.reduce((a,e)=>{ e.lines.forEach(l=>{a.d+=+l.debit||0;a.c+=+l.credit||0;}); return a; },{d:0,c:0});
   return `<div class="row" style="margin-bottom:12px"><div class="field" style="width:auto"><label for="jeMonth">Month to close</label><input id="jeMonth" type="month" value="${h(S.ui.jeMonth.slice(0,7))}"></div>
    <span class="pill ${j.balanced?"p-green":"p-red"}" style="margin-top:18px">${j.balanced?"Balanced":"Not balanced"} · Dr ${money(tot.d)} / Cr ${money(tot.c)}</span>
@@ -866,19 +1140,20 @@ const SET_GROUPS=[
   ["Company",[["company","Company name","text"],["crNo","CR number","text"],["molNo","MHRSD / Qiwa establishment no","text"],["empPrefix","Employee number prefix","text"],["empPad","Employee number digits","number"]]],
   ["Iqama & work permit (SAR)",[["iqamaFeeYear","Iqama fee per year","number"],["levyMonth","Expat levy per month (800 / 700 / 0 industrial)","number"],["wpFeeYear","Work permit fee per year","number"],["depFeeMonth","Dependent fee per month","number"],["lateFine1","Late renewal fine — 1st offense","number"],["lateFine2","Late renewal fine — 2nd offense","number"],["lateGraceDays","Grace days after expiry","number"]]],
   ["Jawazat services (SAR)",[["erSingleBase","Exit re-entry single — base","number"],["erSingleBaseMonths","Single — months in base","number"],["erSingleAddMonth","Single — each extra month","number"],["erMultiBase","Exit re-entry multiple — base","number"],["erMultiBaseMonths","Multiple — months in base","number"],["erMultiAddMonth","Multiple — each extra month","number"],["finalExitFee","Final exit","number"],["iqamaLostFee","Lost Iqama — 1st","number"],["iqamaLostFee2","Lost Iqama — 2nd","number"],["iqamaDamagedFee","Damaged Iqama","number"],["erUnusedFine","Unused, uncancelled visa fine","number"]]],
+  ["Leases (IFRS)",[["leaseStandard","Accounting model for leases","sel:prepaid|Prepaid per installment (simple),straightline|Straight-line — IFRS for SMEs s.20,ifrs16|IFRS 16 — right-of-use asset & lease liability"],["defaultIbr","Incremental borrowing rate (0.065 = 6.5%)","number"]]],
   ["Reminders",[["reminderDays","Iqama reminder days (comma separated)","list"],["contractReminderDays","Contract end reminder days","list"],["installmentReminderDays","Installment due reminder days","list"],["passportMinDays","Passport minimum validity for renewal (days)","number"],["passportAlertDays","Passport alert window (days)","number"],["insuranceAlertDays","Insurance alert window (days)","number"],["vatRate","VAT rate (0.15 = 15%)","number"]]]
 ];
-const ACC_LABELS={bank:"Bank account",prepaid:"Prepaid government fees",iqamaExp:"Iqama fees expense",levyExp:"Levy expense",wpExp:"Work permit fees expense",depExp:"Dependents fees expense",visaExp:"Exit re-entry visa expense",finesExp:"Government penalties",otherExp:"Other government fees",empRecv:"Employee receivable",prepaidRent:"Prepaid rent",rentExp:"Rent expense",prepaidIns:"Prepaid medical insurance",insExp:"Medical insurance expense",prepaidOther:"Prepaid other",otherPrepaidExp:"Other prepaid expense",inputVat:"VAT input"};
+const ACC_LABELS={bank:"Bank account",prepaid:"Prepaid government fees",iqamaExp:"Iqama fees expense",levyExp:"Levy expense",wpExp:"Work permit fees expense",depExp:"Dependents fees expense",visaExp:"Exit re-entry visa expense",finesExp:"Government penalties",otherExp:"Other government fees",empRecv:"Employee receivable",prepaidRent:"Prepaid rent",rentExp:"Rent expense",prepaidIns:"Prepaid medical insurance",insExp:"Medical insurance expense",prepaidOther:"Prepaid other",otherPrepaidExp:"Other prepaid expense",inputVat:"VAT input",rouAsset:"Right-of-use assets",rouAccDep:"Accumulated depreciation — ROU",leaseLiab:"Lease liabilities",leaseInterest:"Interest expense — leases",rouDep:"Depreciation — ROU assets",accruedRent:"Accrued rent"};
 function vSettings(){
   const st=settings(); const hasEx=[...S.employees,...S.renewals,...S.visas,...S.contracts].some(x=>x.example);
-  return `<div class="stack">${SET_GROUPS.map(([g,fs])=>`<div class="panel"><h2>${h(g)}</h2><div class="fgrid">${fs.map(([k,l,t])=>`<div class="field"><label for="s_${k}">${h(l)}</label><input id="s_${k}" type="${t==="number"?"number":"text"}" ${t==="number"?'step="any"':""} value="${h(t==="list"?(st[k]||[]).join(", "):st[k])}"></div>`).join("")}</div></div>`).join("")}
+  return `<div class="stack">${SET_GROUPS.map(([g,fs])=>`<div class="panel"><h2>${h(g)}</h2><div class="fgrid">${fs.map(([k,l,t])=>`<div class="field"><label for="s_${k}">${h(l)}</label>${t.startsWith("sel:")?`<select id="s_${k}">${t.slice(4).split(",").map(o=>{const [v,lb]=o.split("|");return `<option value="${h(v)}" ${(st[k]||"prepaid")===v?"selected":""}>${h(lb)}</option>`;}).join("")}</select>`:`<input id="s_${k}" type="${t==="number"?"number":"text"}" ${t==="number"?'step="any"':""} value="${h(t==="list"?(st[k]||[]).join(", "):(st[k]==null?(k==="defaultIbr"?0.065:""):st[k]))}">`}</div>`).join("")}</div></div>`).join("")}
    <div class="panel"><h2>QuickBooks account names <small>أسماء الحسابات</small></h2><div class="fgrid">${Object.keys(ACC_LABELS).map(k=>`<div class="field"><label for="a_${k}">${h(ACC_LABELS[k])}</label><input id="a_${k}" value="${h(st.accounts[k]||"")}"></div>`).join("")}</div></div>
    <div class="row"><button class="btn pri" data-act="saveSettings">Save settings</button><button class="btn" data-act="resetSettings">Restore KSA defaults</button><span class="spacer"></span>${hasEx?`<button class="btn danger" data-act="clearExamples">Remove example records</button>`:""}</div>
    <div class="sub">Fee defaults follow MHRSD / Jawazat rates as of October 2026. Check Absher and Qiwa before relying on them; any change here recalculates every open request immediately.</div></div>`;
 }
 async function saveSettings(){
-  const o={}; SET_GROUPS.forEach(([,fs])=>fs.forEach(([k,,t])=>{ const v=$("#s_"+k).value; o[k]= t==="number"?(parseFloat(v)||0): t==="list"? v.split(/[,\s]+/).map(Number).filter(n=>!isNaN(n)).sort((a,b)=>b-a): v.trim(); }));
-  o.accounts={}; Object.keys(ACC_LABELS).forEach(k=>o.accounts[k]=$("#a_"+k).value.trim()||E.DEFAULT_SETTINGS.accounts[k]);
+  const o={}; SET_GROUPS.forEach(([,fs])=>fs.forEach(([k,,t])=>{ const v=$("#s_"+k).value; o[k]= t.startsWith("sel:")?v: t==="number"?(parseFloat(v)||0): t==="list"? v.split(/[,\s]+/).map(Number).filter(n=>!isNaN(n)).sort((a,b)=>b-a): v.trim(); }));
+  o.accounts={}; const LD={rouAsset:"Right-of-use Assets",rouAccDep:"Accumulated Depreciation - ROU",leaseLiab:"Lease Liabilities",leaseInterest:"Interest Expense - Leases",rouDep:"Depreciation - ROU Assets",accruedRent:"Accrued Rent"}; Object.keys(ACC_LABELS).forEach(k=>o.accounts[k]=$("#a_"+k).value.trim()||E.DEFAULT_SETTINGS.accounts[k]||LD[k]||k);
   await put("config","settings",o); toast("Settings saved");
 }
 
@@ -972,7 +1247,7 @@ function exportAll(){
   const ren=S.renewals.map(r=>{ const c=(()=>{try{return E.calcRenewal(r,empBy(r.empNo)||{},st,S.renewals,t);}catch(x){return{};}})(); return Object.assign({},r,c,{status:E.renewalStatus(r)}); });
   const vis=S.visas.map(v=>Object.assign({},v,{fee:(()=>{try{return E.visaFee(v,st,S.visas);}catch(x){return 0;}})(),returnBefore:E.visaReturnBefore(v),status:E.visaStatus(v,t)}));
   const inst=[]; S.contracts.forEach(c=>(c.installments||[]).forEach(i=>inst.push(Object.assign({contract:c.id,category:c.category,branch:c.branch,vendor:c.vendor,refNo:c.refNo},i))));
-  const sch=E.amortSchedule(state(),st,S.ui.amFrom||(t.slice(0,4)+"-01-01"),S.ui.amN||12,t);
+  const sch=E.amortSchedule(stateP(),st,S.ui.amFrom||(t.slice(0,4)+"-01-01"),S.ui.amN||12,t);
   const am=sch.rows.map(r=>{ const o={item:r.item.label,category:r.item.category,paid:r.item.paidDate,start:r.item.start,end:r.item.end,amount:r.item.amount}; sch.months.forEach((m,i)=>o[m.slice(0,7)]=r.byMonth[i]); o.toDate=r.totalToDate; o.balance=r.balance; return o; });
   const cols=(keys,types)=>keys.map(k=>({key:k,header:k,type:(types||{})[k]||(/Date$|Expiry$|^start$|^end$|^paid$|returnBefore|effectiveExpiry/.test(k)?"date":"text")}));
   const buf=IO.exportWorkbook([
@@ -996,12 +1271,13 @@ function confirmBox(msg,fn){ openModal("Please confirm",`<p>${h(msg)}</p>`,[{lab
 
 /* ---------- events ---------- */
 document.addEventListener("click",async ev=>{
-  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],#bellBtn,#ov");
+  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-lease],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],[data-lang],#bellBtn,#ov");
   if(!t) return;
   if(t.id==="ov"){ if(ev.target.id==="ov") closeModal(); return; }
   if(t.id==="bellBtn") return go("alerts");
+  if(t.dataset.lang){ const was=I18N.lang; if(was===t.dataset.lang) return; if(t.dataset.lang==="en"){ try{localStorage.setItem("mqd-lang","en");}catch(e){} location.reload(); return; } I18N.set(t.dataset.lang); return; }
   const d=t.dataset;
-  if(d.close) return closeModal();
+  if(d.close){ closeModal(); if(!d.nav) return; }
   if(d.mbtn!=null){ const b=modalBtns[+d.mbtn]; if(b&&b.fn){ t.disabled=true; try{ await b.fn(); }catch(e){ console.error(e); } finally{ t.disabled=false; } } return; }
   if(d.renewemp){ ev.stopPropagation(); const open=S.renewals.find(r=>r.empNo===d.renewemp&&E.renewalStatus(r)!=="Completed"); return open?openRenewal(open.id):openRenewal(null,d.renewemp); }
   if(d.step){ ev.stopPropagation(); return openStep(d.step); }
@@ -1013,6 +1289,7 @@ document.addEventListener("click",async ev=>{
   if(d.openvisa) return openVisa(d.openvisa);
   if(d.visafilter){ S.ui.visaFilter=d.visafilter; return render(); }
   if(d.editcon) return openContract(d.editcon);
+  if(d.lease) return openLease(d.lease);
   if(d.amcat){ S.ui.amCat=d.amcat; return render(); }
   if(d.alertcat){ S.ui.alertCat=d.alertcat; return render(); }
   if(d.goalert){ S.ui.alertCat=d.goalert; return go("alerts"); }
@@ -1028,6 +1305,7 @@ document.addEventListener("click",async ev=>{
       if(a.empNo) return openEmployee(a.empNo); }
     return; }
   switch(d.act){
+    case "more": return openMore();
     case "addEmp": return openEmployee(null);
     case "addRen": return openRenewal(null);
     case "addVisa": return openVisa(null);
@@ -1036,10 +1314,11 @@ document.addEventListener("click",async ev=>{
     case "template": return saveFile("Employee-import-template.xlsx",IO.employeeTemplate());
     case "export": case "exportAmort": return exportAll();
     case "moreEmp": S.ui.empLimit=1e9; return render();
+    case "showNoExp": S.ui.empAlert="none"; S.ui.empStatus="Active"; return go("employees");
     case "saveSettings": return saveSettings();
     case "resetSettings": return confirmBox("Restore all fees, reminders and account names to the KSA defaults?",async()=>{ await put("config","settings",{}); closeModal(); toast("Defaults restored"); });
     case "clearExamples": return confirmBox("Delete every record marked Example?",async()=>{ for(const c of COLS){ for(const x of S[c].filter(x=>x.example)) await del(c,x._id||x.id||x.empNo); } closeModal(); toast("Examples removed"); });
-    case "copyCSV": case "dlCSV": { const j=E.monthlyJournal(state(),settings(),S.ui.jeMonth,today()); const csv=E.journalCSV(j); if(d.act==="copyCSV") return copyText(csv); return saveFile(`QuickBooks-JE-${S.ui.jeMonth.slice(0,7)}.csv`,"﻿"+csv); }
+    case "copyCSV": case "dlCSV": { const j=fullJournal(S.ui.jeMonth); const csv=E.journalCSV(j); if(d.act==="copyCSV") return copyText(csv); return saveFile(`QuickBooks-JE-${S.ui.jeMonth.slice(0,7)}.csv`,"﻿"+csv); }
   }
 });
 document.addEventListener("input",ev=>{
@@ -1050,6 +1329,7 @@ document.addEventListener("change",ev=>{
   const id=ev.target.id, v=ev.target.value;
   if(id==="empStatus"){ S.ui.empStatus=v; render(); }
   if(id==="empAlert"){ S.ui.empAlert=v; render(); }
+  if(id==="empFees"){ S.ui.empFees=v; render(); }
   if(id==="amFrom"&&v){ S.ui.amFrom=v+"-01"; render(); }
   if(id==="amN"){ S.ui.amN=+v; render(); }
   if(id==="rfMonth"&&v){ S.ui.rfMonth=v+"-01"; render(); }
@@ -1061,6 +1341,6 @@ document.addEventListener("mouseover",ev=>{ const t=ev.target.closest&&ev.target
 document.addEventListener("mousemove",ev=>{ if(tipEl.hidden) return; const w=tipEl.offsetWidth, hh=tipEl.offsetHeight; let x=ev.clientX+14, y=ev.clientY+14; if(x+w>innerWidth-8) x=ev.clientX-w-14; if(y+hh>innerHeight-8) y=ev.clientY-hh-14; tipEl.style.left=x+"px"; tipEl.style.top=y+"px"; });
 document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&$("#ov")) closeModal(); });
 
-render(); connect();
+window.__rerender=render; if(window.I18N) I18N.start(); render(); connect();
 })();
 </script>
