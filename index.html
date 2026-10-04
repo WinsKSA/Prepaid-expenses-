@@ -413,12 +413,7 @@ function statusPill(s){ const c={"Requested":"p-grey","HR Approved":"p-blue","Fi
 
 /* ---------- data layer ---------- */
 async function put(col,id,data){
-  if(!db){ // offline preview: keep changes in memory only
-    const o=JSON.parse(JSON.stringify(data)); o._id=safeId(id);
-    if(col==="config"){ if(id==="settings") S.settings=o; else S.acks=o.items||{}; }
-    else { const i=S[col].findIndex(x=>x._id===o._id); if(i>=0) S[col][i]=o; else S[col].push(o); }
-    scheduleRender(); return;
-  }
+  if(!db){ toast("Not connected to your data, so nothing was saved. Open the app from your claude.ai link while signed in."); throw new Error("no db"); }
   const clean = JSON.parse(JSON.stringify(data));
   clean.updatedAt = new Date().toISOString();
   try{ await db.collection(col).doc(safeId(id)).set(clean); if(col!=="config"||id==="settings") gsSoon(); }
@@ -430,37 +425,7 @@ async function put(col,id,data){
     throw e;
   }
 }
-async function del(col,id){ if(!db){ S[col]=S[col].filter(x=>x._id!==safeId(id)); scheduleRender(); return; } await db.collection(col).doc(safeId(id)).delete(); gsSoon(); }
-function demoData(){
-  const t=today(), A=(n)=>E.addDays(t,n), M=(n)=>E.addMonths(t,n);
-  const emp=(no,en,ar,nat,job,br,iq,exp,pass,ins,dep,payer,st)=>({_id:no,empNo:no,nameEn:en,nameAr:ar,nationality:nat,jobTitle:job,branch:br,department:"Operations",iqamaNo:iq,iqamaExpiry:exp,passportNo:"P"+iq.slice(-6),passportExpiry:pass,insuranceExpiry:ins,dependents:dep,depPayer:payer,status:st||"Active",example:true});
-  S.employees=[
-    emp("EMP-0001","Ahmed Hassan","أحمد حسن","Egyptian","Accountant","Riyadh - Olaya","2412345671",A(-6),M(30),M(8),0,"Employee"),
-    emp("EMP-0002","Rahul Nair","راهول ناير","Indian","Sales Supervisor","Jeddah - Tahlia","2423456782",A(10),M(20),M(5),2,"Company"),
-    emp("EMP-0003","Imran Khan","عمران خان","Pakistani","Driver","Riyadh - Olaya","2434567893",A(26),A(120),A(20),0,"Employee"),
-    emp("EMP-0004","Jose Santos","خوسيه سانتوس","Filipino","Technician","Dammam - Corniche","2445678904",A(55),M(40),M(9),1,"Employee"),
-    emp("EMP-0005","Karim Mansour","كريم منصور","Jordanian","Branch Manager","Jeddah - Tahlia","2456789015",A(-215),M(36),M(6),3,"Company"),
-    emp("EMP-0006","Abdul Rahim","عبد الرحيم","Bangladeshi","Storekeeper","Dammam - Corniche","2467890126",A(170),M(18),M(4),0,"Employee"),
-    emp("EMP-0007","Omar Yousif","عمر يوسف","Sudanese","HR Officer","Riyadh - Olaya","2478901237",A(-100),M(28),M(7),0,"Employee"),
-  ];
-  S.renewals=[
-    {_id:"REN-0001",id:"REN-0001",empNo:"EMP-0005",requestDate:A(-230),months:12,oldExpiry:A(-215),otherFees:0,checklist:{insurance:true,passport:true,traffic:true,mudad:true},hrDate:A(-229),financeDate:A(-228),sadadNo:"7011223344",paymentDate:A(-226),paymentRef:"TRF-88120",completedDate:A(-225),dependentsAtRequest:3,depPayerAtRequest:"Company",example:true},
-    {_id:"REN-0002",id:"REN-0002",empNo:"EMP-0007",requestDate:A(-110),months:6,oldExpiry:A(-100),otherFees:0,checklist:{insurance:true,passport:true,traffic:true,mudad:true},hrDate:A(-108),financeDate:A(-106),sadadNo:"7011225566",paymentDate:A(-104),paymentRef:"TRF-90211",completedDate:A(-103),dependentsAtRequest:0,depPayerAtRequest:"Employee",example:true},
-    {_id:"REN-0003",id:"REN-0003",empNo:"EMP-0001",requestDate:A(-3),months:12,oldExpiry:A(-6),otherFees:0,checklist:{insurance:true,passport:true,traffic:false,mudad:true},hrDate:A(-2),financeDate:A(-1),sadadNo:"7011229900",paymentDate:"",completedDate:"",dependentsAtRequest:0,depPayerAtRequest:"Employee",example:true},
-    {_id:"REN-0004",id:"REN-0004",empNo:"EMP-0002",requestDate:A(-1),months:12,oldExpiry:A(10),otherFees:0,checklist:{insurance:true,passport:true,traffic:true,mudad:true},hrDate:"",dependentsAtRequest:2,depPayerAtRequest:"Company",example:true}
-  ];
-  S.visas=[
-    {_id:"ERV-0001",id:"ERV-0001",empNo:"EMP-0004",requestDate:A(-40),type:"ER Single",months:2,payer:"Employee",paymentDate:A(-38),issueDate:A(-37),departureDate:A(-30),returnDate:"",example:true},
-    {_id:"ERV-0002",id:"ERV-0002",empNo:"EMP-0006",requestDate:A(-150),type:"ER Multiple",months:6,payer:"Company",paymentDate:A(-149),issueDate:A(-148),departureDate:A(-120),returnDate:A(-90),example:true}
-  ];
-  const st=settings(); const mk=(id,cat,br,ven,ref,s,e,amt,freq,vat,paidN)=>{ const c={_id:id,id,category:cat,branch:br,vendor:ven,refNo:ref,startDate:s,endDate:e,totalAmount:amt,frequency:freq,vatApplicable:vat,example:true}; c.installments=E.buildInstallments(c,st).map((i,k)=>k<paidN?Object.assign({},i,{paidDate:E.addDays(i.dueDate,-3),paymentRef:"TRF-R"+(k+1)}):i); return c; };
-  const ys=t.slice(0,4)+"-01-01";
-  S.contracts=[
-    mk("CON-0001","Branch Rent","Riyadh - Olaya","Al Faisal Real Estate","EJ-10293847",ys,E.addDays(E.addMonths(ys,12),-1),180000,"Semi-annual",true,2),
-    mk("CON-0002","Branch Rent","Jeddah - Tahlia","Red Sea Properties","EJ-55620194",E.addMonths(ys,3),E.addDays(E.addMonths(ys,15),-1),96000,"Quarterly",true,3),
-    mk("CON-0003","Medical Insurance","All branches","Bupa Arabia","POL-778812",E.addMonths(ys,-3),E.addDays(E.addMonths(ys,9),-1),84000,"Annual",true,1)
-  ];
-}
+async function del(col,id){ if(!db){ toast("Not connected to your data, so nothing was deleted."); return; } await db.collection(col).doc(safeId(id)).delete(); gsSoon(); }
 async function withNumberLock(fn){
   if(!db) return fn();
   const ref=db.doc("locks/numbers"); const holder=uid||("v"+Math.random().toString(36).slice(2));
@@ -481,7 +446,7 @@ async function connect(){
   try{ dl = window.claude && await window.claude.use("downloads"); }catch(e){ dl=null; }
   if(user){ try{ uid = await user.id(); }catch(e){} try{ const w=await user.can("data.write"); if(w===false) readOnly=true; }catch(e){} }
   const conn=$("#conn");
-  if(!db){ conn.textContent="Demo · example data, not saved"; conn.className="conn bad"; try{ demoData(); }catch(e){ console.error(e); } COLS.forEach(c=>S.loaded[c]=true); render(); return; }
+  if(!db){ conn.textContent="Not connected"; conn.className="conn bad"; S.noDb=true; COLS.forEach(c=>S.loaded[c]=true); render(); return; }
   conn.textContent = readOnly ? "Live · view only" : "Live · synced"; conn.className="conn ok";
   COLS.forEach(c=>{
     db.collection(c).onSnapshot(snap=>{ S[c]=snap.docs.map(d=>Object.assign({_id:d.id},d.data())); S.loaded[c]=true; scheduleRender(); },
@@ -575,6 +540,7 @@ function render(){
   const loaded=COLS.every(c=>S.loaded[c]);
   const vw=$("#view"); vw.classList.toggle("enter",!!S.ui.animate&&loaded);
   $("#bellBtn").classList.toggle("urgent",urgent>0&&!S.ui.rang&&loaded); if(urgent&&loaded) S.ui.rang=true;
+  if(S.noDb&&S.ui.view!=="guide"){ vw.innerHTML=`<div class="panel"><div class="empty"><b>Not connected to your data</b>This copy of the app can't reach your saved records, so it shows nothing rather than example data. Open it from your private link <span class="mono">claude.ai/artifact/QGwfrq7tNfmresEgo2x67F</span> while signed in to Claude, then reload.</div></div>`; return; }
   try{ vw.innerHTML = loaded||S.ui.view==="guide" ? fn() : `<div class="empty"><b>Loading records…</b>Employees, renewals, visas and contracts appear here as soon as they sync.</div>`; }
   catch(e){ console.error(e); $("#view").innerHTML=`<div class="warnbox">This screen could not be drawn: ${h(e.message)}</div>`; }
   if(loaded&&S.ui.animate){ countUp(); S.ui.animate=false; }
