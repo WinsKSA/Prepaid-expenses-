@@ -16,7 +16,13 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }
 
-function ss_() { return SpreadsheetApp.getActiveSpreadsheet(); }
+var SHEET_ID = '1nFtw-iY74mfTgVWs4XKC5G9qchMyakrRHTTek-41PRI';   // Muqeem Desk — Live Data
+function ss_() {
+  var a = null; try { a = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) {}
+  return (a && a.getId() === SHEET_ID) ? a : SpreadsheetApp.openById(SHEET_ID);
+}
+/** Run once from the editor (select "setup" → Run) to grant access and create the storage tabs. */
+function setup() { var r = JSON.parse(loadAll()); Logger.log('Employees: ' + r.employees.length + ', contracts: ' + r.contracts.length); }
 
 function dbSheet_(col) {
   var name = DB_PREFIX + col, sh = ss_().getSheetByName(name);
