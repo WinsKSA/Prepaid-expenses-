@@ -315,6 +315,7 @@ html[dir="rtl"] .alert .stripe{order:0}
       <h1 id="viewTitle">Dashboard</h1>
       <div class="datechip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><div><b id="asofG"></b><span id="asofH"></span></div></div>
       <span class="conn" id="conn">Connecting…</span>
+      <button class="conn" id="gsChip" hidden data-act="gsSync" style="border:0;cursor:pointer">Google Sheets</button>
       <div class="langsw" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
       <button class="bell" id="bellBtn" aria-label="Open notifications">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
@@ -420,7 +421,7 @@ async function put(col,id,data){
   }
   const clean = JSON.parse(JSON.stringify(data));
   clean.updatedAt = new Date().toISOString();
-  try{ await db.collection(col).doc(safeId(id)).set(clean); }
+  try{ await db.collection(col).doc(safeId(id)).set(clean); if(col!=="config"||id==="settings") gsSoon(); }
   catch(e){
     if(e&&e.code==="unavailable"){ await new Promise(r=>setTimeout(r,400+Math.random()*600)); return db.collection(col).doc(safeId(id)).set(clean); }
     if(e&&e.code==="invalid_argument"){ readOnly=true; toast("You have view-only access, so changes cannot be saved."); }
@@ -429,7 +430,7 @@ async function put(col,id,data){
     throw e;
   }
 }
-async function del(col,id){ if(!db){ S[col]=S[col].filter(x=>x._id!==safeId(id)); scheduleRender(); return; } await db.collection(col).doc(safeId(id)).delete(); }
+async function del(col,id){ if(!db){ S[col]=S[col].filter(x=>x._id!==safeId(id)); scheduleRender(); return; } await db.collection(col).doc(safeId(id)).delete(); gsSoon(); }
 function demoData(){
   const t=today(), A=(n)=>E.addDays(t,n), M=(n)=>E.addMonths(t,n);
   const emp=(no,en,ar,nat,job,br,iq,exp,pass,ins,dep,payer,st)=>({_id:no,empNo:no,nameEn:en,nameAr:ar,nationality:nat,jobTitle:job,branch:br,department:"Operations",iqamaNo:iq,iqamaExpiry:exp,passportNo:"P"+iq.slice(-6),passportExpiry:pass,insuranceExpiry:ins,dependents:dep,depPayer:payer,status:st||"Active",example:true});
@@ -567,7 +568,7 @@ function render(){
   const act=activeAlerts();
   const urgent=act.filter(a=>a.severity==="expired"||a.severity==="critical").length;
   $("#bellCount").textContent=act.length; $("#bellCount").style.background = urgent? "var(--red)":"var(--amber)";
-  renderNav(act.length);
+  renderNav(act.length); { const el=$("#gsChip"); if(el) el.hidden=!gsId()||!db; }
   const v=VIEWS.find(x=>x.id===S.ui.view)||VIEWS[1];
   $("#viewTitle").innerHTML=`${h(v.en)}<small>${h(v.ar)}</small>`;
   const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,leases:vLeases,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
@@ -1137,7 +1138,7 @@ function vJournal(){
 
 /* ---------- settings ---------- */
 const SET_GROUPS=[
-  ["Company",[["company","Company name","text"],["crNo","CR number","text"],["molNo","MHRSD / Qiwa establishment no","text"],["empPrefix","Employee number prefix","text"],["empPad","Employee number digits","number"]]],
+  ["Company",[["company","Company name","text"],["crNo","CR number","text"],["molNo","MHRSD / Qiwa establishment no","text"],["empPrefix","Employee number prefix","text"],["gsheet","Google Sheet link (backup & live copy)","text"],["empPad","Employee number digits","number"]]],
   ["Iqama & work permit (SAR)",[["iqamaFeeYear","Iqama fee per year","number"],["levyMonth","Expat levy per month (800 / 700 / 0 industrial)","number"],["wpFeeYear","Work permit fee per year","number"],["depFeeMonth","Dependent fee per month","number"],["lateFine1","Late renewal fine — 1st offense","number"],["lateFine2","Late renewal fine — 2nd offense","number"],["lateGraceDays","Grace days after expiry","number"]]],
   ["Jawazat services (SAR)",[["erSingleBase","Exit re-entry single — base","number"],["erSingleBaseMonths","Single — months in base","number"],["erSingleAddMonth","Single — each extra month","number"],["erMultiBase","Exit re-entry multiple — base","number"],["erMultiBaseMonths","Multiple — months in base","number"],["erMultiAddMonth","Multiple — each extra month","number"],["finalExitFee","Final exit","number"],["iqamaLostFee","Lost Iqama — 1st","number"],["iqamaLostFee2","Lost Iqama — 2nd","number"],["iqamaDamagedFee","Damaged Iqama","number"],["erUnusedFine","Unused, uncancelled visa fine","number"]]],
   ["Leases (IFRS)",[["leaseStandard","Accounting model for leases","sel:prepaid|Prepaid per installment (simple),straightline|Straight-line — IFRS for SMEs s.20,ifrs16|IFRS 16 — right-of-use asset & lease liability"],["defaultIbr","Incremental borrowing rate (0.065 = 6.5%)","number"]]],
@@ -1148,6 +1149,7 @@ function vSettings(){
   const st=settings(); const hasEx=[...S.employees,...S.renewals,...S.visas,...S.contracts].some(x=>x.example);
   return `<div class="stack">${SET_GROUPS.map(([g,fs])=>`<div class="panel"><h2>${h(g)}</h2><div class="fgrid">${fs.map(([k,l,t])=>`<div class="field"><label for="s_${k}">${h(l)}</label>${t.startsWith("sel:")?`<select id="s_${k}">${t.slice(4).split(",").map(o=>{const [v,lb]=o.split("|");return `<option value="${h(v)}" ${(st[k]||"prepaid")===v?"selected":""}>${h(lb)}</option>`;}).join("")}</select>`:`<input id="s_${k}" type="${t==="number"?"number":"text"}" ${t==="number"?'step="any"':""} value="${h(t==="list"?(st[k]||[]).join(", "):(st[k]==null?(k==="defaultIbr"?0.065:""):st[k]))}">`}</div>`).join("")}</div></div>`).join("")}
    <div class="panel"><h2>QuickBooks account names <small>أسماء الحسابات</small></h2><div class="fgrid">${Object.keys(ACC_LABELS).map(k=>`<div class="field"><label for="a_${k}">${h(ACC_LABELS[k])}</label><input id="a_${k}" value="${h(st.accounts[k]||"")}"></div>`).join("")}</div></div>
+   <div class="panel"><h2>Google Sheets <small>جوجل شيت</small></h2><div class="sub prose" style="margin-bottom:10px">Every change is copied to your Google Sheet a few seconds after you save: tabs Employees, Iqama Renewals, Jawazat, Leases and Rent Installments. Paste the sheet link in the Company section above, save, then press Sync now. Google asks once to allow this page to use your Google Sheets connection.</div><div class="row"><button class="btn" data-act="gsSync">Sync now</button><span class="sub">${gsId()?(S.gs.state==="ok"?"Last synced "+h(S.gs.at):S.gs.state==="error"?h(S.gs.msg):"Linked"):"No sheet linked yet"}</span></div></div>
    <div class="row"><button class="btn pri" data-act="saveSettings">Save settings</button><button class="btn" data-act="resetSettings">Restore KSA defaults</button><span class="spacer"></span>${hasEx?`<button class="btn danger" data-act="clearExamples">Remove example records</button>`:""}</div>
    <div class="sub">Fee defaults follow MHRSD / Jawazat rates as of October 2026. Check Absher and Qiwa before relying on them; any change here recalculates every open request immediately.</div></div>`;
 }
@@ -1260,6 +1262,48 @@ function exportAll(){
   saveFile(`Muqeem-Desk-${t}.xlsx`,buf);
 }
 
+/* ---------- Google Sheets sync (mirror of every record, written through the viewer's Google Sheets connector) ---------- */
+const GS="Google Sheets";
+let mcpNs=null, gsTimer=null, gsBusy=false, gsAgain=false; S.gs={state:"",msg:"",at:""};
+function gsId(){ const v=String(settings().gsheet||"").trim(); const m=v.match(/\/d\/([A-Za-z0-9_-]{20,})/); return m?m[1]:(/^[A-Za-z0-9_-]{20,}$/.test(v)?v:""); }
+function setGs(state,msg){ S.gs={state,msg:msg||"",at:state==="ok"?new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):S.gs.at}; const el=$("#gsChip"); if(el){ el.hidden=!gsId(); el.className="conn "+(state==="ok"?"ok":state==="error"?"bad":""); el.textContent=state==="ok"?`Google Sheets ✓ ${S.gs.at}`:state==="syncing"?"Google Sheets: syncing…":state==="error"?"Google Sheets: not synced":"Google Sheets"; el.title=msg||""; } }
+const cell=v=>v==null?"":(typeof v==="number"||typeof v==="string"||typeof v==="boolean")?v:JSON.stringify(v);
+function gsTables(){
+  const st=settings(), t=today();
+  const tab=(title,cols,rows)=>({title,rows:[cols.map(c=>c[0]),...rows.map(r=>cols.map(c=>cell(typeof c[1]==="function"?c[1](r):r[c[1]])))]});
+  const emp=S.employees.map(e=>Object.assign({},e,{eff:E.effectiveExpiry(e,S.renewals)}));
+  const ren=S.renewals.map(r=>{ let c={}; try{c=E.calcRenewal(r,empBy(r.empNo)||{},st,S.renewals,t);}catch(x){} return Object.assign({},r,c,{status:E.renewalStatus(r)}); });
+  const vis=S.visas.map(v=>Object.assign({},v,{fee:(()=>{try{return E.visaFee(v,st,S.visas);}catch(x){return 0;}})(),rb:E.visaReturnBefore(v),status:E.visaStatus(v,t)}));
+  const inst=[]; S.contracts.forEach(c=>(c.installments||[]).forEach(i=>inst.push(Object.assign({cid:c.id,branch:c.branch},i))));
+  inst.sort((a,b)=>(a.dueDate||"").localeCompare(b.dueDate||""));
+  return [
+    tab("Employees",[["Emp No","empNo"],["HR No","hrNo"],["Name (AR)","nameAr"],["Name (EN)","nameEn"],["Gender","gender"],["Nationality","nationality"],["Iqama No","iqamaNo"],["National ID","nationalId"],["Iqama expiry (last known)","iqamaExpiry"],["Effective expiry","eff"],["Hijri","iqamaExpiryHijri"],["Days left",r=>r.eff?E.daysBetween(t,r.eff):""],["Iqama fees by","iqamaFeesBy"],["Profession","jobTitle"],["Department","department"],["Branch","branch"],["Labour office file","molFile"],["Passport No","passportNo"],["Passport expiry","passportExpiry"],["Insurance expiry","insuranceExpiry"],["Dependents","dependents"],["Dependents fee by","depPayer"],["Status","status"],["Mobile","phone"],["Notes","notes"]],[...emp].sort((a,b)=>a.empNo.localeCompare(b.empNo))),
+    tab("Iqama Renewals",[["Request","id"],["Emp No","empNo"],["Request date","requestDate"],["Months","months"],["Current expiry","oldExpiry"],["New expiry","newExpiry"],["Iqama fee","iqamaFee"],["Levy","levy"],["Work permit","wpFee"],["Dependents fee","depFee"],["Late fine","lateFine"],["Other","otherFees"],["Total","total"],["Company prepaid","companyPrepaid"],["Status","status"],["HR approval","hrDate"],["Finance approval","financeDate"],["SADAD no","sadadNo"],["Payment date","paymentDate"],["Payment ref","paymentRef"],["Renewed","completedDate"],["Notes","notes"]],ren),
+    tab("Jawazat",[["Ref","id"],["Emp No","empNo"],["Service","type"],["Months","months"],["Fee","fee"],["Paid by","payer"],["Request date","requestDate"],["Payment date","paymentDate"],["Issue date","issueDate"],["Departure","departureDate"],["Return before","rb"],["Returned","returnDate"],["Status","status"],["Notes","notes"]],vis),
+    tab("Leases",[["Lease","id"],["Category","category"],["Branch","branch"],["Landlord","vendor"],["Ejar / ref","refNo"],["Start","startDate"],["End","endDate"],["Value excl. VAT","totalAmount"],["Frequency","frequency"],["VAT","vatApplicable"],["Model",c=>leaseModel(c)],["Notice days","noticeDays"],["City","city"],["Area m²","areaSqm"],["Notes","notes"]],S.contracts),
+    tab("Rent Installments",[["Lease","cid"],["Branch","branch"],["No","no"],["Due","dueDate"],["Period start","periodStart"],["Period end","periodEnd"],["Amount excl. VAT","amount"],["VAT","vat"],["Total",r=>Math.round(((+r.amount||0)+(+r.vat||0))*100)/100],["Paid date","paidDate"],["Payment ref","paymentRef"]],inst)
+  ];
+}
+async function gsSync(manual){
+  if(!gsId()){ if(manual) toast("Add your Google Sheet link under Fees & Settings first."); return; }
+  if(gsBusy){ gsAgain=true; return; }
+  if(!mcpNs){ try{ mcpNs=window.claude&&await window.claude.use("mcp"); }catch(e){ mcpNs=null; } }
+  if(!mcpNs){ setGs("error","Google Sheets isn't available in this view."); if(manual) toast("Google Sheets isn't available in this view."); return; }
+  gsBusy=true; setGs("syncing");
+  try{
+    const id=gsId(), tabs=gsTables(); let have=null;
+    try{ const m=await mcpNs.callTool(GS,"get_spreadsheet",{spreadsheetId:id,fields:["sheets.properties.title"]},{cache:false}); const p=m&&m.payload; have=new Set(((p&&p.sheets)||[]).map(s=>s.properties&&s.properties.title)); }catch(e){ if(e&&(e.code==="needs_reauth"||e.code==="server_not_connected"||e.code==="not_in_manifest"||e.code==="denied")) throw e; }
+    for(const t of tabs){ if(have&&have.has(t.title)) continue; try{ await mcpNs.callTool(GS,"update_spreadsheet",{spreadsheetId:id,requests:[{addSheet:{properties:{title:t.title,gridProperties:{frozenRowCount:1}}}}]}); }catch(e){} }
+    await mcpNs.callTool(GS,"batch_clear_values",{spreadsheetId:id,ranges:tabs.map(t=>`'${t.title}'!A:AZ`)});
+    for(const t of tabs) await mcpNs.callTool(GS,"update_values",{spreadsheetId:id,range:`'${t.title}'!A1`,values:t.rows});
+    setGs("ok"); if(manual) toast("Google Sheet updated");
+  }catch(e){
+    const msg=e&&e.code==="needs_reauth"?"Reconnect Google Sheets in claude.ai Settings → Connectors.":e&&e.code==="server_not_connected"?"Connect Google Sheets in claude.ai Settings → Connectors.":e&&(e.code==="denied"||e.code==="not_granted")?"Allow Google Sheets for this page to sync.":((e&&e.message)||"Sync failed.");
+    setGs("error",msg); if(manual) toast(msg);
+  }finally{ gsBusy=false; if(gsAgain){ gsAgain=false; gsSoon(); } }
+}
+function gsSoon(){ if(!gsId()||!db) return; clearTimeout(gsTimer); gsTimer=setTimeout(()=>gsSync(false),6000); }
+
 /* ---------- modal ---------- */
 let modalBtns=[];
 function openModal(title,body,btns){
@@ -1306,6 +1350,7 @@ document.addEventListener("click",async ev=>{
     return; }
   switch(d.act){
     case "more": return openMore();
+    case "gsSync": return gsSync(true);
     case "addEmp": return openEmployee(null);
     case "addRen": return openRenewal(null);
     case "addVisa": return openVisa(null);
