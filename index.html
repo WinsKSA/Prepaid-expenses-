@@ -534,6 +534,7 @@ function render(){
   const urgent=act.filter(a=>a.severity==="expired"||a.severity==="critical").length;
   $("#bellCount").textContent=act.length; $("#bellCount").style.background = urgent? "var(--red)":"var(--amber)";
   renderNav(act.length); { const el=$("#gsChip"); if(el) el.hidden=!gsId()||!db; }
+  if(!S.gsInit&&db&&gsId()&&COLS.every(c=>S.loaded[c])){ S.gsInit=true; setTimeout(()=>gsSync(false),3000); }
   const v=VIEWS.find(x=>x.id===S.ui.view)||VIEWS[1];
   $("#viewTitle").innerHTML=`${h(v.en)}<small>${h(v.ar)}</small>`;
   const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,leases:vLeases,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
@@ -1260,7 +1261,7 @@ async function gsSync(manual){
     const id=gsId(), tabs=gsTables(); let have=null;
     try{ const m=await mcpNs.callTool(GS,"get_spreadsheet",{spreadsheetId:id,fields:["sheets.properties.title"]},{cache:false}); const p=m&&m.payload; have=new Set(((p&&p.sheets)||[]).map(s=>s.properties&&s.properties.title)); }catch(e){ if(e&&(e.code==="needs_reauth"||e.code==="server_not_connected"||e.code==="not_in_manifest"||e.code==="denied")) throw e; }
     for(const t of tabs){ if(have&&have.has(t.title)) continue; try{ await mcpNs.callTool(GS,"update_spreadsheet",{spreadsheetId:id,requests:[{addSheet:{properties:{title:t.title,gridProperties:{frozenRowCount:1}}}}]}); }catch(e){} }
-    await mcpNs.callTool(GS,"batch_clear_values",{spreadsheetId:id,ranges:tabs.map(t=>`'${t.title}'!A:AZ`)});
+    await mcpNs.callTool(GS,"batch_clear_values",{spreadsheetId:id,ranges:tabs.map(t=>`'${t.title}'!A:Z`)});
     for(const t of tabs) await mcpNs.callTool(GS,"update_values",{spreadsheetId:id,range:`'${t.title}'!A1`,values:t.rows});
     setGs("ok"); if(manual) toast("Google Sheet updated");
   }catch(e){
