@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>Engine tests</title><pre id="out"></pre>
+<script>
+window.__log = [];
+var _log = console.log;
+console.log = function () { var s = Array.prototype.join.call(arguments, ' '); __log.push(s); document.getElementById('out').textContent += s + '\n'; _log.apply(console, arguments); };
+window.process = { exitCode: 0 };
+function deepEq(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+var assertShim = function (v, m) { if (!v) throw new Error(m || 'assert failed'); };
+assertShim.ok = assertShim;
+assertShim.strictEqual = function (a, b, m) { if (a !== b) throw new Error((m || '') + ' expected ' + JSON.stringify(b) + ' got ' + JSON.stringify(a)); };
+assertShim.deepStrictEqual = function (a, b, m) { if (!deepEq(a, b)) throw new Error((m || '') + ' expected ' + JSON.stringify(b) + ' got ' + JSON.stringify(a)); };
+window.require = function (n) { return n === 'assert' ? assertShim : window.Engine; };
+</script>
+<script src="../engine.js"></script>
+<script>window.module = undefined;</script>
+<script src="engine.test.js"></script>
+<script>console.log('EXIT ' + process.exitCode);</script>

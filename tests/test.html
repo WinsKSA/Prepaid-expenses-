@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset="utf-8"><title>io tests</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="../io.js"></script></head><body><pre id="o">running…</pre>
+<script>
+window.onerror = function (m, s, l) { document.getElementById('o').textContent = 'ERROR ' + m + ' @' + l; };
+</script>
+<script src="io.test.js"></script>
+<script>if (window.IO_TEST_RESULT) document.getElementById('o').textContent = IO_TEST_RESULT.log.join('\n');</script>
+</body></html>

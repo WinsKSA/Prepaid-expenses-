@@ -1,0 +1,1066 @@
+<title>Muqeem Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: operations console — fixed left rail of modules, a status bar on top, dense tables in the work area. */
+:root{
+  --bg:#f2f4f3; --surface:#ffffff; --surface-2:#e9eeec; --fg:#13201b; --muted:#5a6a64; --line:#d6dedb;
+  --accent:#0a6b4d; --accent-fg:#ffffff; --accent-soft:#d8ece4;
+  --red:#b8322a; --red-soft:#f7e1df; --amber:#9a5c00; --amber-soft:#f8ebd3; --blue:#2856a8; --blue-soft:#e0e8f7; --green:#1d7a46; --green-soft:#dcefe3;
+  --shadow:0 1px 2px rgba(10,30,20,.06),0 8px 24px rgba(10,30,20,.06);
+  --f-sans:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-ar:"IBM Plex Sans Arabic","IBM Plex Sans",Tahoma,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1412; --surface:#141d1a; --surface-2:#1b2622; --fg:#e4ebe8; --muted:#92a29c; --line:#28342f;
+  --accent:#3dbb8b; --accent-fg:#05130d; --accent-soft:#163a2d;
+  --red:#ff7f72; --red-soft:#3b1d19; --amber:#f1b14e; --amber-soft:#3a2b12; --blue:#82a9ff; --blue-soft:#1a2642; --green:#62d394; --green-soft:#16331f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1412; --surface:#141d1a; --surface-2:#1b2622; --fg:#e4ebe8; --muted:#92a29c; --line:#28342f;
+  --accent:#3dbb8b; --accent-fg:#05130d; --accent-soft:#163a2d;
+  --red:#ff7f72; --red-soft:#3b1d19; --amber:#f1b14e; --amber-soft:#3a2b12; --blue:#82a9ff; --blue-soft:#1a2642; --green:#62d394; --green-soft:#16331f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-sans);font-size:14px;line-height:1.45}
+.ar{font-family:var(--f-ar);direction:rtl;unicode-bidi:isolate}
+.num,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+.rail{background:var(--surface);border-right:1px solid var(--line);padding-block:16px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{padding:0 18px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.brand b{display:block;font-size:17px;letter-spacing:-.01em}
+.brand span{font-size:12px;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:2px;padding:0 8px}
+.nav button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;background:none;padding:9px 10px;border-radius:6px;cursor:pointer;color:var(--fg)}
+.nav button small{font-family:var(--f-ar);color:var(--muted);font-size:12px}
+.nav button:hover{background:var(--surface-2)}
+.nav button[aria-current="true"]{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.nav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:14px 10px 4px}
+.badge{min-width:20px;padding:1px 6px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;font-weight:600;text-align:center;font-family:var(--f-mono)}
+
+.main{min-width:0;padding-inline:24px;padding-block:0 48px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:14px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.top h1{font-size:20px;flex:1 1 auto;min-width:0}
+.top h1 small{font-family:var(--f-ar);font-weight:500;color:var(--muted);font-size:14px;margin-inline-start:8px}
+.asof{font-size:12px;color:var(--muted)}
+.bell{position:relative;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.bell svg{width:16px;height:16px}
+.conn{font-size:12px;padding:3px 8px;border-radius:12px;background:var(--surface-2);color:var(--muted)}
+.conn.ok{background:var(--green-soft);color:var(--green)}
+.conn.bad{background:var(--amber-soft);color:var(--amber)}
+
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+.btn.pri:hover{filter:brightness(1.07)}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spacer{flex:1}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--line);cursor:pointer;text-align:left}
+.kpi .v{font-size:26px;font-weight:600;font-family:var(--f-mono);letter-spacing:-.02em}
+.kpi .l{font-size:12.5px;color:var(--muted)}
+.kpi.red{border-top-color:var(--red)} .kpi.red .v{color:var(--red)}
+.kpi.amber{border-top-color:var(--amber)} .kpi.amber .v{color:var(--amber)}
+.kpi.blue{border-top-color:var(--blue)}
+.kpi.green{border-top-color:var(--accent)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.panel h2{font-size:15px;margin-bottom:12px;display:flex;gap:8px;align-items:baseline}
+.panel h2 small{font-family:var(--f-ar);color:var(--muted);font-weight:500;font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;white-space:nowrap}
+th{background:var(--surface-2);font-weight:600;font-size:12px;color:var(--muted);position:sticky;top:0}
+th .ar{display:block;font-weight:500;font-size:11px}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+tbody tr:hover{background:var(--surface-2)}
+tfoot td{font-weight:600;background:var(--surface-2)}
+tr.clk{cursor:pointer}
+.sub{color:var(--muted);font-size:12px}
+
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.p-red{background:var(--red-soft);color:var(--red)}
+.p-amber{background:var(--amber-soft);color:var(--amber)}
+.p-blue{background:var(--blue-soft);color:var(--blue)}
+.p-green{background:var(--green-soft);color:var(--green)}
+.p-grey{background:var(--surface-2);color:var(--muted)}
+
+.alert{display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.alert:last-child{border-bottom:0}
+.alert .stripe{align-self:stretch;border-radius:2px}
+.alert .t{font-weight:600}
+.alert .m{color:var(--muted);font-size:12.5px}
+.s-expired .stripe{background:var(--red)} .s-critical .stripe{background:var(--red)} .s-warning .stripe{background:var(--amber)} .s-notice .stripe{background:var(--blue)}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:4px 11px;font-size:12.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip b{font-family:var(--f-mono);margin-inline-start:4px}
+
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:12px;color:var(--muted)}
+.field label .ar{margin-inline-start:6px}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 9px;width:100%}
+.field input[readonly]{background:var(--surface-2)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.check{display:flex;gap:8px;align-items:center;font-size:13px}
+input.search{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:7px 10px;min-width:0;width:260px;max-width:100%}
+select.sel{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:7px 8px}
+
+.overlay{position:fixed;inset:0;background:rgba(5,15,10,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+.modal{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);width:min(860px,100%);border:1px solid var(--line)}
+.modal header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.modal header h3{font-size:16px}
+.modal .body{padding:18px;display:flex;flex-direction:column;gap:16px}
+.modal footer{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;background:var(--surface-2);border-radius:8px;padding:12px}
+.calc div{display:flex;flex-direction:column}
+.calc span{font-size:11.5px;color:var(--muted)}
+.calc b{font-family:var(--f-mono);font-size:15px}
+
+.steps{display:flex;gap:0;flex-wrap:wrap;margin:4px 0}
+.step{flex:1 1 110px;padding:8px 10px;border-top:3px solid var(--line);font-size:12px;color:var(--muted)}
+.step b{display:block;color:var(--fg);font-size:12.5px}
+.step.done{border-top-color:var(--accent)}
+.step.cur{border-top-color:var(--amber)}
+
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:80;max-width:calc(100% - 32px)}
+.empty{padding:32px 16px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:6px}
+.warnbox{background:var(--amber-soft);color:var(--fg);border-radius:8px;padding:10px 12px;font-size:13px}
+.okbox{background:var(--green-soft);border-radius:8px;padding:10px 12px;font-size:13px}
+.prose{max-width:72ch}
+.prose p,.prose li{line-height:1.6}
+.prose h3{margin-top:18px;font-size:15px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-inline-end:5px;vertical-align:-1px}
+.pipeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.pipeline button{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:10px 8px;text-align:left;cursor:pointer}
+.pipeline b{display:block;font-family:var(--f-mono);font-size:20px}
+.pipeline span{font-size:11.5px;color:var(--muted)}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{position:sticky;top:0;height:auto;z-index:10;padding-block:8px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand{display:none}
+  .nav{flex-direction:row;overflow-x:auto}
+  .nav .grp{display:none}
+  .nav button{width:auto;white-space:nowrap}
+  .nav button small{display:none}
+  .main{padding-inline:16px}
+  .top{position:static}
+  .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  .pipeline{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+/* data-viz series (validated categorical order) + status */
+:root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#4a3aa7;--st-crit:#d03b3b;--st-serious:#ec835a;--st-warn:#fab219;--st-info:#2a78d6;--st-good:#0ca30c;--grid:#e1e0d9;--axis:#c3c2b7}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--st-info:#3987e5;--grid:#2c2c2a;--axis:#383835}}
+:root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--st-info:#3987e5;--grid:#2c2c2a;--axis:#383835}
+.enter .kpi,.enter .panel,.enter .tbl-wrap,.enter .pipeline button{animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+.enter .kpis .kpi:nth-child(2){animation-delay:.03s}.enter .kpis .kpi:nth-child(3){animation-delay:.06s}.enter .kpis .kpi:nth-child(4){animation-delay:.09s}
+.enter .kpis .kpi:nth-child(5){animation-delay:.12s}.enter .kpis .kpi:nth-child(6){animation-delay:.15s}.enter .kpis .kpi:nth-child(7){animation-delay:.18s}.enter .kpis .kpi:nth-child(8){animation-delay:.21s}
+@keyframes rise{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:none}}
+.enter .bar{transform-box:fill-box;transform-origin:50% 100%;animation:grow .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.enter .arc{animation:sweep .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes sweep{from{stroke-dasharray:0 1000}}
+.enter .line{stroke-dasharray:2000;animation:draw 1.1s ease-out both}
+@keyframes draw{from{stroke-dashoffset:2000}to{stroke-dashoffset:0}}
+.enter .dot{transform-box:fill-box;transform-origin:center;animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.bell.urgent svg{animation:ring 1.8s ease-in-out 2}
+@keyframes ring{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%,40%{transform:rotate(-14deg)}}
+.kpi{transition:transform .15s,box-shadow .15s}.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+#tip{position:fixed;pointer-events:none;z-index:90;background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:6px;padding:6px 9px;font-size:12px;max-width:260px;white-space:pre-line}
+.chart [data-tip]{cursor:default}
+.chart rect.bar:hover,.chart circle.dot:hover{filter:brightness(1.12)}
+.donut-wrap{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:center}
+.lg-list{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.lg-list div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center}
+.lg-list i{width:10px;height:10px;border-radius:2px}
+.lg-list b{font-family:var(--f-mono)}
+@media (max-width:500px){.donut-wrap{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><b id="brandName">Muqeem Desk</b><span>Iqama · Jawazat · Prepaids</span></div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="top">
+      <h1 id="viewTitle">Dashboard</h1>
+      <span class="asof" id="asof"></span>
+      <span class="conn" id="conn">Connecting…</span>
+      <button class="bell" id="bellBtn" aria-label="Open notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="badge" id="bellCount">0</span>
+      </button>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="engine.js"></script>
+<script src="io.js"></script>
+<script>
+(function(){
+"use strict";
+const E = window.Engine, IO = window.IO;
+const COLS = ["employees","renewals","visas","contracts"];
+const S = {employees:[],renewals:[],visas:[],contracts:[],settings:{},acks:{},loaded:{},ui:{animate:true,view:"dashboard",empQ:"",empStatus:"Active",empAlert:"",renFilter:"Open",visaFilter:"Open",alertCat:"All",amFrom:null,amN:12,amCat:"All",jeMonth:null,rfMonth:null}};
+let db=null, user=null, dl=null, uid=null, readOnly=false;
+
+/* ---------- helpers ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const h = v => String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = v => (Number(v)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money0 = v => (Number(v)||0).toLocaleString("en-US",{maximumFractionDigits:0});
+const fd = d => d ? E.fmtDate(d) : "—";
+const hj = d => { if(!d) return ""; try{return E.toHijri(d)||"";}catch(e){return "";} };
+const today = () => E.todayISO();
+const safeId = id => String(id).replace(/[^A-Za-z0-9_\-.~:@+]/g,"_").replace(/^\.+$/,"_");
+function settings(){
+  const d=E.DEFAULT_SETTINGS, s=S.settings||{};
+  return Object.assign({}, d, s, {accounts:Object.assign({}, d.accounts, s.accounts||{})});
+}
+function state(){ return {employees:S.employees, renewals:S.renewals, visas:S.visas, contracts:S.contracts}; }
+const empBy = no => S.employees.find(e=>e.empNo===no);
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; $("#toastRoot").appendChild(t); setTimeout(()=>t.remove(),3200); }
+function sevPill(sev,label){ const c={expired:"p-red",critical:"p-red",warning:"p-amber",notice:"p-blue",ok:"p-green"}[sev]||"p-grey"; return `<span class="pill ${c}">${h(label||sev)}</span>`; }
+function daysPill(days){
+  if(days===""||days==null||isNaN(days)) return `<span class="pill p-grey">—</span>`;
+  if(days<0) return `<span class="pill p-red">Expired ${-days}d</span>`;
+  if(days<=15) return `<span class="pill p-red">${days}d</span>`;
+  if(days<=30) return `<span class="pill p-amber">${days}d</span>`;
+  if(days<=90) return `<span class="pill p-blue">${days}d</span>`;
+  return `<span class="pill p-green">${days}d</span>`;
+}
+const STATUS_ORDER=["Requested","HR Approved","Finance Approved","Awaiting Payment","Paid","Completed"];
+function statusPill(s){ const c={"Requested":"p-grey","HR Approved":"p-blue","Finance Approved":"p-blue","Awaiting Payment":"p-amber","Paid":"p-amber","Completed":"p-green","Returned":"p-green","Outside KSA":"p-blue","Not Returned":"p-red","Expired Unused":"p-red","Issued":"p-blue","Paid ":"p-amber","Left (Final)":"p-grey"}[s]||"p-grey"; return `<span class="pill ${c}">${h(s)}</span>`; }
+
+/* ---------- data layer ---------- */
+async function put(col,id,data){
+  if(!db){ // offline preview: keep changes in memory only
+    const o=JSON.parse(JSON.stringify(data)); o._id=safeId(id);
+    if(col==="config"){ if(id==="settings") S.settings=o; else S.acks=o.items||{}; }
+    else { const i=S[col].findIndex(x=>x._id===o._id); if(i>=0) S[col][i]=o; else S[col].push(o); }
+    scheduleRender(); return;
+  }
+  const clean = JSON.parse(JSON.stringify(data));
+  clean.updatedAt = new Date().toISOString();
+  try{ await db.collection(col).doc(safeId(id)).set(clean); }
+  catch(e){
+    if(e&&e.code==="unavailable"){ await new Promise(r=>setTimeout(r,400+Math.random()*600)); return db.collection(col).doc(safeId(id)).set(clean); }
+    if(e&&e.code==="invalid_argument"){ readOnly=true; toast("You have view-only access, so changes cannot be saved."); }
+    else if(e&&e.code==="quota_exceeded"){ toast("Storage is full: "+e.message); }
+    else toast("Save failed: "+((e&&e.message)||e));
+    throw e;
+  }
+}
+async function del(col,id){ if(!db){ S[col]=S[col].filter(x=>x._id!==safeId(id)); scheduleRender(); return; } await db.collection(col).doc(safeId(id)).delete(); }
+function demoData(){
+  const t=today(), A=(n)=>E.addDays(t,n), M=(n)=>E.addMonths(t,n);
+  const emp=(no,en,ar,nat,job,br,iq,exp,pass,ins,dep,payer,st)=>({_id:no,empNo:no,nameEn:en,nameAr:ar,nationality:nat,jobTitle:job,branch:br,department:"Operations",iqamaNo:iq,iqamaExpiry:exp,passportNo:"P"+iq.slice(-6),passportExpiry:pass,insuranceExpiry:ins,dependents:dep,depPayer:payer,status:st||"Active",example:true});
+  S.employees=[
+    emp("EMP-0001","Ahmed Hassan","أحمد حسن","Egyptian","Accountant","Riyadh - Olaya","2412345671",A(-6),M(30),M(8),0,"Employee"),
+    emp("EMP-0002","Rahul Nair","راهول ناير","Indian","Sales Supervisor","Jeddah - Tahlia","2423456782",A(10),M(20),M(5),2,"Company"),
+    emp("EMP-0003","Imran Khan","عمران خان","Pakistani","Driver","Riyadh - Olaya","2434567893",A(26),A(120),A(20),0,"Employee"),
+    emp("EMP-0004","Jose Santos","خوسيه سانتوس","Filipino","Technician","Dammam - Corniche","2445678904",A(55),M(40),M(9),1,"Employee"),
+    emp("EMP-0005","Karim Mansour","كريم منصور","Jordanian","Branch Manager","Jeddah - Tahlia","2456789015",A(-215),M(36),M(6),3,"Company"),
+    emp("EMP-0006","Abdul Rahim","عبد الرحيم","Bangladeshi","Storekeeper","Dammam - Corniche","2467890126",A(170),M(18),M(4),0,"Employee"),
+    emp("EMP-0007","Omar Yousif","عمر يوسف","Sudanese","HR Officer","Riyadh - Olaya","2478901237",A(-100),M(28),M(7),0,"Employee"),
+  ];
+  S.renewals=[
+    {_id:"REN-0001",id:"REN-0001",empNo:"EMP-0005",requestDate:A(-230),months:12,oldExpiry:A(-215),otherFees:0,checklist:{insurance:true,passport:true,traffic:true,mudad:true},hrDate:A(-229),financeDate:A(-228),sadadNo:"7011223344",paymentDate:A(-226),paymentRef:"TRF-88120",completedDate:A(-225),dependentsAtRequest:3,depPayerAtRequest:"Company",example:true},
+    {_id:"REN-0002",id:"REN-0002",empNo:"EMP-0007",requestDate:A(-110),months:6,oldExpiry:A(-100),otherFees:0,checklist:{insurance:true,passport:true,traffic:true,mudad:true},hrDate:A(-108),financeDate:A(-106),sadadNo:"7011225566",paymentDate:A(-104),paymentRef:"TRF-90211",completedDate:A(-103),dependentsAtRequest:0,depPayerAtRequest:"Employee",example:true},
+    {_id:"REN-0003",id:"REN-0003",empNo:"EMP-0001",requestDate:A(-3),months:12,oldExpiry:A(-6),otherFees:0,checklist:{insurance:true,passport:true,traffic:false,mudad:true},hrDate:A(-2),financeDate:A(-1),sadadNo:"7011229900",paymentDate:"",completedDate:"",dependentsAtRequest:0,depPayerAtRequest:"Employee",example:true},
+    {_id:"REN-0004",id:"REN-0004",empNo:"EMP-0002",requestDate:A(-1),months:12,oldExpiry:A(10),otherFees:0,checklist:{insurance:true,passport:true,traffic:true,mudad:true},hrDate:"",dependentsAtRequest:2,depPayerAtRequest:"Company",example:true}
+  ];
+  S.visas=[
+    {_id:"ERV-0001",id:"ERV-0001",empNo:"EMP-0004",requestDate:A(-40),type:"ER Single",months:2,payer:"Employee",paymentDate:A(-38),issueDate:A(-37),departureDate:A(-30),returnDate:"",example:true},
+    {_id:"ERV-0002",id:"ERV-0002",empNo:"EMP-0006",requestDate:A(-150),type:"ER Multiple",months:6,payer:"Company",paymentDate:A(-149),issueDate:A(-148),departureDate:A(-120),returnDate:A(-90),example:true}
+  ];
+  const st=settings(); const mk=(id,cat,br,ven,ref,s,e,amt,freq,vat,paidN)=>{ const c={_id:id,id,category:cat,branch:br,vendor:ven,refNo:ref,startDate:s,endDate:e,totalAmount:amt,frequency:freq,vatApplicable:vat,example:true}; c.installments=E.buildInstallments(c,st).map((i,k)=>k<paidN?Object.assign({},i,{paidDate:E.addDays(i.dueDate,-3),paymentRef:"TRF-R"+(k+1)}):i); return c; };
+  const ys=t.slice(0,4)+"-01-01";
+  S.contracts=[
+    mk("CON-0001","Branch Rent","Riyadh - Olaya","Al Faisal Real Estate","EJ-10293847",ys,E.addDays(E.addMonths(ys,12),-1),180000,"Semi-annual",true,2),
+    mk("CON-0002","Branch Rent","Jeddah - Tahlia","Red Sea Properties","EJ-55620194",E.addMonths(ys,3),E.addDays(E.addMonths(ys,15),-1),96000,"Quarterly",true,3),
+    mk("CON-0003","Medical Insurance","All branches","Bupa Arabia","POL-778812",E.addMonths(ys,-3),E.addDays(E.addMonths(ys,9),-1),84000,"Annual",true,1)
+  ];
+}
+async function withNumberLock(fn){
+  if(!db) return fn();
+  const ref=db.doc("locks/numbers"); const holder=uid||("v"+Math.random().toString(36).slice(2));
+  for(let i=0;i<8;i++){
+    try{ const r=await ref.acquire({holder,ttlMs:20000}); if(r.acquired) break; }catch(e){ break; }
+    await new Promise(r=>setTimeout(r,700));
+  }
+  return fn();
+}
+function nextId(prefix,list,field){ return E.nextNumber(list.map(x=>x[field||"id"]).filter(Boolean),prefix,settings().empPad||4); }
+
+let renderTimer=null;
+function scheduleRender(){ clearTimeout(renderTimer); renderTimer=setTimeout(render,60); }
+
+async function connect(){
+  try{ db = window.claude && await window.claude.use("db"); }catch(e){ db=null; }
+  try{ user = window.claude && await window.claude.use("user"); }catch(e){ user=null; }
+  try{ dl = window.claude && await window.claude.use("downloads"); }catch(e){ dl=null; }
+  if(user){ try{ uid = await user.id(); }catch(e){} try{ const w=await user.can("data.write"); if(w===false) readOnly=true; }catch(e){} }
+  const conn=$("#conn");
+  if(!db){ conn.textContent="Demo · example data, not saved"; conn.className="conn bad"; try{ demoData(); }catch(e){ console.error(e); } COLS.forEach(c=>S.loaded[c]=true); render(); return; }
+  conn.textContent = readOnly ? "Live · view only" : "Live · synced"; conn.className="conn ok";
+  COLS.forEach(c=>{
+    db.collection(c).onSnapshot(snap=>{ S[c]=snap.docs.map(d=>Object.assign({_id:d.id},d.data())); S.loaded[c]=true; scheduleRender(); },
+      err=>{ conn.textContent="Sync stopped — reload"; conn.className="conn bad"; });
+  });
+  db.doc("config/settings").onSnapshot(s=>{ S.settings=s.exists?s.data():{}; scheduleRender(); },()=>{});
+  db.doc("config/acks").onSnapshot(s=>{ S.acks=s.exists?(s.data().items||{}):{}; scheduleRender(); },()=>{});
+}
+
+/* ---------- alerts / notifications ---------- */
+function allAlerts(){ try{ return E.alerts(state(),settings(),today()); }catch(e){ console.error(e); return []; } }
+function isMuted(a){ const k=S.acks[safeId(a.key)]; if(!k) return false; if(k.ack) return true; if(k.snoozeUntil && k.snoozeUntil>=today()) return true; return false; }
+function activeAlerts(){ return allAlerts().filter(a=>!isMuted(a)); }
+async function setAck(key,val){
+  const items=Object.assign({},S.acks); const k=safeId(key);
+  if(val===null) delete items[k]; else items[k]=Object.assign({at:new Date().toISOString(),by:uid||""},val);
+  S.acks=items; scheduleRender();
+  await put("config","acks",{items});
+}
+function reminderText(a){
+  const e=a.empNo?empBy(a.empNo):null;
+  const who=e?`${e.nameEn||""}${e.nameAr?" / "+e.nameAr:""} (${e.empNo}${e.iqamaNo?", Iqama "+e.iqamaNo:""})`:(a.ref||"");
+  const due=a.dueDate?`${fd(a.dueDate)}${hj(a.dueDate)?" — "+hj(a.dueDate)+" هـ":""}`:"";
+  return `REMINDER — ${a.category}: ${a.title}\n${who}\nDue: ${due} (${a.daysLeft<0?Math.abs(a.daysLeft)+" days overdue":a.daysLeft+" days left"})\n${a.message}\n\nتذكير — ${a.title}\n${who}\nتاريخ الاستحقاق: ${due}`;
+}
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast("Copied to clipboard"); }catch(e){ openModal("Copy text",`<textarea style="width:100%;height:220px" readonly>${h(t)}</textarea><div class="sub">Select all and copy.</div>`,[]); } }
+
+/* ---------- nav ---------- */
+const VIEWS=[
+  {grp:"Overview"},
+  {id:"dashboard",en:"Dashboard",ar:"لوحة المتابعة"},
+  {id:"alerts",en:"Notifications",ar:"التنبيهات",badge:true},
+  {grp:"Employees & Jawazat"},
+  {id:"employees",en:"Employees",ar:"الموظفون"},
+  {id:"renewals",en:"Iqama Renewals",ar:"تجديد الإقامات"},
+  {id:"visas",en:"Jawazat Services",ar:"خدمات الجوازات"},
+  {grp:"Prepaids & Accounting"},
+  {id:"contracts",en:"Rent & Contracts",ar:"الإيجارات والعقود"},
+  {id:"amort",en:"Monthly Amortization",ar:"الإطفاء الشهري"},
+  {id:"journal",en:"Journal Entries",ar:"القيود المحاسبية"},
+  {grp:"System"},
+  {id:"settings",en:"Fees & Settings",ar:"الرسوم والإعدادات"},
+  {id:"guide",en:"Guide & KSA Rules",ar:"الدليل والأنظمة"}
+];
+function renderNav(cnt){
+  $("#nav").innerHTML=VIEWS.map(v=>v.grp?`<div class="grp">${h(v.grp)}</div>`:
+    `<button data-nav="${v.id}" aria-current="${S.ui.view===v.id}"><span>${h(v.en)}<br><small>${h(v.ar)}</small></span>${v.badge&&cnt?`<span class="badge">${cnt}</span>`:""}</button>`).join("");
+}
+function go(view){ S.ui.view=view; S.ui.animate=true; render(); window.scrollTo(0,0); }
+
+/* ---------- render ---------- */
+function render(){
+  const st=settings();
+  $("#brandName").textContent = st.company && st.company!=="Company name" ? st.company : "Muqeem Desk";
+  $("#asof").textContent = `Today ${fd(today())} · ${hj(today())} هـ`;
+  const act=activeAlerts();
+  const urgent=act.filter(a=>a.severity==="expired"||a.severity==="critical").length;
+  $("#bellCount").textContent=act.length; $("#bellCount").style.background = urgent? "var(--red)":"var(--amber)";
+  renderNav(act.length);
+  const v=VIEWS.find(x=>x.id===S.ui.view)||VIEWS[1];
+  $("#viewTitle").innerHTML=`${h(v.en)}<small>${h(v.ar)}</small>`;
+  const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
+  const loaded=COLS.every(c=>S.loaded[c]);
+  const vw=$("#view"); vw.classList.toggle("enter",!!S.ui.animate&&loaded);
+  $("#bellBtn").classList.toggle("urgent",urgent>0&&!S.ui.rang&&loaded); if(urgent&&loaded) S.ui.rang=true;
+  try{ vw.innerHTML = loaded||S.ui.view==="guide" ? fn() : `<div class="empty"><b>Loading records…</b>Employees, renewals, visas and contracts appear here as soon as they sync.</div>`; }
+  catch(e){ console.error(e); $("#view").innerHTML=`<div class="warnbox">This screen could not be drawn: ${h(e.message)}</div>`; }
+  if(loaded&&S.ui.animate){ countUp(); S.ui.animate=false; }
+}
+
+/* ---------- dashboard ---------- */
+function vDashboard(){
+  const st=settings(), t=today(), al=allAlerts();
+  const cnt=(cat,sev)=>al.filter(a=>(!cat||a.category===cat)&&(!sev||sev.includes(a.severity))).length;
+  const active=S.employees.filter(e=>e.status==="Active"||e.status==="On Vacation").length;
+  const open=S.renewals.filter(r=>E.renewalStatus(r)!=="Completed").length;
+  const outside=S.visas.filter(v=>E.visaStatus(v,t)==="Outside KSA").length;
+  const notRet=S.visas.filter(v=>E.visaStatus(v,t)==="Not Returned").length;
+  let rf=null; try{ rf=E.prepaidRollforward(state(),st,E.monthStart(t),t); }catch(e){}
+  const rfo = rf ? (rf.overall||rf) : {};
+  let fc=[]; try{ fc=E.forecast(state(),st,E.monthStart(t),12,t)||[]; }catch(e){}
+  const pipe=STATUS_ORDER.map(s=>({s,n:S.renewals.filter(r=>E.renewalStatus(r)===s).length}));
+  const top=activeAlerts().slice(0,8);
+  const activeEmps=S.employees.filter(e=>e.status==="Active"||e.status==="On Vacation");
+  const strip=activeEmps.map(e=>{ const d=E.effectiveExpiry(e,S.renewals); return {name:(e.empNo+" "+(e.nameEn||e.nameAr||"")),date:d,days:d?E.daysBetween(t,d):9999}; });
+  const band=(lo,hi)=>strip.filter(x=>x.days>=lo&&x.days<=hi).length;
+  const health=[{l:"Expired",v:strip.filter(x=>x.days<0).length,c:"var(--st-crit)"},{l:"Due in 0–15 days",v:band(0,15),c:"var(--st-serious)"},{l:"Due in 16–30 days",v:band(16,30),c:"var(--st-warn)"},{l:"Due in 31–90 days",v:band(31,90),c:"var(--st-info)"},{l:"Valid > 90 days",v:strip.filter(x=>x.days>90&&x.days<9999).length,c:"var(--st-good)"}];
+  if(!S.employees.length && !S.contracts.length){
+    return `<div class="panel"><div class="empty"><b>No records yet</b>Start by importing your employee sheet (Excel) or adding employees one by one. Employee numbers are generated automatically.<div class="row" style="justify-content:center;margin-top:14px"><button class="btn pri" data-act="import">Import employees from Excel</button><button class="btn" data-act="addEmp">Add employee</button><button class="btn" data-act="addCon">Add rent contract</button></div></div></div>`;
+  }
+  return `
+  <div class="kpis">
+    <button class="kpi red" data-goalert="expired"><span class="v" data-n="${health[0].v}">${health[0].v}</span><span class="l">Iqamas expired · منتهية</span></button>
+    <button class="kpi red" data-goalert="critical"><span class="v" data-n="${health[1].v}">${health[1].v}</span><span class="l">Iqamas due ≤ 15 days</span></button>
+    <button class="kpi amber" data-goalert="warning"><span class="v" data-n="${health[1].v+health[2].v}">${health[1].v+health[2].v}</span><span class="l">Iqamas due ≤ 30 days</span></button>
+    <button class="kpi blue" data-nav="renewals"><span class="v" data-n="${open}">${open}</span><span class="l">Open renewal requests</span></button>
+    <button class="kpi blue" data-nav="visas"><span class="v">${outside}${notRet?` <small style="color:var(--red);font-size:14px">+${notRet} late</small>`:""}</span><span class="l">Employees outside KSA</span></button>
+    <button class="kpi green" data-nav="amort"><span class="v" data-n="${rfo.closing||0}" data-fmt="m">${money0(rfo.closing)}</span><span class="l">Prepaid balance (SAR) · month end</span></button>
+    <button class="kpi green" data-nav="journal"><span class="v" data-n="${rfo.amortization||0}" data-fmt="m">${money0(rfo.amortization)}</span><span class="l">Amortization this month (SAR)</span></button>
+    <button class="kpi" data-nav="employees"><span class="v" data-n="${active}">${active}</span><span class="l">Active employees</span></button>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h2>Needs attention <small>يحتاج إجراء</small><span class="spacer"></span><button class="btn sm" data-nav="alerts">All notifications</button></h2>
+      ${top.length?top.map(alertRow).join(""):`<div class="empty"><b>Nothing due</b>No expiries or payments need action right now.</div>`}
+    </div>
+    <div class="panel"><h2>Cash needed — next 12 months <small>التدفق النقدي المتوقع</small></h2>
+      ${forecastChart(fc)}
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h2>Iqama health <small>حالة الإقامات</small></h2>${donut(health,String(activeEmps.length),"active")}</div>
+    <div class="panel"><h2>Expiry timeline — next 120 days <small>الجدول الزمني للانتهاء</small></h2>${expiryStrip(strip)}<div class="sub">Each dot is one employee. Hover for the name and date.</div></div>
+  </div>
+  <div class="panel" style="margin-bottom:16px"><h2>Renewal pipeline <small>مراحل التجديد</small></h2>
+    <div class="pipeline">${pipe.map(p=>`<button data-renfilter="${h(p.s)}"><b>${p.n}</b><span>${h(p.s)}</span></button>`).join("")}</div>
+  </div>
+  <div class="grid3">
+    <div class="panel"><h2>Passports</h2>${cnt("Passport")} passports expire within ${st.passportAlertDays} days.</div>
+    <div class="panel"><h2>Medical insurance</h2>${cnt("Insurance")} employees need insurance renewal within ${st.insuranceAlertDays} days. Iqama renewal needs valid CCHI cover.</div>
+    <div class="panel"><h2>Rent & contracts</h2>${cnt("Rent")+cnt("Contract")} installments or contracts need action.</div>
+  </div>`;
+}
+const mShort=m=>new Date(m+"T00:00:00Z").toLocaleString("en-US",{month:"short",timeZone:"UTC"});
+const mLong=m=>new Date(m+"T00:00:00Z").toLocaleString("en-US",{month:"short",year:"numeric",timeZone:"UTC"});
+const kfmt=v=>Math.abs(v)>=1e6?(v/1e6).toFixed(v%1e6?1:0)+"M":Math.abs(v)>=1000?(v/1000).toFixed(v%1000?1:0)+"k":String(Math.round(v));
+/* stacked bars: series=[{label,color,values[]}], one y-axis */
+function stackedBars(months,series,aria){
+  if(!months.length) return `<div class="empty">No data.</div>`;
+  const W=680,H=240,pl=44,pb=26,pt=12,pr=6;
+  const tot=months.map((_,i)=>series.reduce((a,s)=>a+(s.values[i]||0),0)); const max=Math.max(1,...tot);
+  const step=niceStep(max/4), top=Math.ceil(max/step)*step; const y=v=>pt+(H-pt-pb)*(1-v/top); const bw=(W-pl-pr)/months.length;
+  let g=""; for(let v=0;v<=top+1e-9;v+=step) g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/><text x="${pl-6}" y="${y(v)+3}" text-anchor="end">${kfmt(v)}</text>`;
+  g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)"/>`;
+  const every=months.length>18?3:months.length>12?2:1;
+  const bars=months.map((m,i)=>{ const x=pl+i*bw+bw*.2, w=Math.max(2,bw*.6); let acc=0; let out="";
+    const tip=`${mLong(m)}\n`+series.filter(s=>s.values[i]).map(s=>`${s.label}: ${money(s.values[i])}`).join("\n")+`\nTotal: ${money(tot[i])} SAR`;
+    const segs=series.map(s=>({c:s.color,v:s.values[i]||0})).filter(s=>s.v>0);
+    segs.forEach((s,k)=>{ const y1=y(acc+s.v), y0=y(acc); const hgt=Math.max(0,y0-y1-(k<segs.length-1?0:0)); acc+=s.v;
+      out+=`<rect class="bar" style="animation-delay:${i*25}ms" x="${x}" y="${y1+ (k?1:0)}" width="${w}" height="${Math.max(0,hgt-(k?1:0))}" fill="${s.c}" rx="${k===segs.length-1?3:0}" data-tip="${h(tip)}"/>`; });
+    if(!segs.length) out+=`<rect x="${x}" y="${pt}" width="${w}" height="${H-pt-pb}" fill="transparent" data-tip="${h(tip)}"/>`;
+    return out+(i%every===0?`<text x="${x+w/2}" y="${H-pb+15}" text-anchor="middle">${mShort(m)}</text>`:""); }).join("");
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${h(aria)}">${g}${bars}</svg></div>
+   ${series.length>1?`<div class="legend" style="flex-wrap:wrap">${series.map(s=>`<span><i style="background:${s.color}"></i>${h(s.label)}</span>`).join("")}</div>`:""}`;
+}
+function forecastChart(fc){
+  return stackedBars(fc.map(m=>m.month),[
+    {label:"Iqama renewals (company cost)",color:"var(--s1)",values:fc.map(m=>m.iqamaCost||0)},
+    {label:"Rent & contract installments (incl. VAT)",color:"var(--s2)",values:fc.map(m=>m.rentDue||0)}],"Forecast of cash needed per month");
+}
+function lineChart(months,values,label){
+  if(!months.length) return "";
+  const W=680,H=170,pl=44,pb=24,pt=14,pr=10; const max=Math.max(1,...values); const step=niceStep(max/3), top=Math.ceil(max/step)*step;
+  const x=i=>pl+(W-pl-pr)*(months.length===1?.5:i/(months.length-1)); const y=v=>pt+(H-pt-pb)*(1-v/top);
+  let g=""; for(let v=0;v<=top+1e-9;v+=step) g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${pl-6}" y="${y(v)+3}" text-anchor="end">${kfmt(v)}</text>`;
+  const pts=values.map((v,i)=>`${x(i)},${y(v)}`).join(" ");
+  const area=`${x(0)},${y(0)} ${pts} ${x(values.length-1)},${y(0)}`;
+  const every=months.length>18?3:months.length>12?2:1; const last=values.length-1;
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${h(label)}">${g}
+   <polygon points="${area}" fill="var(--s1)" opacity=".12"/><polyline class="line" points="${pts}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>
+   ${values.map((v,i)=>`<circle class="dot" style="animation-delay:${300+i*30}ms" cx="${x(i)}" cy="${y(v)}" r="${i===last?5:3.5}" fill="var(--s1)" stroke="var(--surface)" stroke-width="2" data-tip="${h(mLong(months[i])+"\nClosing prepaid: "+money(v)+" SAR")}"/>`).join("")}
+   ${months.map((m,i)=>i%every===0?`<text x="${x(i)}" y="${H-6}" text-anchor="middle">${mShort(m)}</text>`:"").join("")}
+   <text x="${x(last)}" y="${y(values[last])-10}" text-anchor="end" style="fill:var(--fg);font-weight:600">${money0(values[last])}</text></svg></div>`;
+}
+function donut(segs,center,sub){
+  const total=segs.reduce((a,s)=>a+s.v,0); const R=54,C=2*Math.PI*R; let off=0;
+  const arcs=total?segs.filter(s=>s.v>0).map(s=>{ const len=C*s.v/total; const gap=segs.filter(x=>x.v>0).length>1?2:0;
+    const el=`<circle class="arc" cx="75" cy="75" r="${R}" fill="none" stroke="${s.c}" stroke-width="18" stroke-dasharray="${Math.max(0,len-gap)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 75 75)" data-tip="${h(s.l+": "+s.v+" ("+Math.round(s.v/total*100)+"%)")}"/>`; off+=len; return el; }).join("")
+    :`<circle cx="75" cy="75" r="${R}" fill="none" stroke="var(--grid)" stroke-width="18"/>`;
+  return `<div class="donut-wrap"><div class="chart"><svg viewBox="0 0 150 150" role="img" aria-label="Iqama status breakdown">${arcs}
+    <text x="75" y="74" text-anchor="middle" style="fill:var(--fg);font-size:26px;font-weight:600">${h(center)}</text><text x="75" y="93" text-anchor="middle">${h(sub)}</text></svg></div>
+    <div class="lg-list">${segs.map(s=>`<div><i style="background:${s.c}"></i><span>${h(s.l)}</span><b>${s.v}</b></div>`).join("")}</div></div>`;
+}
+function expiryStrip(items){
+  const W=680,H=120,pl=70,pr=12,max=120; const x=d=>d<0?pl/2:pl+(W-pl-pr)*Math.min(d,max)/max;
+  const ticks=[0,15,30,60,90,120];
+  const col=d=>d<0?"var(--st-crit)":d<=15?"var(--st-crit)":d<=30?"var(--st-serious)":d<=90?"var(--st-warn)":"var(--st-good)";
+  const lanes={}; const dots=items.filter(i=>i.days<=max).sort((a,b)=>a.days-b.days).map((it,k)=>{ const px=Math.round(x(it.days)/9); lanes[px]=(lanes[px]||0)+1; const lane=lanes[px]-1;
+    const cy=H-34-((lane%6)*12); return `<circle class="dot" style="animation-delay:${k*20}ms" cx="${it.days<0?14+((k*37)%(pl-36)):x(it.days)}" cy="${cy}" r="5" fill="${col(it.days)}" stroke="var(--surface)" stroke-width="1.5" data-tip="${h(it.name+"\n"+(it.days<0?Math.abs(it.days)+" days overdue":it.days+" days left")+"\nExpiry "+fd(it.date))}"/>`; }).join("");
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Iqama expiries in the next 120 days">
+   <rect x="4" y="8" width="${pl-14}" height="${H-30}" rx="6" fill="var(--red-soft)"/><text x="${(pl-6)/2}" y="${H-8}" text-anchor="middle" style="fill:var(--red)">Overdue</text>
+   ${ticks.map(t=>`<line x1="${x(t)}" x2="${x(t)}" y1="8" y2="${H-22}" stroke="var(--grid)"/><text x="${x(t)}" y="${H-8}" text-anchor="middle">${t===0?"Today":t+"d"}</text>`).join("")}
+   <line x1="${pl}" x2="${W-pr}" y1="${H-22}" y2="${H-22}" stroke="var(--axis)"/>${dots}</svg></div>`;
+}
+function countUp(){
+  document.querySelectorAll(".enter .kpi .v[data-n]").forEach(el=>{ const n=+el.dataset.n; if(!n) return; const t0=performance.now(); const dur=700; const fmt=el.dataset.fmt==="m"?money0:(v=>String(Math.round(v)));
+    const tick=now=>{ const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3); el.firstChild.textContent=fmt(n*e); if(p<1) requestAnimationFrame(tick); else el.firstChild.textContent=fmt(n); }; requestAnimationFrame(tick); });
+}
+function niceStep(x){ const p=Math.pow(10,Math.floor(Math.log10(Math.max(x,1)))); const n=x/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
+function alertRow(a){
+  const e=a.empNo?empBy(a.empNo):null;
+  return `<div class="alert s-${h(a.severity)}"><span class="stripe"></span><div style="min-width:0"><div class="t">${h(a.title)} ${sevPill(a.severity,a.daysLeft<0?Math.abs(a.daysLeft)+"d overdue":a.daysLeft+"d")}</div>
+  <div class="m">${h(a.category)} · ${e?h(e.empNo+" "+(e.nameEn||e.nameAr||"")):h(a.ref||"")} · due ${fd(a.dueDate)}${a.dueDate?" · "+h(hj(a.dueDate))+" هـ":""}</div><div class="m">${h(a.message)}</div></div>
+  <div class="row"><button class="btn sm" data-alertact="act" data-key="${h(a.key)}">Open</button></div></div>`;
+}
+
+/* ---------- notifications ---------- */
+function vAlerts(){
+  const al=allAlerts(); const cats=["All",...new Set(al.map(a=>a.category))];
+  const f=S.ui.alertCat; const showMuted=S.ui.showMuted;
+  const list=al.filter(a=>(f==="All"||a.category===f||a.severity===f)&&(showMuted||!isMuted(a)));
+  const st=settings();
+  return `<div class="panel" style="margin-bottom:16px"><div class="row"><div class="prose sub">Reminders start ${h(st.reminderDays.join(", "))} days before an Iqama expires, ${h((st.contractReminderDays||[]).join(", "))} days before a contract ends, and ${h((st.installmentReminderDays||[]).join(", "))} days before a rent installment is due. Acknowledging a reminder hides it until it reaches its next stage. Snoozed reminders come back after the snooze date.</div></div></div>
+  <div class="chips">${cats.map(c=>`<button class="chip" data-alertcat="${h(c)}" aria-pressed="${f===c}">${h(c)}<b>${c==="All"?al.filter(a=>!isMuted(a)).length:al.filter(a=>a.category===c&&!isMuted(a)).length}</b></button>`).join("")}
+  <span class="spacer"></span><label class="check"><input type="checkbox" id="showMuted" ${showMuted?"checked":""}> Show acknowledged & snoozed</label></div>
+  <div class="panel" style="padding:0">${list.length?list.map(a=>{
+    const muted=isMuted(a); const k=S.acks[safeId(a.key)];
+    return `<div class="alert s-${h(a.severity)}" style="${muted?"opacity:.55":""}"><span class="stripe"></span><div style="min-width:0">
+      <div class="t">${h(a.title)} ${sevPill(a.severity,a.daysLeft<0?Math.abs(a.daysLeft)+" days overdue":a.daysLeft+" days left")} ${a.stage!=null&&a.stage!==""?`<span class="pill p-grey">Stage ${h(a.stage)}</span>`:""}</div>
+      <div class="m">${h(a.category)} · ${h(a.empNo||a.ref||"")} · due ${fd(a.dueDate)} ${a.dueDate?"· "+h(hj(a.dueDate))+" هـ":""}</div>
+      <div class="m">${h(a.message)}</div>${muted?`<div class="m">${k.ack?"Acknowledged":"Snoozed until "+fd(k.snoozeUntil)}</div>`:""}</div>
+      <div class="row">
+        <button class="btn sm" data-alertact="act" data-key="${h(a.key)}">Open</button>
+        <button class="btn sm" data-alertact="copy" data-key="${h(a.key)}">Copy reminder</button>
+        ${muted?`<button class="btn sm" data-alertact="unmute" data-key="${h(a.key)}">Restore</button>`:
+        `<button class="btn sm" data-alertact="snooze7" data-key="${h(a.key)}">Snooze 7d</button><button class="btn sm" data-alertact="ack" data-key="${h(a.key)}">Acknowledge</button>`}
+      </div></div>`;}).join(""):`<div class="empty"><b>All clear</b>No reminders in this filter.</div>`}</div>`;
+}
+
+/* ---------- employees ---------- */
+function vEmployees(){
+  const t=today(); const q=S.ui.empQ.trim().toLowerCase();
+  const rows=S.employees.map(e=>{ const eff=E.effectiveExpiry(e,S.renewals); return {e,eff,days:eff?E.daysBetween(t,eff):null}; })
+    .filter(x=>(!S.ui.empStatus||S.ui.empStatus==="All"||x.e.status===S.ui.empStatus||(S.ui.empStatus==="Active"&&x.e.status==="On Vacation")))
+    .filter(x=>!q||[x.e.empNo,x.e.nameEn,x.e.nameAr,x.e.iqamaNo,x.e.nationality,x.e.department,x.e.branch,x.e.jobTitle].join(" ").toLowerCase().includes(q))
+    .filter(x=>!S.ui.empAlert||(S.ui.empAlert==="exp"&&x.days<0)||(S.ui.empAlert==="30"&&x.days>=0&&x.days<=30)||(S.ui.empAlert==="90"&&x.days>=0&&x.days<=90))
+    .sort((a,b)=>(a.days==null?1e9:a.days)-(b.days==null?1e9:b.days));
+  const shown=rows.slice(0,S.ui.empLimit||300);
+  return `<div class="row" style="margin-bottom:12px">
+    <input class="search" id="empQ" placeholder="Search name, iqama, emp no…" value="${h(S.ui.empQ)}">
+    <select class="sel" id="empStatus">${["Active","All","On Vacation","Final Exit","Huroob","Transferred"].map(s=>`<option ${S.ui.empStatus===s?"selected":""}>${s}</option>`).join("")}</select>
+    <select class="sel" id="empAlert"><option value="">Any expiry</option><option value="exp" ${S.ui.empAlert==="exp"?"selected":""}>Expired</option><option value="30" ${S.ui.empAlert==="30"?"selected":""}>Due ≤ 30 days</option><option value="90" ${S.ui.empAlert==="90"?"selected":""}>Due ≤ 90 days</option></select>
+    <span class="spacer"></span>
+    <button class="btn" data-act="template">Import template</button>
+    <button class="btn" data-act="import">Import Excel</button>
+    <button class="btn" data-act="export">Export all</button>
+    <button class="btn pri" data-act="addEmp">Add employee</button></div>
+  <div class="sub" style="margin-bottom:8px">${rows.length} employees · sorted by days to Iqama expiry · click a row to edit</div>
+  <div class="tbl-wrap"><table><thead><tr>
+    <th>Emp No<span class="ar">الرقم الوظيفي</span></th><th>Name<span class="ar">الاسم</span></th><th>Nationality<span class="ar">الجنسية</span></th><th>Iqama No<span class="ar">رقم الإقامة</span></th>
+    <th>Iqama expiry<span class="ar">انتهاء الإقامة</span></th><th>Days left</th><th>Passport expiry</th><th>Insurance expiry</th><th class="n">Dep.</th><th>Branch / Dept</th><th>Status</th><th></th></tr></thead><tbody>
+    ${shown.map(({e,eff,days})=>`<tr class="clk" data-editemp="${h(e.empNo)}">
+      <td class="mono">${h(e.empNo)}${e.example?` <span class="pill p-grey">Example</span>`:""}</td>
+      <td>${h(e.nameEn)}${e.nameAr?`<div class="sub ar">${h(e.nameAr)}</div>`:""}</td><td>${h(e.nationality)}</td><td class="mono">${h(e.iqamaNo)}</td>
+      <td>${fd(eff)}<div class="sub">${h(hj(eff))}</div></td><td>${e.status==="Active"||e.status==="On Vacation"?daysPill(days):`<span class="pill p-grey">${h(e.status)}</span>`}</td>
+      <td>${expCell(e.passportExpiry,settings().passportAlertDays)}</td><td>${expCell(e.insuranceExpiry,settings().insuranceAlertDays)}</td>
+      <td class="n">${h(e.dependents||0)}</td><td>${h(e.branch||"")}${e.department?`<div class="sub">${h(e.department)}</div>`:""}</td><td>${h(e.status)}</td>
+      <td><button class="btn sm" data-renewemp="${h(e.empNo)}">Renew</button></td></tr>`).join("")}
+  </tbody></table>${rows.length?"":`<div class="empty"><b>No employees match</b>Change the filters, or import your employee sheet.</div>`}</div>
+  ${rows.length>shown.length?`<div class="row" style="margin-top:10px"><button class="btn" data-act="moreEmp">Show all ${rows.length}</button></div>`:""}`;
+}
+function expCell(d,alertDays){ if(!d) return `<span class="sub">—</span>`; const n=E.daysBetween(today(),d); const c=n<0?"p-red":n<=alertDays?"p-amber":""; return c?`<span class="pill ${c}">${fd(d)}</span>`:fd(d); }
+
+const EMP_FIELDS=[
+  ["empNo","Employee No","الرقم الوظيفي","text"],["nameEn","Name (English)","الاسم بالإنجليزي","text"],["nameAr","Name (Arabic)","الاسم بالعربي","text"],
+  ["nationality","Nationality","الجنسية","text"],["jobTitle","Profession (on Iqama)","المهنة","text"],["department","Department","القسم","text"],["branch","Branch","الفرع","text"],
+  ["iqamaNo","Iqama No","رقم الإقامة","text"],["iqamaExpiry","Iqama expiry (last known)","تاريخ انتهاء الإقامة","date"],
+  ["passportNo","Passport No","رقم الجواز","text"],["passportExpiry","Passport expiry","انتهاء الجواز","date"],["insuranceExpiry","Medical insurance expiry","انتهاء التأمين الطبي","date"],
+  ["dependents","Dependents","عدد المرافقين","number"],["depPayer","Dependents fee paid by","رسوم المرافقين على","sel:Employee,Company"],
+  ["status","Status","الحالة","sel:Active,On Vacation,Final Exit,Huroob,Transferred"],["levyExempt","Levy exempt (small establishment)","معفى من المقابل المالي","sel:No,Yes"],
+  ["phone","Mobile","الجوال","text"],["email","Email","البريد","text"],["notes","Notes","ملاحظات","text"]];
+function fieldHtml(prefix,[k,en,ar,type],val){
+  const id=prefix+k; let inp;
+  if(type.startsWith("sel:")){ const opts=type.slice(4).split(","); inp=`<select id="${id}">${opts.map(o=>`<option ${String(val)===o?"selected":""}>${o}</option>`).join("")}</select>`; }
+  else inp=`<input id="${id}" type="${type}" value="${h(val==null?"":val)}" ${k==="empNo"?"readonly":""} ${type==="number"?'min="0" step="1"':""}>`;
+  return `<div class="field"><label for="${id}">${h(en)}<span class="ar">${h(ar)}</span></label>${inp}</div>`;
+}
+function openEmployee(no){
+  const e=no?empBy(no):null; const isNew=!e;
+  const v=Object.assign({status:"Active",depPayer:"Employee",dependents:0},e||{});
+  v.levyExempt = v.levyExempt?"Yes":"No";
+  if(isNew) v.empNo = nextId(settings().empPrefix||"EMP-",S.employees,"empNo")+"  (auto)";
+  openModal(isNew?"New employee · موظف جديد":`Employee ${e.empNo}`,
+   `<div class="fgrid">${EMP_FIELDS.map(f=>fieldHtml("e_",f,v[f[0]])).join("")}</div>
+    ${e?`<div class="sub">Effective Iqama expiry after completed renewals: <b>${fd(E.effectiveExpiry(e,S.renewals))}</b> · ${h(hj(E.effectiveExpiry(e,S.renewals)))} هـ</div>`:`<div class="sub">The employee number is generated automatically when you save.</div>`}`,
+   [ e?{label:"Delete",cls:"danger",fn:()=>confirmBox(`Delete employee ${e.empNo}? Their renewal and visa records stay.`,async()=>{await del("employees",e.empNo);toast("Employee deleted");closeModal();})}:null,
+     e?{label:"New renewal",fn:()=>{closeModal();openRenewal(null,e.empNo);}}:null,
+     {label:"Save",cls:"pri",fn:async()=>{
+       const o={}; EMP_FIELDS.forEach(([k,,,t])=>{ let x=$("#e_"+k).value; if(t==="number") x=parseInt(x||"0",10)||0; o[k]=typeof x==="string"?x.trim():x; });
+       o.levyExempt = o.levyExempt==="Yes";
+       if(!o.nameEn && !o.nameAr){ toast("Enter the employee name."); return; }
+       if(S.employees.some(x=>x.iqamaNo&&o.iqamaNo&&x.iqamaNo===o.iqamaNo&&x.empNo!==(e&&e.empNo))){ toast("Another employee already has this Iqama number."); return; }
+       if(isNew){ await withNumberLock(async()=>{ o.empNo=nextId(settings().empPrefix||"EMP-",S.employees,"empNo"); o.createdAt=new Date().toISOString(); await put("employees",o.empNo,o); }); toast(`Saved as ${o.empNo}`); }
+       else { o.empNo=e.empNo; await put("employees",e.empNo,Object.assign({},e,o,{_id:undefined})); toast("Employee saved"); }
+       closeModal();
+     }}].filter(Boolean));
+}
+
+/* ---------- renewals ---------- */
+function vRenewals(){
+  const st=settings(), t=today(); const f=S.ui.renFilter;
+  const list=S.renewals.map(r=>{ const e=empBy(r.empNo)||{}; let c={}; try{c=E.calcRenewal(r,e,st,S.renewals,t);}catch(x){} return {r,e,c,s:E.renewalStatus(r)}; })
+    .filter(x=>f==="All"||(f==="Open"&&x.s!=="Completed")||x.s===f)
+    .sort((a,b)=>(b.r.requestDate||"").localeCompare(a.r.requestDate||"")||(b.r.id||"").localeCompare(a.r.id||""));
+  const counts=s=>S.renewals.filter(r=>s==="All"||(s==="Open"&&E.renewalStatus(r)!=="Completed")||E.renewalStatus(r)===s).length;
+  const tot=list.reduce((a,x)=>(a.t+=x.c.total||0,a.p+=x.c.companyPrepaid||0,a.f+=x.c.lateFine||0,a),{t:0,p:0,f:0});
+  return `<div class="row" style="margin-bottom:12px"><div class="chips" style="margin:0">${["Open","All",...STATUS_ORDER].map(s=>`<button class="chip" data-renfilter="${h(s)}" aria-pressed="${f===s}">${h(s)}<b>${counts(s)}</b></button>`).join("")}</div><span class="spacer"></span><button class="btn pri" data-act="addRen">New renewal request</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Request</th><th>Employee</th><th class="n">Months</th><th>Current expiry → New expiry</th><th class="n">Iqama</th><th class="n">Levy + WP</th><th class="n">Dependents</th><th class="n">Late fine</th><th class="n">Total SAR</th><th>Status</th><th>Next step</th></tr></thead><tbody>
+  ${list.map(({r,e,c,s})=>`<tr class="clk" data-openren="${h(r.id)}"><td class="mono">${h(r.id)}<div class="sub">${fd(r.requestDate)}</div></td>
+    <td>${h(e.nameEn||e.nameAr||r.empNo)}<div class="sub">${h(r.empNo)} · ${h(e.iqamaNo||"")}</div></td><td class="n">${h(r.months)}</td>
+    <td>${fd(r.oldExpiry)} → <b>${fd(c.newExpiry)}</b><div class="sub">${h(hj(c.newExpiry))}</div></td>
+    <td class="n">${money(c.iqamaFee)}</td><td class="n">${money((c.levy||0)+(c.wpFee||0))}</td><td class="n">${money(c.depFee)}${c.employeeRecoverable?`<div class="sub">employee</div>`:""}</td>
+    <td class="n">${c.lateFine?`<span style="color:var(--red)">${money(c.lateFine)}</span>`:"—"}${c.deportRisk?`<div class="sub" style="color:var(--red)">3rd offense</div>`:""}</td>
+    <td class="n"><b>${money(c.total)}</b></td><td>${statusPill(s)}</td><td>${nextStepBtn(r,s)}</td></tr>`).join("")}
+  </tbody><tfoot><tr><td colspan="7">Total (${list.length})</td><td class="n">${money(tot.f)}</td><td class="n">${money(tot.t)}</td><td colspan="2" class="sub">Company prepaid ${money(tot.p)}</td></tr></tfoot></table>
+  ${list.length?"":`<div class="empty"><b>No renewal requests here</b>Create one from the Employees list or with "New renewal request".</div>`}</div>`;
+}
+const STEPS=[["hrDate","HR approval","موافقة الموارد البشرية"],["financeDate","Finance approval","موافقة المالية"],["sadadNo","SADAD bill issued","إصدار فاتورة سداد"],["paymentDate","Payment","السداد"],["completedDate","Renewed in Muqeem/Absher","تم التجديد"]];
+function nextStep(r){ for(const s of STEPS){ if(!r[s[0]]) return s; } return null; }
+function nextStepBtn(r){ const n=nextStep(r); return n?`<button class="btn sm pri" data-step="${h(r.id)}">${h(n[1])}</button>`:`<span class="sub">Done</span>`; }
+
+function openRenewal(id,empNo){
+  const st=settings(), t=today(); const r0=id?S.renewals.find(x=>x.id===id):null; const isNew=!r0;
+  const r=Object.assign({months:12,requestDate:t,otherFees:0,checklist:{}},r0||{}); if(empNo) r.empNo=empNo;
+  const emps=S.employees.filter(e=>e.status!=="Final Exit"&&e.status!=="Transferred").sort((a,b)=>(a.empNo>b.empNo?1:-1));
+  const locked=!!(r0&&r0.paymentDate);
+  const body=`
+   <div class="fgrid">
+    <div class="field"><label for="r_emp">Employee<span class="ar">الموظف</span></label><select id="r_emp" ${locked?"disabled":""}><option value="">Select…</option>${emps.map(e=>`<option value="${h(e.empNo)}" ${e.empNo===r.empNo?"selected":""}>${h(e.empNo)} — ${h(e.nameEn||e.nameAr)} — ${h(e.iqamaNo||"")}</option>`).join("")}</select></div>
+    <div class="field"><label for="r_req">Request date<span class="ar">تاريخ الطلب</span></label><input id="r_req" type="date" value="${h(r.requestDate)}" ${locked?"readonly":""}></div>
+    <div class="field"><label for="r_months">Renewal period<span class="ar">مدة التجديد</span></label><select id="r_months" ${locked?"disabled":""}>${[3,6,9,12].map(m=>`<option value="${m}" ${+r.months===m?"selected":""}>${m} months</option>`).join("")}</select></div>
+    <div class="field"><label for="r_old">Current Iqama expiry<span class="ar">تاريخ الانتهاء الحالي</span></label><input id="r_old" type="date" value="${h(r.oldExpiry||"")}" ${locked?"readonly":""}></div>
+    <div class="field"><label for="r_other">Other fees (SAR)<span class="ar">رسوم أخرى</span></label><input id="r_other" type="number" step="0.01" min="0" value="${h(r.otherFees||0)}" ${locked?"readonly":""}></div>
+    <div class="field"><label for="r_notes">Notes</label><input id="r_notes" value="${h(r.notes||"")}"></div>
+   </div>
+   <div><div class="sub" style="margin-bottom:6px">Pre-renewal checklist · متطلبات التجديد</div><div class="row">
+     ${[["insurance","Valid medical insurance (CCHI)"],["passport","Passport valid"],["traffic","Traffic violations paid"],["mudad","Qiwa / Mudad wage protection OK"]].map(([k,l])=>`<label class="check"><input type="checkbox" id="r_ck_${k}" ${r.checklist&&r.checklist[k]?"checked":""}> ${l}</label>`).join("")}
+   </div><div id="r_autochk" class="sub" style="margin-top:6px"></div></div>
+   <div class="calc" id="r_calc"></div>
+   ${r0?`<div><div class="sub" style="margin-bottom:6px">Workflow · مراحل الطلب</div><div class="steps">${[["requestDate","Requested"],...STEPS].map(([k,l])=>`<div class="step ${r0[k]?"done":(nextStep(r0)&&nextStep(r0)[0]===k?"cur":"")}"><b>${h(l)}</b>${k==="sadadNo"?h(r0.sadadNo||"—"):fd(r0[k])}${k==="paymentDate"&&r0.paymentRef?`<div>${h(r0.paymentRef)}</div>`:""}</div>`).join("")}</div></div>`:""}`;
+  const btns=[
+    r0&&!r0.paymentDate?{label:"Delete",cls:"danger",fn:()=>confirmBox(`Delete renewal ${r0.id}?`,async()=>{await del("renewals",r0.id);closeModal();toast("Renewal deleted");})}:null,
+    r0&&nextStep(r0)?{label:nextStep(r0)[1],fn:()=>{closeModal();openStep(r0.id);}}:null,
+    {label:isNew?"Submit request":"Save",cls:"pri",fn:async()=>{
+      const o=readRenewalForm(r); if(!o.empNo){toast("Select an employee.");return;} if(!o.oldExpiry){toast("Enter the current Iqama expiry date.");return;}
+      if(isNew){ await withNumberLock(async()=>{ o.id=nextId("REN-",S.renewals); await put("renewals",o.id,o); }); toast(`Request ${o.id} created`); }
+      else { await put("renewals",o.id,o); toast("Saved"); }
+      closeModal();
+    }}].filter(Boolean);
+  openModal(isNew?"New Iqama renewal request · طلب تجديد إقامة":`Renewal ${r0.id}`,body,btns);
+  const upd=()=>{
+    const empSel=$("#r_emp").value; const e=empBy(empSel);
+    if(e && isNew && (!$("#r_old").value || $("#r_old").dataset.auto==="1")){ $("#r_old").value=E.suggestOldExpiry(e,S.renewals,null)||""; $("#r_old").dataset.auto="1"; }
+    const o=readRenewalForm(r); let c={}; try{ c=E.calcRenewal(o,e||{},st,S.renewals.filter(x=>x.id!==o.id).concat(o.id?[o]:[Object.assign({},o,{id:"REN-9999"})]),t); }catch(x){}
+    $("#r_calc").innerHTML=[["Coverage",`${fd(c.coverageStart)} → ${fd(c.newExpiry)}`],["New expiry (Hijri)",hj(c.newExpiry)||"—"],["Iqama fee",money(c.iqamaFee)],["Expat levy",money(c.levy)],["Work permit fee",money(c.wpFee)],["Dependents fee",money(c.depFee)+(c.employeeRecoverable?" (employee)":"")],["Late fine",money(c.lateFine)+(c.isLate?` (offense ${c.offenseNo})`:"")],["Other",money(c.otherFees)],["Total to pay (SADAD)",money(c.total)],["Company prepaid",money(c.companyPrepaid)],["Monthly amortization",money((c.companyPrepaid||0)/(+o.months||12))]]
+      .map(([l,v])=>`<div><span>${h(l)}</span><b>${h(v)}</b></div>`).join("")+(c.deportRisk?`<div style="grid-column:1/-1;color:var(--red)"><b>3rd late offense — deportation risk under the Residency Law.</b></div>`:"")+(c.isLate?`<div style="grid-column:1/-1;color:var(--red)">The Iqama is past expiry plus the ${st.lateGraceDays}-day grace period. A late renewal fine applies.</div>`:"");
+    if(e){ const pd=e.passportExpiry?E.daysBetween(t,e.passportExpiry):null, idays=e.insuranceExpiry?E.daysBetween(t,e.insuranceExpiry):null;
+      $("#r_autochk").innerHTML=`From the employee file: passport ${pd==null?"<b>not recorded</b>":pd<st.passportMinDays?`<b style="color:var(--red)">expires in ${pd} days</b>`:`valid ${pd} days`} · insurance ${idays==null?"<b>not recorded</b>":idays<0?`<b style="color:var(--red)">expired</b>`:`valid until ${fd(e.insuranceExpiry)}`} · dependents ${e.dependents||0} (${h(e.depPayer||"Employee")} pays)${e.levyExempt?" · levy exempt":""}`; }
+  };
+  ["r_emp","r_months","r_old","r_other","r_req"].forEach(i=>$("#"+i).addEventListener("input",()=>{ if(i==="r_old") $("#r_old").dataset.auto="0"; if(i==="r_emp") $("#r_old").dataset.auto="1"; upd(); }));
+  upd();
+}
+function readRenewalForm(r){
+  const e=empBy($("#r_emp").value)||{};
+  const o=Object.assign({},r,{empNo:$("#r_emp").value,requestDate:$("#r_req").value,months:+$("#r_months").value,oldExpiry:$("#r_old").value,otherFees:parseFloat($("#r_other").value)||0,notes:$("#r_notes").value.trim(),
+    checklist:{insurance:$("#r_ck_insurance").checked,passport:$("#r_ck_passport").checked,traffic:$("#r_ck_traffic").checked,mudad:$("#r_ck_mudad").checked}});
+  if(!r.paymentDate){ o.dependentsAtRequest=e.dependents||0; o.depPayerAtRequest=e.depPayer||"Employee"; }
+  delete o._id; return o;
+}
+function openStep(id){
+  const r=S.renewals.find(x=>x.id===id); const n=nextStep(r); if(!n) return; const t=today();
+  const ck=r.checklist||{}; const missing=["insurance","passport","traffic","mudad"].filter(k=>!ck[k]);
+  let body=`<div class="fgrid"><div class="field"><label for="s_date">Date<span class="ar">التاريخ</span></label><input id="s_date" type="date" value="${t}"></div>`;
+  if(n[0]==="sadadNo") body+=`<div class="field"><label for="s_val">SADAD bill number<span class="ar">رقم فاتورة سداد</span></label><input id="s_val" placeholder="e.g. 7012345678"></div>`;
+  if(n[0]==="paymentDate") body+=`<div class="field"><label for="s_val">Bank reference<span class="ar">مرجع الدفع</span></label><input id="s_val" placeholder="Bank transfer / SADAD ref"></div>`;
+  body+=`</div>`;
+  if(n[0]==="paymentDate"){ let c={}; try{c=E.calcRenewal(r,empBy(r.empNo)||{},settings(),S.renewals,t);}catch(x){} body+=`<div class="calc"><div><span>Amount to pay</span><b>${money(c.total)}</b></div><div><span>Goes to prepaid</span><b>${money(c.companyPrepaid)}</b></div><div><span>Employee receivable</span><b>${money(c.employeeRecoverable)}</b></div><div><span>Expensed now (fines/other)</span><b>${money(c.expensedNow)}</b></div></div>`; }
+  if(missing.length && (n[0]==="financeDate"||n[0]==="paymentDate")) body+=`<div class="warnbox">The checklist is incomplete: ${missing.join(", ")}. Jawazat or Qiwa may reject the renewal until these are cleared.</div>`;
+  if(n[0]==="completedDate") body+=`<div class="sub">This sets the employee's Iqama expiry to the new date and starts the next reminder cycle.</div>`;
+  openModal(`${r.id} · ${n[1]} · ${n[2]}`,body,[{label:"Confirm",cls:"pri",fn:async()=>{
+    const d=$("#s_date").value; if(!d){toast("Enter a date.");return;}
+    const o=Object.assign({},r); delete o._id;
+    if(n[0]==="sadadNo"){ const v=$("#s_val").value.trim(); if(!v){toast("Enter the SADAD bill number.");return;} o.sadadNo=v; o.sadadDate=d; }
+    else if(n[0]==="paymentDate"){ o.paymentDate=d; o.paymentRef=$("#s_val").value.trim(); }
+    else o[n[0]]=d;
+    await put("renewals",r.id,o); closeModal(); toast(`${r.id}: ${n[1]} recorded`);
+  }}]);
+}
+
+/* ---------- visas ---------- */
+const VTYPES=["ER Single","ER Multiple","Final Exit","Iqama Lost","Iqama Damaged"];
+function vVisas(){
+  const st=settings(), t=today(); const f=S.ui.visaFilter;
+  const list=S.visas.map(v=>({v,e:empBy(v.empNo)||{},s:E.visaStatus(v,t),fee:(()=>{try{return E.visaFee(v,st,S.visas);}catch(x){return 0;}})(),rb:E.visaReturnBefore(v)}))
+   .filter(x=>f==="All"||(f==="Open"&&!["Returned","Left (Final)"].includes(x.s))||x.s===f)
+   .sort((a,b)=>(b.v.requestDate||"").localeCompare(a.v.requestDate||""));
+  const sts=["Open","All","Requested","Paid","Issued","Outside KSA","Not Returned","Expired Unused","Returned"];
+  return `<div class="row" style="margin-bottom:12px"><div class="chips" style="margin:0">${sts.map(s=>`<button class="chip" data-visafilter="${h(s)}" aria-pressed="${f===s}">${h(s)}</button>`).join("")}</div><span class="spacer"></span><button class="btn pri" data-act="addVisa">New Jawazat service</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Employee</th><th>Service</th><th class="n">Months</th><th class="n">Fee SAR</th><th>Paid by</th><th>Issued</th><th>Departed</th><th>Return before</th><th>Returned</th><th>Status</th></tr></thead><tbody>
+  ${list.map(({v,e,s,fee,rb})=>`<tr class="clk" data-openvisa="${h(v.id)}"><td class="mono">${h(v.id)}<div class="sub">${fd(v.requestDate)}</div></td><td>${h(e.nameEn||e.nameAr||v.empNo)}<div class="sub">${h(v.empNo)}</div></td><td>${h(v.type)}</td><td class="n">${h(v.months||"")}</td><td class="n">${money(fee)}</td><td>${h(v.payer)}</td><td>${fd(v.issueDate)}</td><td>${fd(v.departureDate)}</td><td>${rb?fd(rb):"—"}${rb&&v.departureDate&&!v.returnDate?`<div>${daysPill(E.daysBetween(t,rb))}</div>`:""}</td><td>${fd(v.returnDate)}</td><td>${statusPill(s)}</td></tr>`).join("")}
+  </tbody></table>${list.length?"":`<div class="empty"><b>No Jawazat services here</b>Record exit/re-entry visas, final exits and Iqama replacements.</div>`}</div>`;
+}
+function openVisa(id,empNo){
+  const st=settings(), t=today(); const v0=id?S.visas.find(x=>x.id===id):null; const isNew=!v0;
+  const v=Object.assign({type:"ER Single",months:2,payer:"Employee",requestDate:t},v0||{}); if(empNo) v.empNo=empNo;
+  const emps=S.employees.filter(e=>e.status==="Active"||e.status==="On Vacation"||e.empNo===v.empNo);
+  openModal(isNew?"New Jawazat service · خدمة جوازات":`Jawazat ${v0.id}`,`<div class="fgrid">
+    <div class="field"><label for="v_emp">Employee</label><select id="v_emp"><option value="">Select…</option>${emps.map(e=>`<option value="${h(e.empNo)}" ${e.empNo===v.empNo?"selected":""}>${h(e.empNo)} — ${h(e.nameEn||e.nameAr)}</option>`).join("")}</select></div>
+    <div class="field"><label for="v_type">Service<span class="ar">نوع الخدمة</span></label><select id="v_type">${VTYPES.map(x=>`<option ${v.type===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label for="v_months">Duration (months)</label><input id="v_months" type="number" min="1" max="24" value="${h(v.months||"")}"></div>
+    <div class="field"><label for="v_payer">Paid by</label><select id="v_payer">${["Employee","Company"].map(x=>`<option ${v.payer===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    ${[["requestDate","Request date"],["paymentDate","Payment date"],["issueDate","Visa issue date"],["departureDate","Departure date"],["returnDate","Actual return date"]].map(([k,l])=>`<div class="field"><label for="v_${k}">${l}</label><input id="v_${k}" type="date" value="${h(v[k]||"")}"></div>`).join("")}
+    <div class="field"><label for="v_notes">Notes</label><input id="v_notes" value="${h(v.notes||"")}"></div></div><div class="calc" id="v_calc"></div>`,
+   [v0?{label:"Delete",cls:"danger",fn:()=>confirmBox(`Delete ${v0.id}?`,async()=>{await del("visas",v0.id);closeModal();})}:null,
+    {label:"Save",cls:"pri",fn:async()=>{ const o=readVisa(v); if(!o.empNo){toast("Select an employee.");return;}
+      if(isNew){ await withNumberLock(async()=>{ o.id=nextId("ERV-",S.visas); await put("visas",o.id,o); }); toast(`Saved as ${o.id}`);} else { await put("visas",o.id,o); toast("Saved"); } closeModal(); }}].filter(Boolean));
+  const upd=()=>{ const o=readVisa(v); let fee=0; try{fee=E.visaFee(o,st,S.visas.filter(x=>x.id!==o.id));}catch(x){} const rb=E.visaReturnBefore(o); const e=empBy(o.empNo); const eff=e?E.effectiveExpiry(e,S.renewals):"";
+    $("#v_calc").innerHTML=`<div><span>Fee (SAR)</span><b>${money(fee)}</b></div><div><span>Return before</span><b>${rb?fd(rb):"—"}</b></div><div><span>Status</span><b>${h(E.visaStatus(o,t))}</b></div><div><span>Iqama valid until</span><b>${fd(eff)}</b></div>`+(rb&&eff&&rb>eff?`<div style="grid-column:1/-1;color:var(--red)">The return date is after the Iqama expiry. Renew the Iqama first, or shorten the visa.</div>`:"")
+      +(o.type.startsWith("ER")?`<div style="grid-column:1/-1" class="sub">If an issued visa is not used, cancel it before it expires to avoid the SAR ${st.erUnusedFine||1000} fine. Fees are not refunded.</div>`:""); };
+  ["v_emp","v_type","v_months","v_issueDate","v_departureDate","v_returnDate","v_paymentDate"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
+}
+function readVisa(v){ const o=Object.assign({},v,{empNo:$("#v_emp").value,type:$("#v_type").value,months:parseInt($("#v_months").value||"0",10)||0,payer:$("#v_payer").value,notes:$("#v_notes").value.trim()});
+  ["requestDate","paymentDate","issueDate","departureDate","returnDate"].forEach(k=>o[k]=$("#v_"+k).value); delete o._id; return o; }
+
+/* ---------- contracts (rent & prepaid) ---------- */
+function vContracts(){
+  const t=today(), st=settings();
+  const list=[...S.contracts].sort((a,b)=>(a.category+a.branch).localeCompare(b.category+b.branch)||(b.startDate||"").localeCompare(a.startDate||""));
+  return `<div class="row" style="margin-bottom:12px"><div class="sub prose">Branch rent (Ejar), medical insurance and other prepaid contracts. Each paid installment is amortized daily over its period. VAT goes to input VAT and is not amortized.</div><span class="spacer"></span><button class="btn pri" data-act="addCon">New contract</button></div>
+  ${list.length?`<div class="stack">${list.map(c=>{
+    const inst=c.installments||[]; const paid=inst.filter(i=>i.paidDate); const daysEnd=c.endDate?E.daysBetween(t,c.endDate):null;
+    const rows=inst.map(i=>{ const d=E.daysBetween(t,i.dueDate); return `<tr><td class="mono">${i.no}</td><td>${fd(i.periodStart)} → ${fd(i.periodEnd)}</td><td>${fd(i.dueDate)}${!i.paidDate?`<div>${daysPill(d)}</div>`:""}</td><td class="n">${money(i.amount)}</td><td class="n">${money(i.vat)}</td><td class="n"><b>${money((+i.amount||0)+(+i.vat||0))}</b></td>
+      <td>${i.paidDate?`<span class="pill p-green">Paid ${fd(i.paidDate)}</span><div class="sub">${h(i.paymentRef||"")}</div>`:`<button class="btn sm pri" data-payinst="${h(c.id)}|${i.no}">Record payment</button>`}</td></tr>`; }).join("");
+    return `<div class="panel"><h2>${h(c.branch||"—")} <small>${h(c.category)} · ${h(c.vendor||"")}</small><span class="spacer"></span><span class="mono sub">${h(c.id)}</span><button class="btn sm" data-editcon="${h(c.id)}">Edit</button></h2>
+      <div class="row sub" style="margin-bottom:10px"><span>Ref ${h(c.refNo||"—")}</span><span>${fd(c.startDate)} → ${fd(c.endDate)} ${daysEnd!=null?daysPill(daysEnd):""}</span><span>${h(c.frequency)}</span><span>Contract value <b class="mono">${money(c.totalAmount)}</b> SAR ${c.vatApplicable?"+ 15% VAT":"(no VAT)"}</span><span>${paid.length}/${inst.length} paid</span>${c.example?`<span class="pill p-grey">Example</span>`:""}</div>
+      <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Period covered</th><th>Due</th><th class="n">Amount</th><th class="n">VAT</th><th class="n">Total</th><th>Payment</th></tr></thead><tbody>${rows}</tbody></table></div></div>`; }).join("")}</div>`
+  :`<div class="panel"><div class="empty"><b>No contracts yet</b>Add each branch's Ejar rent contract to schedule its installments and monthly amortization.<div style="margin-top:12px"><button class="btn pri" data-act="addCon">New contract</button></div></div></div>`}`;
+}
+function openContract(id){
+  const st=settings(); const c0=id?S.contracts.find(x=>x.id===id):null; const isNew=!c0;
+  const c=Object.assign({category:"Branch Rent",frequency:"Annual",vatApplicable:true,startDate:E.monthStart(today()),endDate:E.addDays(E.addMonths(E.monthStart(today()),12),-1),totalAmount:0},c0||{});
+  const anyPaid=(c.installments||[]).some(i=>i.paidDate);
+  openModal(isNew?"New prepaid contract · عقد جديد":`Contract ${c0.id}`,`<div class="fgrid">
+    <div class="field"><label for="c_cat">Category</label><select id="c_cat">${["Branch Rent","Medical Insurance","Other"].map(x=>`<option ${c.category===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label for="c_branch">Branch<span class="ar">الفرع</span></label><input id="c_branch" value="${h(c.branch||"")}" placeholder="Riyadh — Olaya"></div>
+    <div class="field"><label for="c_vendor">Landlord / vendor<span class="ar">المؤجر</span></label><input id="c_vendor" value="${h(c.vendor||"")}"></div>
+    <div class="field"><label for="c_ref">Ejar / policy no<span class="ar">رقم عقد إيجار</span></label><input id="c_ref" value="${h(c.refNo||"")}"></div>
+    <div class="field"><label for="c_start">Start date</label><input id="c_start" type="date" value="${h(c.startDate)}"></div>
+    <div class="field"><label for="c_end">End date</label><input id="c_end" type="date" value="${h(c.endDate)}"></div>
+    <div class="field"><label for="c_total">Contract value excl. VAT (SAR)</label><input id="c_total" type="number" step="0.01" min="0" value="${h(c.totalAmount)}"></div>
+    <div class="field"><label for="c_freq">Payment frequency</label><select id="c_freq">${["Annual","Semi-annual","Quarterly","Monthly"].map(x=>`<option ${c.frequency===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label for="c_vat">VAT 15%</label><select id="c_vat"><option value="1" ${c.vatApplicable?"selected":""}>Yes — landlord VAT registered</option><option value="0" ${!c.vatApplicable?"selected":""}>No VAT</option></select></div>
+    <div class="field"><label for="c_notes">Notes</label><input id="c_notes" value="${h(c.notes||"")}"></div></div>
+    ${anyPaid?`<div class="warnbox">Some installments are already paid. Changing the dates, value or frequency rebuilds unpaid installments. Payment dates on matching installment numbers are kept.</div>`:""}
+    <div id="c_prev"></div>`,
+   [c0?{label:"Delete",cls:"danger",fn:()=>confirmBox(`Delete contract ${c0.id} and its schedule?`,async()=>{await del("contracts",c0.id);closeModal();})}:null,
+    {label:"Save",cls:"pri",fn:async()=>{ const o=readCon(c); if(!o.branch){toast("Enter the branch.");return;} if(!(o.totalAmount>0)){toast("Enter the contract value.");return;} if(!(o.endDate>o.startDate)){toast("The end date must be after the start date.");return;}
+      o.installments = o.customSchedule ? (c.installments||[]) : E.buildInstallments(o,st);
+      if(isNew){ await withNumberLock(async()=>{ o.id=nextId("CON-",S.contracts); await put("contracts",o.id,o); }); toast(`Saved as ${o.id}`);} else { await put("contracts",o.id,o); toast("Saved"); } closeModal(); }}].filter(Boolean));
+  const upd=()=>{ const o=readCon(c); let ins=[]; try{ ins=E.buildInstallments(o,st);}catch(x){}
+    $("#c_prev").innerHTML=ins.length?`<div class="sub" style="margin-bottom:6px">Installment schedule preview</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Period</th><th>Due</th><th class="n">Amount</th><th class="n">VAT</th><th class="n">Monthly amortization</th></tr></thead><tbody>${ins.map(i=>`<tr><td>${i.no}</td><td>${fd(i.periodStart)} → ${fd(i.periodEnd)}</td><td>${fd(i.dueDate)}</td><td class="n">${money(i.amount)}</td><td class="n">${money(i.vat)}</td><td class="n">≈ ${money(i.amount/Math.max(1,Math.round(E.daysBetween(i.periodStart,i.periodEnd)/30.4)))}</td></tr>`).join("")}</tbody></table></div>`:""; };
+  ["c_start","c_end","c_total","c_freq","c_vat"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
+}
+function readCon(c){ const o=Object.assign({},c,{category:$("#c_cat").value,branch:$("#c_branch").value.trim(),vendor:$("#c_vendor").value.trim(),refNo:$("#c_ref").value.trim(),startDate:$("#c_start").value,endDate:$("#c_end").value,totalAmount:parseFloat($("#c_total").value)||0,frequency:$("#c_freq").value,vatApplicable:$("#c_vat").value==="1",notes:$("#c_notes").value.trim()}); delete o._id; return o; }
+function payInstallment(cid,no){
+  const c=S.contracts.find(x=>x.id===cid); const i=(c.installments||[]).find(x=>x.no===+no); if(!i) return;
+  openModal(`Pay installment ${no} · ${c.branch}`,`<div class="calc"><div><span>Amount</span><b>${money(i.amount)}</b></div><div><span>VAT (input)</span><b>${money(i.vat)}</b></div><div><span>Total to bank</span><b>${money((+i.amount||0)+(+i.vat||0))}</b></div><div><span>Period</span><b>${fd(i.periodStart)} → ${fd(i.periodEnd)}</b></div></div>
+   <div class="fgrid"><div class="field"><label for="p_date">Payment date</label><input id="p_date" type="date" value="${today()}"></div><div class="field"><label for="p_ref">Bank reference</label><input id="p_ref"></div></div>`,
+   [{label:"Record payment",cls:"pri",fn:async()=>{ const o=Object.assign({},c); delete o._id; o.installments=c.installments.map(x=>x.no===+no?Object.assign({},x,{paidDate:$("#p_date").value,paymentRef:$("#p_ref").value.trim()}):x); await put("contracts",c.id,o); closeModal(); toast("Payment recorded"); }}]);
+}
+
+/* ---------- amortization ---------- */
+function vAmort(){
+  const st=settings(), t=today(); S.ui.amFrom=S.ui.amFrom||(t.slice(0,4)+"-01-01"); S.ui.rfMonth=S.ui.rfMonth||E.monthStart(t);
+  let sch={months:[],rows:[],totals:[],byAccount:{}}; try{ sch=E.amortSchedule(state(),st,S.ui.amFrom,S.ui.amN,t); }catch(e){ console.error(e); }
+  const cat=S.ui.amCat; const rows=sch.rows.filter(r=>cat==="All"||(cat==="Iqama"?r.item.source==="renewal":r.item.category===cat));
+  const mlab=m=>new Date(m+"T00:00:00Z").toLocaleString("en-US",{month:"short",year:"2-digit",timeZone:"UTC"});
+  const colTot=sch.months.map((m,i)=>rows.reduce((a,r)=>a+(r.byMonth[i]||0),0));
+  let rf=null; try{ rf=E.prepaidRollforward(state(),st,S.ui.rfMonth,t); }catch(e){}
+  const rfo=rf?(rf.overall||rf):null; const rfa=rf?(rf.accounts||rf.byAccount||null):null;
+  const accName=k=>st.accounts[k]||k;
+  return `<div class="row" style="margin-bottom:12px">
+    <div class="field" style="width:auto"><label for="amFrom">From month</label><input id="amFrom" type="month" value="${h(S.ui.amFrom.slice(0,7))}"></div>
+    <div class="field" style="width:auto"><label for="amN">Months</label><select id="amN" class="sel">${[12,24,36].map(n=>`<option ${S.ui.amN===n?"selected":""}>${n}</option>`).join("")}</select></div>
+    <div class="chips" style="margin:18px 0 0">${["All","Iqama","Branch Rent","Medical Insurance","Other"].map(c=>`<button class="chip" data-amcat="${h(c)}" aria-pressed="${cat===c}">${h(c)}</button>`).join("")}</div>
+    <span class="spacer"></span><button class="btn" data-act="exportAmort" style="margin-top:18px">Export to Excel</button></div>
+  <div class="panel" style="margin-bottom:16px"><h2>Monthly amortization expense <small>مصروف الإطفاء الشهري</small></h2>
+   ${stackedBars(sch.months,amSeries(sch,cat,rows),"Monthly amortization expense by account")}</div>
+  <div class="panel" style="margin-bottom:16px"><h2>Prepaid balance at month end <small>رصيد المدفوع مقدماً</small></h2>
+   ${lineChart(sch.months,sch.months.map(m=>{ try{ const r=E.prepaidRollforward(state(),st,m,t); return (r.overall||r).closing||0; }catch(e){ return 0; } }),"Prepaid balance trend")}</div>
+  <div class="grid2">
+   <div class="panel"><h2>Prepaid roll-forward <small>حركة المصروفات المدفوعة مقدماً</small><span class="spacer"></span><input id="rfMonth" type="month" value="${h(S.ui.rfMonth.slice(0,7))}" class="sel"></h2>
+    ${rfo?`<div class="tbl-wrap"><table><thead><tr><th>Account</th><th class="n">Opening</th><th class="n">+ Paid</th><th class="n">− Amortized</th><th class="n">Closing</th></tr></thead><tbody>
+     ${rfa?Object.keys(rfa).filter(k=>Math.abs(rfa[k].opening)+Math.abs(rfa[k].additions)+Math.abs(rfa[k].closing)>0.004).map(k=>`<tr><td>${h(accName(k))}</td><td class="n">${money(rfa[k].opening)}</td><td class="n">${money(rfa[k].additions)}</td><td class="n">${money(rfa[k].amortization)}</td><td class="n">${money(rfa[k].closing)}</td></tr>`).join(""):""}
+     </tbody><tfoot><tr><td>Total</td><td class="n">${money(rfo.opening)}</td><td class="n">${money(rfo.additions)}</td><td class="n">${money(rfo.amortization)}</td><td class="n">${money(rfo.closing)}</td></tr></tfoot></table></div>
+     <div class="sub" style="margin-top:6px">${Math.abs(rfo.check||0)<0.01?"✓ Balanced: opening + paid − amortized = closing. Agree the closing figure to the QuickBooks balance sheet.":`<span style="color:var(--red)">Difference ${money(rfo.check)}. Review the items.</span>`}</div>`:`<div class="empty">Roll-forward unavailable.</div>`}
+   </div>
+   <div class="panel"><h2>Expense by account <small>المصروف الشهري حسب الحساب</small></h2>
+    <div class="tbl-wrap"><table><thead><tr><th>Account</th>${sch.months.slice(0,6).map(m=>`<th class="n">${mlab(m)}</th>`).join("")}</tr></thead><tbody>
+    ${Object.keys(sch.byAccount||{}).map(k=>`<tr><td>${h(accName(k))}</td>${sch.byAccount[k].slice(0,6).map(v=>`<td class="n">${v?money(v):"—"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <div class="sub" style="margin-top:6px">The first 6 months of the range are shown. The full grid is below.</div></div>
+  </div>
+  <div class="panel" style="padding:0"><div class="tbl-wrap" style="border:0"><table><thead><tr><th>Item</th><th>Paid</th><th>Period covered</th><th class="n">Amount</th>${sch.months.map(m=>`<th class="n">${mlab(m)}</th>`).join("")}<th class="n">Amortized to date</th><th class="n">Balance</th></tr></thead><tbody>
+   ${rows.map(r=>`<tr><td>${h(r.item.label)}<div class="sub">${h(r.item.category||"")}</div></td><td>${fd(r.item.paidDate)}</td><td>${fd(r.item.start)} → ${fd(r.item.end)}</td><td class="n">${money(r.item.amount)}</td>${r.byMonth.map(v=>`<td class="n">${v?money(v):"—"}</td>`).join("")}<td class="n">${money(r.totalToDate)}</td><td class="n"><b>${money(r.balance)}</b></td></tr>`).join("")}
+   </tbody><tfoot><tr><td colspan="4">Monthly total</td>${colTot.map(v=>`<td class="n">${money(v)}</td>`).join("")}<td class="n">${money(rows.reduce((a,r)=>a+(r.totalToDate||0),0))}</td><td class="n">${money(rows.reduce((a,r)=>a+(r.balance||0),0))}</td></tr></tfoot></table>
+   ${rows.length?"":`<div class="empty"><b>Nothing to amortize yet</b>Only paid items appear here: record a renewal payment or a rent installment payment.</div>`}</div></div>`;
+}
+
+const AM_KEYS=[["iqamaExp","Iqama fees","var(--s1)"],["levyExp","Expat levy","var(--s2)"],["wpExp","Work permit","var(--s3)"],["depExp","Dependents","var(--s4)"],["rentExp","Branch rent","var(--s5)"],["insExp","Medical insurance","var(--s6)"],["otherPrepaidExp","Other prepaid","var(--s7)"]];
+function amSeries(sch,cat,rows){
+  const n=sch.months.length;
+  if(cat==="Branch Rent"){ // one series per branch, max 7 then "Other"
+    const by={}; rows.forEach(r=>{ const b=r.item.branch||r.item.label; by[b]=by[b]||new Array(n).fill(0); r.byMonth.forEach((v,i)=>by[b][i]+=v||0); });
+    const names=Object.keys(by).sort((a,b)=>by[b].reduce((x,y)=>x+y,0)-by[a].reduce((x,y)=>x+y,0));
+    const cols=["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)","var(--s7)"];
+    const out=names.slice(0,6).map((b,i)=>({label:b,color:cols[i],values:by[b]}));
+    if(names.length>6){ const o=new Array(n).fill(0); names.slice(6).forEach(b=>by[b].forEach((v,i)=>o[i]+=v)); out.push({label:"Other branches",color:cols[6],values:o}); }
+    return out;
+  }
+  const acc={}; AM_KEYS.forEach(([k])=>acc[k]=new Array(n).fill(0));
+  rows.forEach(r=>{ const sp=r.item.split||{}; const tot=Object.values(sp).reduce((a,v)=>a+(+v||0),0)||1; Object.keys(sp).forEach(k=>{ if(!acc[k]) acc[k]=new Array(n).fill(0); r.byMonth.forEach((v,i)=>acc[k][i]+=(v||0)*(+sp[k]||0)/tot); }); });
+  return AM_KEYS.filter(([k])=>acc[k].some(v=>v>0.004)).map(([k,l,c])=>({label:l,color:c,values:acc[k]}));
+}
+
+/* ---------- journal ---------- */
+function vJournal(){
+  const st=settings(), t=today(); S.ui.jeMonth=S.ui.jeMonth||E.monthStart(t);
+  let j={entries:[],balanced:true}; try{ j=E.monthlyJournal(state(),st,S.ui.jeMonth,t); }catch(e){ console.error(e); }
+  const tot=j.entries.reduce((a,e)=>{ e.lines.forEach(l=>{a.d+=+l.debit||0;a.c+=+l.credit||0;}); return a; },{d:0,c:0});
+  return `<div class="row" style="margin-bottom:12px"><div class="field" style="width:auto"><label for="jeMonth">Month to close</label><input id="jeMonth" type="month" value="${h(S.ui.jeMonth.slice(0,7))}"></div>
+   <span class="pill ${j.balanced?"p-green":"p-red"}" style="margin-top:18px">${j.balanced?"Balanced":"Not balanced"} · Dr ${money(tot.d)} / Cr ${money(tot.c)}</span>
+   <span class="spacer"></span><button class="btn" data-act="copyCSV" style="margin-top:18px">Copy CSV</button><button class="btn pri" data-act="dlCSV" style="margin-top:18px">Download QuickBooks CSV</button></div>
+  <div class="panel" style="margin-bottom:16px"><div class="sub prose">QuickBooks Online: <b>Settings ⚙ → Import data → Journal entries</b> and upload the CSV. The account names must match your Chart of Accounts exactly; you can change them under Fees & Settings. QuickBooks Desktop: post each entry with <b>Company → Make General Journal Entries</b>.</div></div>
+  ${j.entries.length?`<div class="stack">${j.entries.map(e=>`<div class="panel"><h2><span class="mono">${h(e.jeNo)}</span> <small>${fd(e.date)}</small><span class="spacer"></span><span class="sub">${h(e.memo)}</span></h2>
+   <div class="tbl-wrap"><table><thead><tr><th>Account</th><th>Description</th><th>Class / Branch</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>
+   ${e.lines.map(l=>`<tr><td>${h(l.account)}</td><td class="sub">${h(l.memo||"")}</td><td>${h(l.cls||"")}</td><td class="n">${l.debit?money(l.debit):""}</td><td class="n">${l.credit?money(l.credit):""}</td></tr>`).join("")}
+   </tbody><tfoot><tr><td colspan="3">Total</td><td class="n">${money(e.lines.reduce((a,l)=>a+(+l.debit||0),0))}</td><td class="n">${money(e.lines.reduce((a,l)=>a+(+l.credit||0),0))}</td></tr></tfoot></table></div></div>`).join("")}</div>`
+  :`<div class="panel"><div class="empty"><b>No entries for this month</b>Entries appear once renewals, visas or rent installments are paid, or a prepaid item amortizes in the month.</div></div>`}`;
+}
+
+/* ---------- settings ---------- */
+const SET_GROUPS=[
+  ["Company",[["company","Company name","text"],["crNo","CR number","text"],["molNo","MHRSD / Qiwa establishment no","text"],["empPrefix","Employee number prefix","text"],["empPad","Employee number digits","number"]]],
+  ["Iqama & work permit (SAR)",[["iqamaFeeYear","Iqama fee per year","number"],["levyMonth","Expat levy per month (800 / 700 / 0 industrial)","number"],["wpFeeYear","Work permit fee per year","number"],["depFeeMonth","Dependent fee per month","number"],["lateFine1","Late renewal fine — 1st offense","number"],["lateFine2","Late renewal fine — 2nd offense","number"],["lateGraceDays","Grace days after expiry","number"]]],
+  ["Jawazat services (SAR)",[["erSingleBase","Exit re-entry single — base","number"],["erSingleBaseMonths","Single — months in base","number"],["erSingleAddMonth","Single — each extra month","number"],["erMultiBase","Exit re-entry multiple — base","number"],["erMultiBaseMonths","Multiple — months in base","number"],["erMultiAddMonth","Multiple — each extra month","number"],["finalExitFee","Final exit","number"],["iqamaLostFee","Lost Iqama — 1st","number"],["iqamaLostFee2","Lost Iqama — 2nd","number"],["iqamaDamagedFee","Damaged Iqama","number"],["erUnusedFine","Unused, uncancelled visa fine","number"]]],
+  ["Reminders",[["reminderDays","Iqama reminder days (comma separated)","list"],["contractReminderDays","Contract end reminder days","list"],["installmentReminderDays","Installment due reminder days","list"],["passportMinDays","Passport minimum validity for renewal (days)","number"],["passportAlertDays","Passport alert window (days)","number"],["insuranceAlertDays","Insurance alert window (days)","number"],["vatRate","VAT rate (0.15 = 15%)","number"]]]
+];
+const ACC_LABELS={bank:"Bank account",prepaid:"Prepaid government fees",iqamaExp:"Iqama fees expense",levyExp:"Levy expense",wpExp:"Work permit fees expense",depExp:"Dependents fees expense",visaExp:"Exit re-entry visa expense",finesExp:"Government penalties",otherExp:"Other government fees",empRecv:"Employee receivable",prepaidRent:"Prepaid rent",rentExp:"Rent expense",prepaidIns:"Prepaid medical insurance",insExp:"Medical insurance expense",prepaidOther:"Prepaid other",otherPrepaidExp:"Other prepaid expense",inputVat:"VAT input"};
+function vSettings(){
+  const st=settings(); const hasEx=[...S.employees,...S.renewals,...S.visas,...S.contracts].some(x=>x.example);
+  return `<div class="stack">${SET_GROUPS.map(([g,fs])=>`<div class="panel"><h2>${h(g)}</h2><div class="fgrid">${fs.map(([k,l,t])=>`<div class="field"><label for="s_${k}">${h(l)}</label><input id="s_${k}" type="${t==="number"?"number":"text"}" ${t==="number"?'step="any"':""} value="${h(t==="list"?(st[k]||[]).join(", "):st[k])}"></div>`).join("")}</div></div>`).join("")}
+   <div class="panel"><h2>QuickBooks account names <small>أسماء الحسابات</small></h2><div class="fgrid">${Object.keys(ACC_LABELS).map(k=>`<div class="field"><label for="a_${k}">${h(ACC_LABELS[k])}</label><input id="a_${k}" value="${h(st.accounts[k]||"")}"></div>`).join("")}</div></div>
+   <div class="row"><button class="btn pri" data-act="saveSettings">Save settings</button><button class="btn" data-act="resetSettings">Restore KSA defaults</button><span class="spacer"></span>${hasEx?`<button class="btn danger" data-act="clearExamples">Remove example records</button>`:""}</div>
+   <div class="sub">Fee defaults follow MHRSD / Jawazat rates as of October 2026. Check Absher and Qiwa before relying on them; any change here recalculates every open request immediately.</div></div>`;
+}
+async function saveSettings(){
+  const o={}; SET_GROUPS.forEach(([,fs])=>fs.forEach(([k,,t])=>{ const v=$("#s_"+k).value; o[k]= t==="number"?(parseFloat(v)||0): t==="list"? v.split(/[,\s]+/).map(Number).filter(n=>!isNaN(n)).sort((a,b)=>b-a): v.trim(); }));
+  o.accounts={}; Object.keys(ACC_LABELS).forEach(k=>o.accounts[k]=$("#a_"+k).value.trim()||E.DEFAULT_SETTINGS.accounts[k]);
+  await put("config","settings",o); toast("Settings saved");
+}
+
+/* ---------- guide ---------- */
+function vGuide(){
+  return `<div class="grid2"><div class="panel prose"><h2>How the workflow runs <small>دورة العمل</small></h2>
+  <ol>
+   <li><b>Reminder.</b> Each active employee's Iqama expiry is watched. Reminders fire at 90, 60, 30, 15 and 7 days and on the expiry date (editable).</li>
+   <li><b>Request.</b> HR opens a renewal request (3, 6, 9 or 12 months). The fees are calculated automatically: Iqama, expat levy, work permit, dependents and any late fine.</li>
+   <li><b>Checklist.</b> Valid CCHI medical insurance, a valid passport, traffic violations paid, and Qiwa/Mudad wage protection compliance.</li>
+   <li><b>HR approval → Finance approval.</b></li>
+   <li><b>SADAD bill.</b> Record the bill number issued through Muqeem/Qiwa.</li>
+   <li><b>Payment.</b> The company-borne fees become a prepaid asset. Fines and other fees are expensed. A dependents fee paid by the employee goes to employee receivable.</li>
+   <li><b>Renewed.</b> Once Muqeem/Absher shows the new expiry, mark the request renewed. The employee's expiry updates and the next cycle starts.</li>
+   <li><b>Month end.</b> Monthly Amortization shows the expense per month. Journal Entries builds the QuickBooks import file and the roll-forward agrees the prepaid balance.</li>
+  </ol>
+  <h3>Accounting entries</h3>
+  <p><b>On payment:</b> Dr Prepaid Government Fees / Dr Employee Receivable / Dr Penalties — Cr Bank.<br><b>Each month:</b> Dr Iqama, Levy, Work Permit and Dependents Expense — Cr Prepaid Government Fees, by days of cover in the month.<br><b>Rent:</b> Dr Prepaid Rent + Dr VAT Input — Cr Bank, then each month Dr Rent Expense (class = branch) — Cr Prepaid Rent.</p>
+  <p>If a payment is made after the cover has started, the catch-up method books the months already elapsed in the payment month, so nothing is missed.</p>
+  </div>
+  <div class="panel prose"><h2>KSA rules used <small>الأنظمة المعتمدة</small></h2>
+  <ul>
+   <li><b>Iqama fee:</b> SAR 650 per year. It can be renewed for 3, 6, 9 or 12 months with the fee prorated.</li>
+   <li><b>Expat levy (المقابل المالي):</b> SAR 800 per month when expats outnumber Saudis, SAR 700 when Saudis ≥ expats. Industrial-licensed establishments are exempt from 1 Jan 2026. Small establishments may be exempt for 2–4 workers until about March 2027: mark those employees "levy exempt".</li>
+   <li><b>Work permit fee:</b> SAR 100 per year.</li>
+   <li><b>Dependents fee:</b> SAR 400 per dependent per month.</li>
+   <li><b>Late renewal:</b> 3-day grace period, then SAR 500 for the 1st offense and SAR 1,000 for the 2nd. A 3rd offense can lead to deportation.</li>
+   <li><b>Exit re-entry:</b> single SAR 200 for 2 months + SAR 100 per extra month; multiple SAR 500 for 3 months + SAR 200 per extra month. An unused visa that is not cancelled carries a SAR 1,000 fine. The 3-year ban for not returning was lifted in January 2024.</li>
+   <li><b>Iqama replacement:</b> lost SAR 1,000 (SAR 2,000 the 2nd time); damaged SAR 300.</li>
+   <li><b>Final exit:</b> free. Iqama, levy and fines must be cleared first.</li>
+   <li><b>Rent:</b> commercial rent through Ejar carries 15% VAT when the landlord is VAT-registered. The VAT is input VAT and is not amortized.</li>
+  </ul>
+  <p class="sub">Sources: MHRSD, Saudi Gazette, Arab News, Deloitte ME tax alerts (checked October 2026). Rates can change by Cabinet decision, so confirm on Absher and Qiwa. Every rate is editable under Fees & Settings.</p>
+  </div></div>`;
+}
+
+/* ---------- import / export ---------- */
+function openImport(){
+  if(!window.XLSX){ toast("The Excel reader did not load. Check your connection and reload."); return; }
+  openModal("Import employees from Excel · استيراد الموظفين",`<div class="field"><label for="imp_file">Excel or CSV file (.xlsx, .xls, .csv)</label><input id="imp_file" type="file" accept=".xlsx,.xls,.csv"></div><div id="imp_area" class="sub">Arabic or English headers are matched automatically. Hijri dates (e.g. 1448/05/15) are converted to Gregorian.</div>`,[]);
+  $("#imp_file").addEventListener("change",async ev=>{
+    const f=ev.target.files[0]; if(!f) return; $("#imp_area").textContent="Reading…";
+    try{ const wb=IO.readWorkbook(await f.arrayBuffer()); importStep2(wb); }catch(e){ $("#imp_area").innerHTML=`<div class="warnbox">This file could not be read: ${h(e.message||e)}</div>`; }
+  });
+}
+const IMP_FIELDS=["empNo","nameEn","nameAr","nationality","jobTitle","department","branch","iqamaNo","iqamaExpiry","passportNo","passportExpiry","insuranceExpiry","dependents","depPayer","status","phone","email","levyExempt","notes"];
+function importStep2(wb){
+  let si=0;
+  const draw=()=>{
+    const sh=wb.sheets[si]; const map=IO.guessMapping(sh.headers);
+    $("#imp_area").innerHTML=`${wb.sheets.length>1?`<div class="field"><label for="imp_sheet">Sheet</label><select id="imp_sheet">${wb.sheets.map((s,i)=>`<option value="${i}" ${i===si?"selected":""}>${h(s.name)} (${s.rows.length} rows)</option>`).join("")}</select></div>`:""}
+     <div class="sub" style="margin:10px 0 6px">Check the column matching. ${sh.rows.length} data rows found.</div>
+     <div class="fgrid">${IMP_FIELDS.map(k=>{ const lab=(EMP_FIELDS.find(f=>f[0]===k)||[k,k])[1]; return `<div class="field"><label for="m_${k}">${h(lab)}</label><select id="m_${k}"><option value="">— not in file —</option>${sh.headers.map((hd,i)=>`<option value="${i}" ${map[k]===i?"selected":""}>${h(hd||("Column "+(i+1)))}</option>`).join("")}</select></div>`; }).join("")}</div>
+     <label class="check" style="margin-top:10px"><input type="checkbox" id="imp_gen" checked> Generate employee numbers automatically (${h(settings().empPrefix||"EMP-")}0001…) for new employees</label>
+     <div class="row" style="margin-top:12px"><button class="btn pri" id="imp_preview">Preview import</button></div><div id="imp_res" style="margin-top:12px"></div>`;
+    const ss=$("#imp_sheet"); if(ss) ss.addEventListener("change",()=>{ si=+ss.value; draw(); });
+    $("#imp_preview").addEventListener("click",()=>{
+      const m={}; IMP_FIELDS.forEach(k=>{ const v=$("#m_"+k).value; if(v!=="") m[k]=+v; });
+      const res=IO.mapRows(sh,m); const gen=$("#imp_gen").checked;
+      const dd=IO.dedupe(res.employees,S.employees);
+      $("#imp_res").innerHTML=`<div class="okbox"><b>${dd.toCreate.length}</b> new employees · <b>${dd.toUpdate.length}</b> updates to existing · <b>${(dd.unchanged||[]).length}</b> unchanged</div>
+       ${res.warnings.length?`<div class="warnbox" style="margin-top:8px"><b>${res.warnings.length} warnings</b> (rows still import)<ul style="margin:6px 0 0;max-height:160px;overflow:auto">${res.warnings.slice(0,80).map(w=>`<li>Row ${h(w.row)}: ${h(w.message)}</li>`).join("")}</ul></div>`:""}
+       <div class="tbl-wrap" style="margin-top:8px;max-height:260px"><table><thead><tr><th>Name</th><th>Iqama</th><th>Iqama expiry</th><th>Hijri</th><th>Passport exp.</th><th>Dep.</th><th>Status</th></tr></thead><tbody>${res.employees.slice(0,15).map(e=>`<tr><td>${h(e.nameEn||e.nameAr)}</td><td class="mono">${h(e.iqamaNo)}</td><td>${fd(e.iqamaExpiry)}</td><td>${h(hj(e.iqamaExpiry))}</td><td>${fd(e.passportExpiry)}</td><td>${h(e.dependents)}</td><td>${h(e.status)}</td></tr>`).join("")}</tbody></table></div>
+       <div class="row" style="margin-top:10px"><button class="btn pri" id="imp_go">Import ${dd.toCreate.length+dd.toUpdate.length} records</button><span id="imp_prog" class="sub"></span></div>`;
+      $("#imp_go").addEventListener("click",()=>runImport(dd,gen));
+    });
+  };
+  draw();
+}
+async function runImport(dd,gen){
+  const btn=$("#imp_go"); btn.disabled=true; const prog=$("#imp_prog"); let done=0; const total=dd.toCreate.length+dd.toUpdate.length;
+  await withNumberLock(async()=>{
+    const ids=S.employees.map(e=>e.empNo); const pre=settings().empPrefix||"EMP-", pad=settings().empPad||4;
+    const jobs=[];
+    dd.toCreate.forEach(e=>{ const o=Object.assign({status:"Active",depPayer:"Employee",dependents:0},e);
+      if(gen||!o.empNo||ids.includes(o.empNo)){ if(o.empNo&&gen) o.oldEmpNo=o.empNo; o.empNo=E.nextNumber(ids,pre,pad); }
+      ids.push(o.empNo); o.createdAt=new Date().toISOString(); jobs.push(["employees",o.empNo,o]); });
+    dd.toUpdate.forEach(u=>{ const cur=empBy(u.empNo); if(cur){ const o=Object.assign({},cur,u.changes); delete o._id; jobs.push(["employees",u.empNo,o]); } });
+    let i=0; const worker=async()=>{ while(i<jobs.length){ const j=jobs[i++]; for(let a=0;a<4;a++){ try{ await put(...j); break; }catch(e){ if(e&&e.code==="resource_exhausted"){ await new Promise(r=>setTimeout(r,800*(a+1))); } else if(a===3||!(e&&e.code==="unavailable")) break; } } done++; prog.textContent=`${done} / ${total} saved`; } };
+    await Promise.all([worker(),worker(),worker(),worker()]);
+  });
+  toast(`Import finished: ${done} records`); closeModal(); go("employees");
+}
+async function saveFile(filename,data){
+  if(!dl){ toast("Downloads are not available in this view."); return; }
+  try{ await dl.save({filename,data}); toast("File ready"); }catch(e){ if(e&&e.code!=="declined") toast("Download failed: "+(e.message||e.code)); }
+}
+function exportAll(){
+  const st=settings(), t=today();
+  const emp=S.employees.map(e=>{ const eff=E.effectiveExpiry(e,S.renewals); return Object.assign({},e,{effectiveExpiry:eff,hijri:hj(eff),daysLeft:eff?E.daysBetween(t,eff):""}); });
+  const ren=S.renewals.map(r=>{ const c=(()=>{try{return E.calcRenewal(r,empBy(r.empNo)||{},st,S.renewals,t);}catch(x){return{};}})(); return Object.assign({},r,c,{status:E.renewalStatus(r)}); });
+  const vis=S.visas.map(v=>Object.assign({},v,{fee:(()=>{try{return E.visaFee(v,st,S.visas);}catch(x){return 0;}})(),returnBefore:E.visaReturnBefore(v),status:E.visaStatus(v,t)}));
+  const inst=[]; S.contracts.forEach(c=>(c.installments||[]).forEach(i=>inst.push(Object.assign({contract:c.id,category:c.category,branch:c.branch,vendor:c.vendor,refNo:c.refNo},i))));
+  const sch=E.amortSchedule(state(),st,S.ui.amFrom||(t.slice(0,4)+"-01-01"),S.ui.amN||12,t);
+  const am=sch.rows.map(r=>{ const o={item:r.item.label,category:r.item.category,paid:r.item.paidDate,start:r.item.start,end:r.item.end,amount:r.item.amount}; sch.months.forEach((m,i)=>o[m.slice(0,7)]=r.byMonth[i]); o.toDate=r.totalToDate; o.balance=r.balance; return o; });
+  const cols=(keys,types)=>keys.map(k=>({key:k,header:k,type:(types||{})[k]||(/Date$|Expiry$|^start$|^end$|^paid$|returnBefore|effectiveExpiry/.test(k)?"date":"text")}));
+  const buf=IO.exportWorkbook([
+    {name:"Employees",rows:emp,columns:cols(["empNo","nameEn","nameAr","nationality","jobTitle","department","branch","iqamaNo","iqamaExpiry","effectiveExpiry","hijri","daysLeft","passportNo","passportExpiry","insuranceExpiry","dependents","depPayer","status","levyExempt","phone","email","notes"],{daysLeft:"number",dependents:"number"})},
+    {name:"Iqama Renewals",rows:ren,columns:cols(["id","empNo","requestDate","months","oldExpiry","coverageStart","newExpiry","iqamaFee","levy","wpFee","depFee","lateFine","otherFees","total","companyPrepaid","employeeRecoverable","status","hrDate","financeDate","sadadNo","paymentDate","paymentRef","completedDate"],{iqamaFee:"money",levy:"money",wpFee:"money",depFee:"money",lateFine:"money",otherFees:"money",total:"money",companyPrepaid:"money",employeeRecoverable:"money",months:"number",hrDate:"date",financeDate:"date",completedDate:"date",oldExpiry:"date",newExpiry:"date",coverageStart:"date"})},
+    {name:"Jawazat",rows:vis,columns:cols(["id","empNo","type","months","fee","payer","requestDate","paymentDate","issueDate","departureDate","returnBefore","returnDate","status","notes"],{fee:"money",months:"number"})},
+    {name:"Rent Installments",rows:inst,columns:cols(["contract","category","branch","vendor","refNo","no","periodStart","periodEnd","dueDate","amount","vat","paidDate","paymentRef"],{amount:"money",vat:"money",no:"number",periodStart:"date",periodEnd:"date"})},
+    {name:"Amortization",rows:am,columns:[...cols(["item","category","paid","start","end"]),{key:"amount",header:"amount",type:"money"},...sch.months.map(m=>({key:m.slice(0,7),header:m.slice(0,7),type:"money"})),{key:"toDate",header:"amortized to date",type:"money"},{key:"balance",header:"balance",type:"money"}]}
+  ]);
+  saveFile(`Muqeem-Desk-${t}.xlsx`,buf);
+}
+
+/* ---------- modal ---------- */
+let modalBtns=[];
+function openModal(title,body,btns){
+  modalBtns=btns||[];
+  $("#modalRoot").innerHTML=`<div class="overlay" id="ov"><div class="modal" role="dialog" aria-modal="true" aria-label="${h(title)}"><header><h3>${h(title)}</h3><button class="btn sm" data-close="1" aria-label="Close">✕</button></header><div class="body">${body}</div>${modalBtns.length?`<footer>${modalBtns.map((b,i)=>`<button class="btn ${b.cls||""}" data-mbtn="${i}" ${readOnly&&b.cls!=="ghost"?"disabled":""}>${h(b.label)}</button>`).join("")}</footer>`:""}</div></div>`;
+}
+function closeModal(){ $("#modalRoot").innerHTML=""; modalBtns=[]; }
+function confirmBox(msg,fn){ openModal("Please confirm",`<p>${h(msg)}</p>`,[{label:"Cancel",fn:closeModal},{label:"Yes, continue",cls:"danger",fn}]); }
+
+/* ---------- events ---------- */
+document.addEventListener("click",async ev=>{
+  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],#bellBtn,#ov");
+  if(!t) return;
+  if(t.id==="ov"){ if(ev.target.id==="ov") closeModal(); return; }
+  if(t.id==="bellBtn") return go("alerts");
+  const d=t.dataset;
+  if(d.close) return closeModal();
+  if(d.mbtn!=null){ const b=modalBtns[+d.mbtn]; if(b&&b.fn){ t.disabled=true; try{ await b.fn(); }catch(e){ console.error(e); } finally{ t.disabled=false; } } return; }
+  if(d.renewemp){ ev.stopPropagation(); const open=S.renewals.find(r=>r.empNo===d.renewemp&&E.renewalStatus(r)!=="Completed"); return open?openRenewal(open.id):openRenewal(null,d.renewemp); }
+  if(d.step){ ev.stopPropagation(); return openStep(d.step); }
+  if(d.payinst){ const [c,n]=d.payinst.split("|"); return payInstallment(c,n); }
+  if(d.nav) return go(d.nav);
+  if(d.editemp) return openEmployee(d.editemp);
+  if(d.openren) return openRenewal(d.openren);
+  if(d.renfilter){ S.ui.renFilter=d.renfilter; return S.ui.view==="renewals"?render():go("renewals"); }
+  if(d.openvisa) return openVisa(d.openvisa);
+  if(d.visafilter){ S.ui.visaFilter=d.visafilter; return render(); }
+  if(d.editcon) return openContract(d.editcon);
+  if(d.amcat){ S.ui.amCat=d.amcat; return render(); }
+  if(d.alertcat){ S.ui.alertCat=d.alertcat; return render(); }
+  if(d.goalert){ S.ui.alertCat=d.goalert; return go("alerts"); }
+  if(d.alertact){ const a=allAlerts().find(x=>x.key===d.key); if(!a) return;
+    if(d.alertact==="copy") return copyText(reminderText(a));
+    if(d.alertact==="ack") return setAck(a.key,{ack:true});
+    if(d.alertact==="snooze7") return setAck(a.key,{snoozeUntil:E.addDays(today(),7)});
+    if(d.alertact==="unmute") return setAck(a.key,null);
+    if(d.alertact==="act"){ if(a.category==="Renewal"){ const r=S.renewals.find(x=>x.id===a.ref)||S.renewals.find(x=>x.empNo===a.empNo&&E.renewalStatus(x)!=="Completed"); if(r) return openRenewal(r.id); }
+      if(a.category==="Iqama"&&a.empNo) return openRenewal(null,a.empNo);
+      if(a.category==="Visa"){ const v=S.visas.find(x=>x.id===a.ref); if(v) return openVisa(v.id); }
+      if((a.category==="Rent"||a.category==="Contract")){ const c=S.contracts.find(x=>x.id===a.ref||(a.ref||"").startsWith(x.id)); if(c) return openContract(c.id); return go("contracts"); }
+      if(a.empNo) return openEmployee(a.empNo); }
+    return; }
+  switch(d.act){
+    case "addEmp": return openEmployee(null);
+    case "addRen": return openRenewal(null);
+    case "addVisa": return openVisa(null);
+    case "addCon": return openContract(null);
+    case "import": return openImport();
+    case "template": return saveFile("Employee-import-template.xlsx",IO.employeeTemplate());
+    case "export": case "exportAmort": return exportAll();
+    case "moreEmp": S.ui.empLimit=1e9; return render();
+    case "saveSettings": return saveSettings();
+    case "resetSettings": return confirmBox("Restore all fees, reminders and account names to the KSA defaults?",async()=>{ await put("config","settings",{}); closeModal(); toast("Defaults restored"); });
+    case "clearExamples": return confirmBox("Delete every record marked Example?",async()=>{ for(const c of COLS){ for(const x of S[c].filter(x=>x.example)) await del(c,x._id||x.id||x.empNo); } closeModal(); toast("Examples removed"); });
+    case "copyCSV": case "dlCSV": { const j=E.monthlyJournal(state(),settings(),S.ui.jeMonth,today()); const csv=E.journalCSV(j); if(d.act==="copyCSV") return copyText(csv); return saveFile(`QuickBooks-JE-${S.ui.jeMonth.slice(0,7)}.csv`,"﻿"+csv); }
+  }
+});
+document.addEventListener("input",ev=>{
+  const id=ev.target.id;
+  if(id==="empQ"){ S.ui.empQ=ev.target.value; clearTimeout(window._q); window._q=setTimeout(()=>{ const pos=ev.target.selectionStart; render(); const el=$("#empQ"); if(el){ el.focus(); el.setSelectionRange(pos,pos);} },200); }
+});
+document.addEventListener("change",ev=>{
+  const id=ev.target.id, v=ev.target.value;
+  if(id==="empStatus"){ S.ui.empStatus=v; render(); }
+  if(id==="empAlert"){ S.ui.empAlert=v; render(); }
+  if(id==="amFrom"&&v){ S.ui.amFrom=v+"-01"; render(); }
+  if(id==="amN"){ S.ui.amN=+v; render(); }
+  if(id==="rfMonth"&&v){ S.ui.rfMonth=v+"-01"; render(); }
+  if(id==="jeMonth"&&v){ S.ui.jeMonth=v+"-01"; render(); }
+  if(id==="showMuted"){ S.ui.showMuted=ev.target.checked; render(); }
+});
+const tipEl=document.createElement("div"); tipEl.id="tip"; tipEl.hidden=true; document.body.appendChild(tipEl);
+document.addEventListener("mouseover",ev=>{ const t=ev.target.closest&&ev.target.closest("[data-tip]"); if(!t){ tipEl.hidden=true; return; } tipEl.textContent=t.getAttribute("data-tip"); tipEl.hidden=false; });
+document.addEventListener("mousemove",ev=>{ if(tipEl.hidden) return; const w=tipEl.offsetWidth, hh=tipEl.offsetHeight; let x=ev.clientX+14, y=ev.clientY+14; if(x+w>innerWidth-8) x=ev.clientX-w-14; if(y+hh>innerHeight-8) y=ev.clientY-hh-14; tipEl.style.left=x+"px"; tipEl.style.top=y+"px"; });
+document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&$("#ov")) closeModal(); });
+
+render(); connect();
+})();
+</script>
