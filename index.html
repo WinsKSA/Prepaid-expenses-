@@ -334,6 +334,7 @@ html[dir="rtl"] .alert .stripe{order:0}
 <script src="engine.js"></script>
 <script src="io.js"></script>
 <script src="lease.js"></script>
+<script src="rental.js"></script>
 <script src="hr.js"></script>
 <script src="i18n_ar.js"></script>
 <script>
@@ -489,7 +490,9 @@ async function connect(){
 }
 
 /* ---------- alerts / notifications ---------- */
-function allAlerts(){ try{ return E.alerts(state(),settings(),today()); }catch(e){ console.error(e); return []; } }
+function allAlerts(){ let out=[]; try{ out=E.alerts(state(),settings(),today()); }catch(e){ console.error(e); }
+  try{ if(window.Rental){ const extra=window.Rental.alerts(S.contracts,today(),settings()).filter(a=>!/payment|overdue|instal/i.test(String(a.key)+" "+String(a.title))); out=out.concat(extra); } }catch(e){ console.error(e); }
+  const rank={expired:0,critical:1,warning:2,notice:3,info:4}; return out.sort((a,b)=>(rank[a.severity]??5)-(rank[b.severity]??5)||(a.daysLeft||0)-(b.daysLeft||0)); }
 function isMuted(a){ const k=S.acks[safeId(a.key)]; if(!k) return false; if(k.ack) return true; if(k.snoozeUntil && k.snoozeUntil>=today()) return true; return false; }
 function activeAlerts(){ return allAlerts().filter(a=>!isMuted(a)); }
 async function setAck(key,val){
@@ -963,7 +966,7 @@ function openContract(id){
   const c=Object.assign({category:"Branch Rent",frequency:"Annual",vatApplicable:true,startDate:E.monthStart(today()),endDate:E.addDays(E.addMonths(E.monthStart(today()),12),-1),totalAmount:0},c0||{});
   const anyPaid=(c.installments||[]).some(i=>i.paidDate);
   openModal(isNew?"New prepaid contract · عقد جديد":`Contract ${c0.id}`,`<div class="fgrid">
-    <div class="field"><label for="c_cat">Category</label><select id="c_cat">${["Branch Rent","Medical Insurance","Other"].map(x=>`<option ${c.category===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label for="c_cat">Category</label><select id="c_cat">${["Branch Rent","Medical Insurance","Licenses (Baladiya / Civil Defense / CR)","Software & Subscriptions","Maintenance Contracts","Advertising","Other"].map(x=>`<option ${c.category===x?"selected":""}>${x}</option>`).join("")}</select></div>
     <div class="field"><label for="c_branch">Branch<span class="ar">الفرع</span></label><input id="c_branch" value="${h(c.branch||"")}" placeholder="Riyadh — Olaya"></div>
     <div class="field"><label for="c_vendor">Landlord / vendor<span class="ar">المؤجر</span></label><input id="c_vendor" value="${h(c.vendor||"")}"></div>
     <div class="field"><label for="c_ref">Ejar / policy no<span class="ar">رقم عقد إيجار</span></label><input id="c_ref" value="${h(c.refNo||"")}"></div>
@@ -980,18 +983,35 @@ function openContract(id){
     <div class="field"><label for="c_ptype">Property type</label><select id="c_ptype">${["Shop","Drive-thru","Lounge","Cafe","Office","Warehouse","Staff housing","Other"].map(x=>`<option ${c.propertyType===x?"selected":""}>${x}</option>`).join("")}</select></div>
     <div class="field"><label for="c_area">Area (m²)</label><input id="c_area" type="number" min="0" value="${h(c.areaSqm||"")}"></div>
     <div class="field"><label for="c_dep">Security deposit (SAR)</label><input id="c_dep" type="number" min="0" step="0.01" value="${h(c.securityDeposit||0)}"></div>
-    <div class="field"><label for="c_phone">Landlord phone</label><input id="c_phone" value="${h(c.landlordPhone||"")}"></div></div>
+    <div class="field"><label for="c_phone">Landlord phone</label><input id="c_phone" value="${h(c.landlordPhone||"")}"></div>
+    <div class="field"><label for="c_lcr">Landlord CR / ID</label><input id="c_lcr" value="${h((c.landlord||{}).crNo||"")}"></div>
+    <div class="field"><label for="c_lvat">Landlord VAT number</label><input id="c_lvat" value="${h((c.landlord||{}).vatNo||"")}"></div>
+    <div class="field"><label for="c_liban">Landlord IBAN</label><input id="c_liban" value="${h((c.landlord||{}).iban||"")}"></div>
+    <div class="field"><label for="c_deed">Title deed no</label><input id="c_deed" value="${h((c.property||{}).deedNo||"")}"></div>
+    <div class="field"><label for="c_dist">District</label><input id="c_dist" value="${h((c.property||{}).district||"")}"></div>
+    <div class="field"><label for="c_act">Activity / licence</label><input id="c_act" value="${h((c.property||{}).activity||"")}"></div>
+    <div class="field"><label for="c_esc">Rent escalation</label><select id="c_esc">${[["none","None"],["fixed_pct","Fixed % per year"],["fixed_amount","Fixed amount per year"],["cpi","CPI-linked (% estimate)"]].map(([v,l])=>`<option value="${v}" ${((c.escalation||{}).type||"none")===v?"selected":""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><label for="c_escp">Escalation % or amount</label><input id="c_escp" type="number" step="0.01" value="${h((c.escalation||{}).pct||(c.escalation||{}).amount||"")}"></div>
+    <div class="field"><label for="c_rff">Rent-free from</label><input id="c_rff" type="date" value="${h(((c.rentFree||[])[0]||{}).from||"")}"></div>
+    <div class="field"><label for="c_rft">Rent-free to</label><input id="c_rft" type="date" value="${h(((c.rentFree||[])[0]||{}).to||"")}"></div>
+    <div class="field"><label for="c_ren">Renewal option (years)</label><input id="c_ren" type="number" min="0" value="${h(((c.options||{}).renewal||{}).years||"")}"></div>
+    <div class="field"><label for="c_tpen">Early termination penalty (SAR)</label><input id="c_tpen" type="number" min="0" step="0.01" value="${h(((c.options||{}).termination||{}).penalty||"")}"></div></div>
     ${anyPaid?`<div class="warnbox">Some installments are already paid. Changing the dates, value or frequency rebuilds unpaid installments. Payment dates on matching installment numbers are kept.</div>`:""}
     <div id="c_prev"></div>`,
    [c0?{label:"Delete",cls:"danger",fn:()=>confirmBox(`Delete contract ${c0.id} and its schedule?`,async()=>{await del("contracts",c0.id);closeModal();})}:null,
     {label:"Save",cls:"pri",fn:async()=>{ const o=readCon(c); if(!o.branch){toast("Enter the branch.");return;} if(!(o.totalAmount>0)){toast("Enter the contract value.");return;} if(!(o.endDate>o.startDate)){toast("The end date must be after the start date.");return;}
-      o.installments = o.customSchedule ? (c.installments||[]) : E.buildInstallments(o,st);
+      o.installments = o.customSchedule ? (c.installments||[]) : (window.Rental&&o.escalation&&o.escalation.type!=="none"||(o.rentFree||[]).length ? window.Rental.generateSchedule(o,st).map((x,i)=>Object.assign({paidDate:"",paymentRef:""},(c.installments||[]).find(y=>y.no===x.no)||{},x)) : E.buildInstallments(o,st));
       if(isNew){ await withNumberLock(async()=>{ o.id=nextId("CON-",S.contracts); await put("contracts",o.id,o); }); toast(`Saved as ${o.id}`);} else { await put("contracts",o.id,o); toast("Saved"); } closeModal(); }}].filter(Boolean));
   const upd=()=>{ const o=readCon(c); let ins=[]; try{ ins=E.buildInstallments(o,st);}catch(x){}
     $("#c_prev").innerHTML=ins.length?`<div class="sub" style="margin-bottom:6px">Installment schedule preview</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Period</th><th>Due</th><th class="n">Amount</th><th class="n">VAT</th><th class="n">Monthly amortization</th></tr></thead><tbody>${ins.map(i=>`<tr><td>${i.no}</td><td>${fd(i.periodStart)} → ${fd(i.periodEnd)}</td><td>${fd(i.dueDate)}</td><td class="n">${money(i.amount)}</td><td class="n">${money(i.vat)}</td><td class="n">≈ ${money(i.amount/Math.max(1,Math.round(E.daysBetween(i.periodStart,i.periodEnd)/30.4)))}</td></tr>`).join("")}</tbody></table></div>`:""; };
   ["c_start","c_end","c_total","c_freq","c_vat"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
 }
 function readCon(c){ const o=Object.assign({},c,{category:$("#c_cat").value,branch:$("#c_branch").value.trim(),vendor:$("#c_vendor").value.trim(),refNo:$("#c_ref").value.trim(),startDate:$("#c_start").value,endDate:$("#c_end").value,totalAmount:parseFloat($("#c_total").value)||0,frequency:$("#c_freq").value,vatApplicable:$("#c_vat").value==="1",notes:$("#c_notes").value.trim(),
+  landlord:Object.assign({},c.landlord||{},{name:$("#c_vendor").value.trim(),crNo:$("#c_lcr").value.trim(),vatNo:$("#c_lvat").value.trim(),iban:$("#c_liban").value.replace(/\s/g,""),phone:$("#c_phone").value.trim()}),
+  property:Object.assign({},c.property||{},{ejarNo:$("#c_ref").value.trim(),deedNo:$("#c_deed").value.trim(),district:$("#c_dist").value.trim(),activity:$("#c_act").value.trim(),city:$("#c_city").value.trim(),areaSqm:parseFloat($("#c_area").value)||0,type:$("#c_ptype").value}),
+  escalation:(()=>{ const t=$("#c_esc").value, v=parseFloat($("#c_escp").value)||0; return t==="none"?{type:"none"}:t==="fixed_amount"?{type:t,amount:v,every:"year"}:{type:t,pct:v,every:"year"}; })(),
+  rentFree:$("#c_rff").value&&$("#c_rft").value?[{from:$("#c_rff").value,to:$("#c_rft").value}]:[],
+  options:Object.assign({},c.options||{},{renewal:Object.assign({},((c.options||{}).renewal)||{},{years:parseFloat($("#c_ren").value)||0,noticeDays:parseInt($("#c_notice").value||"0",10)||0}),termination:Object.assign({},((c.options||{}).termination)||{},{penalty:parseFloat($("#c_tpen").value)||0})}),
   model:$("#c_model").value,ibr:parseFloat($("#c_ibr").value)||0,noticeDays:parseInt($("#c_notice").value||"0",10)||0,city:$("#c_city").value.trim(),propertyType:$("#c_ptype").value,areaSqm:parseFloat($("#c_area").value)||0,securityDeposit:parseFloat($("#c_dep").value)||0,landlordPhone:$("#c_phone").value.trim()}); delete o._id; return o; }
 function payInstallment(cid,no){
   const c=S.contracts.find(x=>x.id===cid); const i=(c.installments||[]).find(x=>x.no===+no); if(!i) return;
@@ -1035,6 +1055,7 @@ function vLeases(){
     <div class="kpi blue"><span class="tag"><i></i>Critical dates</span><span class="v">${upcoming.filter(d=>/Notice|end/i.test(d.type)).length}</span><span class="l">Notice deadlines / ends ≤ 120 days</span></div>
     ${T.liability!=null&&T.liability>0?`<div class="kpi"><span class="tag"><i></i>IFRS 16</span><span class="v">${money0(T.liability)}</span><span class="l">Lease liability (SAR)</span></div>`:""}
   </div>
+  ${rentalAnalyticsHtml(leases)}
   <div class="panel" style="margin-bottom:16px"><h2>Payment calendar — next 24 months <small>تقويم الدفعات</small></h2>${stackedBars(months,series,"Lease payments due per month by branch")}</div>
   <div class="grid2">
     <div class="panel"><h2>Critical dates <small>التواريخ الحرجة</small></h2>
@@ -1068,7 +1089,71 @@ function openLease(id){
     ${schedHtml}
     <div><div class="sub" style="margin-bottom:6px">Payment schedule</div><div class="tbl-wrap" style="max-height:300px"><table><thead><tr><th>#</th><th>Due</th><th>Period covered</th><th class="n">Amount</th><th class="n">VAT</th><th>Payment</th></tr></thead><tbody>${instRows}</tbody></table></div></div>
     ${c.notes?`<div class="sub">${h(c.notes)}</div>`:""}`,
-    [{label:"Edit lease",fn:()=>{ closeModal(); openContract(c.id); }}]);
+    [{label:"Lease actions",cls:"pri",fn:()=>{ closeModal(); leaseActions(c.id); }},{label:"Edit lease",fn:()=>{ closeModal(); openContract(c.id); }}]);
+}
+
+/* ---------- Rental lifecycle: analytics, renew / modify / terminate / deposit, events ---------- */
+const RZ=()=>window.Rental;
+function rentalAnalyticsHtml(leases){
+  const R=RZ(); if(!R||!leases.length) return "";
+  const a=hrSafe(()=>R.portfolioAnalytics(leases,today()),null); if(!a) return "";
+  const yrs=Object.keys(a.expiryProfile||{}).sort(); const com=a.commitments||{};
+  return `<div class="kpis">
+    <div class="kpi blue"><span class="tag"><i></i>WALE</span><span class="v">${(+a.waleYears||0).toFixed(2)}</span><span class="l">Weighted average lease expiry (years, by rent)</span></div>
+    <div class="kpi"><span class="tag"><i></i>Next 12 months</span><span class="v">${money0(com.next12m)}</span><span class="l">Committed lease payments (SAR)</span></div>
+    <div class="kpi"><span class="tag"><i></i>1–5 years</span><span class="v">${money0(com.y1to5)}</span><span class="l">Committed lease payments (SAR)</span></div>
+    <div class="kpi green"><span class="tag"><i></i>Deposits</span><span class="v">${money0(a.totalDeposits)}</span><span class="l">Security deposits held (SAR)</span></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h2>Expiry profile <small>استحقاق انتهاء العقود</small></h2>
+      <div class="tbl-wrap"><table><thead><tr><th>Year</th><th class="n">Annual rent expiring (SAR)</th></tr></thead><tbody>${yrs.map(y=>`<tr><td>${h(String(y).slice(0,4))}</td><td class="n">${money0(a.expiryProfile[y])}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="panel"><h2>Cost by branch <small>التكلفة حسب الفرع</small></h2><div class="tbl-wrap"><table><thead><tr><th>Branch</th><th class="n">Annual rent</th><th class="n">Monthly</th><th class="n">m²</th><th class="n">SAR / m²</th><th class="n">Years left</th><th class="n">Deposit</th></tr></thead><tbody>
+      ${(a.byBranch||[]).map(b=>`<tr><td>${h(b.branch)}</td><td class="n">${money0(b.annualRent)}</td><td class="n">${money0(b.monthlyCost)}</td><td class="n">${b.areaSqm?money0(b.areaSqm):"—"}</td><td class="n">${b.costPerSqm?money0(b.costPerSqm):"—"}</td><td class="n">${(+b.remainingYears||0).toFixed(1)}</td><td class="n">${b.depositHeld?money0(b.depositHeld):"—"}</td></tr>`).join("")}
+    </tbody></table></div></div>
+  </div>`;
+}
+async function saveContractDoc(c){ const o=Object.assign({},c); delete o._id; await put("contracts",o.id,o); }
+function leaseActions(id){
+  const c=S.contracts.find(x=>x.id===id); if(!c) return;
+  openModal(`${c.branch} · lease actions`,`<div class="mlist">
+    <button class="mcard" data-lact="renew|${h(id)}"><span class="t">Renew lease</span><span class="r sub">تجديد العقد</span><span class="s">Create the renewal contract with a new rent or % increase. The current lease is marked Renewed.</span></button>
+    <button class="mcard" data-lact="modify|${h(id)}"><span class="t">Change rent or end date</span><span class="r sub">تعديل العقد</span><span class="s">Mid-term change from an effective date. Future installments are rebuilt; IFRS 16 liability and right-of-use asset are remeasured.</span></button>
+    <button class="mcard" data-lact="terminate|${h(id)}"><span class="t">Terminate early</span><span class="r sub">إنهاء مبكر</span><span class="s">Settlement: refund of prepaid rent, deposit refund, penalty and gain/loss on derecognition.</span></button>
+    <button class="mcard" data-lact="deposit|${h(id)}"><span class="t">Security deposit</span><span class="r sub">التأمين</span><span class="s">Record the deposit paid, refunded or forfeited.</span></button>
+    <button class="mcard" data-lact="events|${h(id)}"><span class="t">History</span><span class="r sub">سجل العقد</span><span class="s">${(c.events||[]).length} recorded events.</span></button>
+  </div>`,[]);
+}
+function leaseAction(kind,id){
+  const R=RZ(), c=S.contracts.find(x=>x.id===id), st=settings(), t=today(); if(!c||!R) return;
+  const copy=()=>{ const o=JSON.parse(JSON.stringify(c)); delete o._id; return o; };
+  if(kind==="renew"){
+    openModal(`Renew · ${c.branch}`,`<div class="fgrid"><div class="field"><label for="rn_y">Years</label><input id="rn_y" type="number" min="1" value="${h((c.options&&c.options.renewal&&c.options.renewal.years)||1)}"></div><div class="field"><label for="rn_p">Rent increase %</label><input id="rn_p" type="number" step="0.1" value="0"></div><div class="field"><label for="rn_a">Or new annual rent (SAR, excl. VAT)</label><input id="rn_a" type="number" step="0.01"></div><div class="field"><label for="rn_f">Payment frequency</label><select id="rn_f">${["Annual","Semi-annual","Quarterly","Monthly"].map(x=>`<option ${c.frequency===x?"selected":""}>${x}</option>`).join("")}</select></div></div><div class="sub">The new lease starts the day after ${fd(c.endDate)}.</div>`,
+     [{label:"Create renewal",cls:"pri",fn:async()=>{ const orig=copy(); const o={years:+$("#rn_y").value||1,frequency:$("#rn_f").value,by:uid||""}; const a=parseFloat($("#rn_a").value); if(a>0) o.newAnnualRent=a; else o.pctIncrease=parseFloat($("#rn_p").value)||0;
+       const nc=R.renew(orig,o); delete nc._id; await put("contracts",nc.id,nc); await saveContractDoc(orig); closeModal(); toast(`Renewal ${nc.id} created`); }}]);
+  }
+  if(kind==="modify"){
+    const mdIn=()=>{ const o={effectiveDate:$("#md_d").value,reason:$("#md_n").value.trim(),by:uid||""}; const a=parseFloat($("#md_r").value); if(a>0) o.newAnnualRent=a; if($("#md_e").value&&$("#md_e").value!==c.endDate) o.newEndDate=$("#md_e").value; return o; };
+    openModal(`Change terms · ${c.branch}`,`<div class="fgrid"><div class="field"><label for="md_d">Effective date</label><input id="md_d" type="date" value="${t}"></div><div class="field"><label for="md_r">New annual rent (SAR, excl. VAT)</label><input id="md_r" type="number" step="0.01"></div><div class="field"><label for="md_e">New end date</label><input id="md_e" type="date" value="${h(c.endDate)}"></div><div class="field"><label for="md_n">Reason</label><input id="md_n"></div></div><div class="calc" id="md_c"></div>`,
+     [{label:"Apply change",cls:"pri",fn:async()=>{ const r=R.modify(copy(),mdIn(),st); const nc=r.contract; delete nc._id; await saveContractDoc(nc); closeModal(); toast("Lease updated"); }}]);
+    const upd=()=>{ const r=hrSafe(()=>R.modify(copy(),mdIn(),st),null); const m=r&&r.ifrs16Remeasurement; $("#md_c").innerHTML=r?`<div><span>Installments from effective date</span><b>${(r.contract.installments||[]).filter(i=>i.dueDate>=mdIn().effectiveDate).length}</b></div>${m?`<div><span>Liability before → after</span><b>${money(m.liabilityBefore)} → ${money(m.liabilityAfter)}</b></div><div><span>ROU adjustment</span><b>${money(m.rouAdjustment)}</b></div>`:""}`:`<div class="sub">Enter a valid effective date within the lease.</div>`; };
+    ["md_d","md_r","md_e"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
+  }
+  if(kind==="terminate"){
+    const tmIn=()=>({date:$("#tm_d").value,penalty:parseFloat($("#tm_p").value)||0,reason:$("#tm_r").value.trim(),forfeitDeposit:$("#tm_f").checked,by:uid||""});
+    openModal(`Terminate · ${c.branch}`,`<div class="fgrid"><div class="field"><label for="tm_d">Termination date</label><input id="tm_d" type="date" value="${t}"></div><div class="field"><label for="tm_p">Penalty (SAR)</label><input id="tm_p" type="number" step="0.01" value="${h((c.options&&c.options.termination&&c.options.termination.penalty)||0)}"></div><div class="field"><label for="tm_r">Reason</label><input id="tm_r"></div><label class="check" style="margin-top:18px"><input type="checkbox" id="tm_f"> Deposit forfeited</label></div><div class="calc" id="tm_c"></div>`,
+     [{label:"Cancel",fn:closeModal},{label:"Terminate lease",cls:"danger",fn:async()=>{ const r=R.terminate(copy(),tmIn(),st); const nc=r.contract; delete nc._id; await saveContractDoc(nc); closeModal(); toast("Lease terminated"); }}]);
+    const upd=()=>{ const r=hrSafe(()=>R.terminate(copy(),tmIn(),st),null); const s=r&&r.settlement; $("#tm_c").innerHTML=s?[["Prepaid rent to refund",s.refundDue],["VAT on refund",s.refundVat],["Deposit refund",s.depositRefund],["Penalty",s.penalty],["Net cash to receive",s.netCashToReceive],["Gain / (loss)",s.gainLossOnDerecognition]].map(([l,v])=>`<div><span>${l}</span><b>${money(v)}</b></div>`).join("")+`<div><span>Installments removed</span><b>${Array.isArray(s.removedInstallments)?s.removedInstallments.length:h(s.removedInstallments)}</b></div>`:""; };
+    ["tm_d","tm_p","tm_f"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
+  }
+  if(kind==="deposit"){
+    const d=c.deposit||{};
+    openModal(`Security deposit · ${c.branch}`,`<div class="fgrid"><div class="field"><label for="dp_a">Amount (SAR)</label><input id="dp_a" type="number" step="0.01" value="${h(d.amount||"")}"></div><div class="field"><label for="dp_p">Paid on</label><input id="dp_p" type="date" value="${h(d.paidDate||"")}"></div><div class="field"><label for="dp_s">Status</label><select id="dp_s">${["held","refunded","forfeited"].map(x=>`<option ${d.status===x?"selected":""}>${x}</option>`).join("")}</select></div><div class="field"><label for="dp_r">Refunded on</label><input id="dp_r" type="date" value="${h(d.refundDate||"")}"></div><div class="field"><label for="dp_ra">Refunded amount</label><input id="dp_ra" type="number" step="0.01" value="${h(d.refundedAmount||"")}"></div></div>`,
+     [{label:"Save deposit",cls:"pri",fn:async()=>{ const o=copy(); o.deposit={amount:parseFloat($("#dp_a").value)||0,paidDate:$("#dp_p").value,status:$("#dp_s").value,refundDate:$("#dp_r").value,refundedAmount:parseFloat($("#dp_ra").value)||0}; o.securityDeposit=o.deposit.amount; o.events=(o.events||[]).concat([{id:o.id+"-EV"+String((o.events||[]).length+1).padStart(3,"0"),type:"note",date:today(),by:uid||"",details:{text:"Deposit "+o.deposit.status,amount:o.deposit.amount}}]); await saveContractDoc(o); closeModal(); toast("Deposit saved"); }}]);
+  }
+  if(kind==="events"){
+    const ev=(c.events||[]).slice().reverse();
+    openModal(`History · ${c.branch}`,ev.length?`<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Event</th><th>Details</th></tr></thead><tbody>${ev.map(e=>`<tr><td>${fd(e.date)}</td><td>${h(e.type)}</td><td class="sub" style="white-space:normal">${h(Object.entries(e.details||{}).filter(([k,v])=>v!==""&&v!=null&&typeof v!=="object").map(([k,v])=>k+": "+(typeof v==="number"?money(v):v)).join(" · "))}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty"><b>No events yet</b>Renewals, changes, terminations and deposit updates are recorded here.</div>`,[]);
+  }
 }
 
 /* ---------- HR: dashboard, leave, payroll, end of service ---------- */
@@ -1267,6 +1352,7 @@ function amSeries(sch,cat,rows){
 function fullJournal(month){
   const st=settings(), t=today(); const j=E.monthlyJournal(stateP(),st,month,t);
   try{ if(LZ()){ const lj=LZ().leaseJournal(S.contracts.filter(c=>c.category==="Branch Rent"&&leaseModel(c)!=="prepaid"),st,month,t); if(lj&&lj.entries&&lj.entries.length){ j.entries=j.entries.concat(lj.entries); j.balanced=j.balanced&&lj.balanced!==false; } } }catch(e){ console.error(e); }
+  try{ if(window.Rental){ const dj=window.Rental.depositsJournal(S.contracts,month,settings()); if(dj&&dj.entries&&dj.entries.length){ j.entries=j.entries.concat(dj.entries); j.balanced=j.balanced&&dj.balanced!==false; } } }catch(e){ console.error(e); }
   try{ const H=HRX(); if(H){ const pid=month.slice(0,7); const sv=S.payruns.find(r=>r.id===pid);
       if(sv&&sv.status==="LOCKED"&&sv.run){ const pj=H.payrollJournal(sv.run,hrCfg()); j.entries=j.entries.concat(pj.entries||[]); j.balanced=j.balanced&&pj.balanced!==false; }
       const emps=activeStaff().filter(e=>e.hr&&e.hr.hireDate&&hasPay(e));
@@ -1468,7 +1554,7 @@ function confirmBox(msg,fn){ openModal("Please confirm",`<p>${h(msg)}</p>`,[{lab
 
 /* ---------- events ---------- */
 document.addEventListener("click",async ev=>{
-  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-lease],[data-leavef],[data-leaveact],[data-eosb],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],[data-lang],#bellBtn,#ov");
+  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-lease],[data-lact],[data-leavef],[data-leaveact],[data-eosb],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],[data-lang],#bellBtn,#ov");
   if(!t) return;
   if(t.id==="ov"){ if(ev.target.id==="ov") closeModal(); return; }
   if(t.id==="bellBtn") return go("alerts");
@@ -1487,6 +1573,7 @@ document.addEventListener("click",async ev=>{
   if(d.visafilter){ S.ui.visaFilter=d.visafilter; return render(); }
   if(d.editcon) return openContract(d.editcon);
   if(d.lease) return openLease(d.lease);
+  if(d.lact){ const [k,i]=d.lact.split("|"); closeModal(); return leaseAction(k,i); }
   if(d.leavef){ S.ui.leaveF=d.leavef; return render(); }
   if(d.eosb) return openEOSB(d.eosb);
   if(d.leaveact){ const [st,id]=d.leaveact.split("|"); const l=S.leaves.find(x=>x.id===id); if(!l) return; const o=Object.assign({},l,{status:st,decidedAt:new Date().toISOString(),decidedBy:uid||""}); delete o._id; await put("leaves",id,o); toast(`${id}: ${st.toLowerCase()}`); return; }
