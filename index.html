@@ -256,6 +256,8 @@ th{background:var(--surface-2)}
   .alert{grid-template-columns:4px minmax(0,1fr)}
   .alert>.row{grid-column:2}
 }
+.linkish{border:0;background:none;padding:0;color:var(--fg);font:inherit;cursor:pointer;text-align:start}.linkish:hover{color:var(--accent);text-decoration:underline}
+ul.org,ul.org ul{list-style:none;margin:0;padding-inline-start:18px;border-inline-start:1px dashed var(--line)}ul.org{border:0;padding:0}ul.org li{padding:4px 0}
 @keyframes sheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 /* ===== Language: Arabic (RTL) ===== */
 .langsw{display:flex;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:3px;gap:2px}
@@ -492,6 +494,10 @@ async function connect(){
 /* ---------- alerts / notifications ---------- */
 function allAlerts(){ let out=[]; try{ out=E.alerts(state(),settings(),today()); }catch(e){ console.error(e); }
   try{ if(window.Rental){ const extra=window.Rental.alerts(S.contracts,today(),settings()).filter(a=>!/payment|overdue|instal/i.test(String(a.key)+" "+String(a.title))); out=out.concat(extra); } }catch(e){ console.error(e); }
+  try{ const t=today(); activeStaff().forEach(e=>{ const r=e.hr||{};
+      [["probationEnd","Probation ends",30,"Decide on confirmation before the probation period ends (Labor Law Art. 53)."],["contractEnd","Contract ends",60,"Renew the fixed-term contract in Qiwa or give notice (Art. 55)."]].forEach(([k,ttl,win,msg])=>{
+        if(!r[k]) return; const dl=E.daysBetween(t,r[k]); if(dl>win||dl<-30) return;
+        out.push({key:"HR|"+e.empNo+"|"+k+"|"+r[k],severity:dl<0?"expired":dl<=14?"critical":"warning",category:"HR",empNo:e.empNo,ref:e.empNo,title:ttl+(dl<0?"":" in "+dl+" day(s)"),message:(e.nameEn||e.nameAr)+": "+msg,dueDate:r[k],daysLeft:dl,stage:k}); }); }); }catch(x){ console.error(x); }
   const rank={expired:0,critical:1,warning:2,notice:3,info:4}; return out.sort((a,b)=>(rank[a.severity]??5)-(rank[b.severity]??5)||(a.daysLeft||0)-(b.daysLeft||0)); }
 function isMuted(a){ const k=S.acks[safeId(a.key)]; if(!k) return false; if(k.ack) return true; if(k.snoozeUntil && k.snoozeUntil>=today()) return true; return false; }
 function activeAlerts(){ return allAlerts().filter(a=>!isMuted(a)); }
@@ -528,6 +534,8 @@ const VIEWS=[
   {id:"leave",en:"Leave",ar:"الإجازات"},
   {id:"payroll",en:"Payroll",ar:"الرواتب"},
   {id:"eosb",en:"End of Service",ar:"نهاية الخدمة"},
+  {id:"loans",en:"Loans & Advances",ar:"السلف والقروض"},
+  {id:"org",en:"Organization",ar:"الهيكل التنظيمي"},
   {grp:"System"},
   {id:"settings",en:"Fees & Settings",ar:"الرسوم والإعدادات"},
   {id:"guide",en:"Guide & KSA Rules",ar:"الدليل والأنظمة"}
@@ -548,6 +556,8 @@ const IC={
   leave:'<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M8 2.5v4M16 2.5v4M3 10h18M9 15l2 2 4-4"/>',
   payroll:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/>',
   eosb:'<path d="M12 3v18M17 7.5c0-1.9-2.2-3.5-5-3.5S7 5.6 7 7.5 9.2 11 12 11.5s5 1.6 5 3.5-2.2 3.5-5 3.5-5-1.6-5-3.5"/>',
+  loans:'<path d="M3 7h18v10H3z"/><path d="M7 7V5h10v2M12 10v4M10 12h4"/>',
+  org:'<rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/>',
   more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
 };
 const svgI=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||""}</svg>`;
@@ -559,7 +569,7 @@ function renderNav(cnt){
   const inMore=!TABS.includes(S.ui.view);
   $("#tabbar").innerHTML=TABS.map(id=>`<button data-nav="${id}" aria-current="${S.ui.view===id}"><span class="tico">${svgI(id)}</span>${short[id]}${id==="alerts"&&cnt?`<span class="badge">${cnt}</span>`:""}</button>`).join("")+
     `<button data-act="more" aria-current="${inMore}"><span class="tico">${svgI("more")}</span>More</button>`;
-  const fabAct={employees:"addEmp",renewals:"addRen",visas:"addVisa",contracts:"addCon",leases:"addCon",leave:"addLeave"}[S.ui.view];
+  const fabAct={employees:"addEmp",renewals:"addRen",visas:"addVisa",contracts:"addCon",leases:"addCon",leave:"addLeave",loans:"addLoan"}[S.ui.view];
   const fab=$("#fab"); fab.hidden=!fabAct; if(fabAct) fab.dataset.act=fabAct;
 }
 function openMore(){
@@ -581,7 +591,7 @@ function render(){
   if(!S.gsInit&&db&&!db.gas&&gsId()&&COLS.every(c=>S.loaded[c])){ S.gsInit=true; setTimeout(()=>gsSync(false),3000); }
   const v=VIEWS.find(x=>x.id===S.ui.view)||VIEWS[1];
   $("#viewTitle").innerHTML=`${h(v.en)}<small>${h(v.ar)}</small>`;
-  const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,leases:vLeases,hr:vHR,leave:vLeave,payroll:vPayroll,eosb:vEOSB,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
+  const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,leases:vLeases,hr:vHR,leave:vLeave,payroll:vPayroll,eosb:vEOSB,loans:vLoans,org:vOrg,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
   const loaded=COLS.every(c=>S.loaded[c]);
   const vw=$("#view"); vw.classList.toggle("enter",!!S.ui.animate&&loaded);
   $("#bellBtn").classList.toggle("urgent",urgent>0&&!S.ui.rang&&loaded); if(urgent&&loaded) S.ui.rang=true;
@@ -760,13 +770,13 @@ function vEmployees(){
     <button class="btn" data-act="import">Import Excel</button>
     <button class="btn" data-act="export">Export all</button>
     <button class="btn pri" data-act="addEmp">Add employee</button></div>
-  <div class="sub" style="margin-bottom:8px">${rows.length} employees · sorted by days to Iqama expiry · click a row to edit</div>
-  <div class="mlist only-mob">${shown.slice(0,S.ui.empLimit?9999:60).map(({e,eff,days})=>`<button class="mcard" data-editemp="${h(e.empNo)}"><span class="t">${h(e.nameEn||e.nameAr)}</span><span class="r">${e.saudi?`<span class="pill p-grey">Saudi</span>`:eff?daysPill(days):`<span class="pill p-amber">no date</span>`}</span>
+  <div class="sub" style="margin-bottom:8px">${rows.length} employees · sorted by days to Iqama expiry · click a row to open the profile</div>
+  <div class="mlist only-mob">${shown.slice(0,S.ui.empLimit?9999:60).map(({e,eff,days})=>`<button class="mcard" data-profile="${h(e.empNo)}"><span class="t">${h(e.nameEn||e.nameAr)}</span><span class="r">${e.saudi?`<span class="pill p-grey">Saudi</span>`:eff?daysPill(days):`<span class="pill p-amber">no date</span>`}</span>
     <span class="s"><span class="mono">${h(e.empNo)}</span>${e.hrNo?`<span>HR ${h(e.hrNo)}</span>`:""}<span class="mono">${h(e.saudi?e.nationalId:e.iqamaNo||"")}</span><span>${h(e.nationality||"")}</span>${eff?`<span>${fd(eff)} · ${h(hj(eff))}</span>`:""}</span></button>`).join("")}</div>
   <div class="tbl-wrap only-desk"><table><thead><tr>
     <th>Emp No<span class="ar">الرقم الوظيفي</span></th><th>Name<span class="ar">الاسم</span></th><th>Nationality<span class="ar">الجنسية</span></th><th>Iqama No<span class="ar">رقم الإقامة</span></th>
     <th>Iqama expiry<span class="ar">انتهاء الإقامة</span></th><th>Days left</th><th>Passport expiry</th><th>Insurance expiry</th><th class="n">Dep.</th><th>Branch / Dept</th><th>Status</th><th></th></tr></thead><tbody>
-    ${shown.map(({e,eff,days})=>`<tr class="clk" data-editemp="${h(e.empNo)}">
+    ${shown.map(({e,eff,days})=>`<tr class="clk" data-profile="${h(e.empNo)}">
       <td class="mono">${h(e.empNo)}${e.hrNo?`<div class="sub">HR ${h(e.hrNo)}</div>`:""}${e.example?` <span class="pill p-grey">Example</span>`:""}</td>
       <td>${e.nameEn?h(e.nameEn)+(e.nameAr?`<div class="sub ar">${h(e.nameAr)}</div>`:""):`<span class="ar">${h(e.nameAr)}</span>`}<div class="sub">${h(e.jobTitle||"")}</div></td><td>${h(e.nationality)}</td>
       <td class="mono">${e.saudi?h(e.nationalId||""):h(e.iqamaNo)||`<span class="pill p-amber">missing</span>`}<div class="sub">${e.saudi?"Saudi ID":"Fees: "+h(e.iqamaFeesBy||"Company")}</div></td>
@@ -1154,6 +1164,123 @@ function leaseAction(kind,id){
     const ev=(c.events||[]).slice().reverse();
     openModal(`History · ${c.branch}`,ev.length?`<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Event</th><th>Details</th></tr></thead><tbody>${ev.map(e=>`<tr><td>${fd(e.date)}</td><td>${h(e.type)}</td><td class="sub" style="white-space:normal">${h(Object.entries(e.details||{}).filter(([k,v])=>v!==""&&v!=null&&typeof v!=="object").map(([k,v])=>k+": "+(typeof v==="number"?money(v):v)).join(" · "))}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty"><b>No events yet</b>Renewals, changes, terminations and deposit updates are recorded here.</div>`,[]);
   }
+}
+
+/* ---------- HR phase 2: employee 360, loans, letters, org, exit ---------- */
+function empName(e){ return (e&&(e.nameEn||e.nameAr))||""; }
+function openProfile(no){
+  const e=empBy(no); if(!e) return; const H=HRX(), cfg=hrCfg(), t=today(), r=e.hr||{};
+  const eff=E.effectiveExpiry(e,S.renewals);
+  const lb=H&&r.hireDate&&hasPay(e)?hrSafe(()=>H.leaveBalance(e,S.leaves,t,cfg),null):null;
+  const eo=H&&r.hireDate&&hasPay(e)?hrSafe(()=>H.eosb(e,t,"EMPLOYER_TERMINATION",cfg),null):null;
+  const gs=H&&hasPay(e)?hrSafe(()=>H.gosi(e,E.monthStart(t),cfg),null):null;
+  const loans=S.loans.filter(l=>l.empNo===no); const outstanding=loans.reduce((a,l)=>a+loanBalance(l),0);
+  const ren=S.renewals.filter(x=>x.empNo===no).sort((a,b)=>(b.requestDate||"").localeCompare(a.requestDate||""));
+  const lv=S.leaves.filter(x=>x.empNo===no).sort((a,b)=>(b.from||"").localeCompare(a.from||""));
+  const vis=S.visas.filter(x=>x.empNo===no);
+  const gross=(+r.basic||0)+(+r.housing||0)+(+r.transport||0)+(+r.otherAllow||0);
+  const row=(l,v)=>v===""||v==null?"":`<div><span>${h(l)}</span><b>${h(v)}</b></div>`;
+  const mgr=r.managerEmpNo?empBy(r.managerEmpNo):null; const reports=S.employees.filter(x=>x.hr&&x.hr.managerEmpNo===no);
+  openModal(`${empName(e)} · ${e.empNo}`,`
+    <div class="row" style="gap:8px">${[e.nationality,e.jobTitle,e.department,e.status,e.saudi?"Saudi":null,e.hrNo?"HR "+e.hrNo:null].filter(Boolean).map(x=>`<span class="pill p-grey">${h(x)}</span>`).join("")}</div>
+    <div><div class="sub" style="margin-bottom:6px"><b>Documents</b> · الوثائق</div><div class="calc">
+      ${row("Iqama / ID",e.saudi?e.nationalId:e.iqamaNo)}${e.saudi?"":row("Iqama expiry",eff?fd(eff)+" · "+hj(eff):"not recorded")}${row("Passport",e.passportNo)}${row("Passport expiry",e.passportExpiry?fd(e.passportExpiry):"")}${row("Medical insurance",e.insuranceExpiry?fd(e.insuranceExpiry):"")}${row("Iqama fees paid by",e.iqamaFeesBy)}</div></div>
+    <div><div class="sub" style="margin-bottom:6px"><b>Employment & pay</b> · التوظيف والراتب</div><div class="calc">
+      ${row("Hire date",r.hireDate?fd(r.hireDate):"not recorded")}${row("Service",r.hireDate?(+(H?H.serviceYears(e,t):0)).toFixed(2)+" years":"")}${row("Contract",[r.contractType,r.contractEnd?"ends "+fd(r.contractEnd):""].filter(Boolean).join(" · "))}${row("Probation end",r.probationEnd?fd(r.probationEnd):"")}
+      ${row("Basic",hasPay(e)?money(r.basic):"not recorded")}${row("Housing",r.housing?money(r.housing):"")}${row("Transport",r.transport?money(r.transport):"")}${row("Other",r.otherAllow?money(r.otherAllow):"")}${row("Gross monthly",gross?money(gross):"")}
+      ${row("GOSI (employee / employer)",gs?money(gs.ee)+" / "+money(gs.er):"")}${row("IBAN",r.iban)}${row("Manager",mgr?empName(mgr)+" ("+mgr.empNo+")":"")}${row("Direct reports",reports.length?String(reports.length):"")}</div></div>
+    <div><div class="sub" style="margin-bottom:6px"><b>Entitlements</b> · المستحقات</div><div class="calc">
+      ${row("Annual leave balance",lb?(+lb.balance||0).toFixed(1)+" days":"needs hire date & salary")}${row("Leave value",lb?money(lb.liability):"")}${row("End of service today",eo?money(eo.amount):"")}${row("Loans outstanding",outstanding?money(outstanding):"0.00")}</div></div>
+    <div class="grid2" style="margin:0">
+      <div><div class="sub" style="margin-bottom:6px"><b>Renewals & Jawazat</b></div>${ren.concat(vis).length?`<div class="tbl-wrap"><table><tbody>${ren.map(x=>`<tr><td class="mono">${h(x.id)}</td><td>${fd(x.requestDate)}</td><td>${statusPill(E.renewalStatus(x))}</td></tr>`).join("")}${vis.map(x=>`<tr><td class="mono">${h(x.id)}</td><td>${h(x.type)}</td><td>${statusPill(E.visaStatus(x,t))}</td></tr>`).join("")}</tbody></table></div>`:`<div class="sub">None yet</div>`}</div>
+      <div><div class="sub" style="margin-bottom:6px"><b>Leave history</b></div>${lv.length?`<div class="tbl-wrap"><table><tbody>${lv.slice(0,8).map(x=>`<tr><td>${h(ltLabel(x.type))}</td><td>${fd(x.from)}</td><td class="n">${h(x.days)}d</td><td>${h(x.status)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="sub">None yet</div>`}</div>
+    </div>`,
+   [{label:"Edit",fn:()=>{ closeModal(); openEmployee(no); }},{label:"Letter",fn:()=>{ closeModal(); openLetters(no); }},{label:"Loan / advance",fn:()=>{ closeModal(); openLoan(null,no); }},{label:"Leave",fn:()=>{ closeModal(); openLeave(); setTimeout(()=>{ const s=$("#l_emp"); if(s){ s.value=no; s.dispatchEvent(new Event("input")); } },50); }},{label:"Exit & settlement",cls:"danger",fn:()=>{ closeModal(); openExit(no); }}]);
+}
+/* loans & advances */
+function loanBalance(l){ if(l.status==="CLOSED") return 0; const paid=(l.repayments||[]).reduce((a,x)=>a+(+x.amount||0),0); const t=today(); let sched=0;
+  if(l.startPeriod&&+l.monthly>0){ const [y,m]=l.startPeriod.split("-").map(Number); const [ty,tm]=t.slice(0,7).split("-").map(Number); const n=Math.max(0,(ty-y)*12+(tm-m)+(t.slice(8)>="25"?1:0)); sched=Math.min(+l.amount||0,n*(+l.monthly)); }
+  return Math.max(0,Math.round(((+l.amount||0)-Math.max(sched,paid))*100)/100); }
+function vLoans(){
+  const list=S.loans.slice().sort((a,b)=>(b.startPeriod||"").localeCompare(a.startPeriod||""));
+  const tot=list.reduce((a,l)=>a+loanBalance(l),0);
+  return `<div class="row" style="margin-bottom:12px"><div class="sub prose">Monthly installments are deducted automatically in payroll from the start month until the loan is repaid (Saudi Labor Law Art. 92/93: deductions are capped, the system warns above 50% of the wage).</div><span class="spacer"></span><button class="btn pri" data-act="addLoan">New loan / advance</button></div>
+  <div class="kpis"><div class="kpi blue"><span class="tag"><i></i>Outstanding</span><span class="v">${money0(tot)}</span><span class="l">Employee loans & advances (SAR)</span></div><div class="kpi"><span class="tag"><i></i>Active</span><span class="v">${list.filter(l=>loanBalance(l)>0).length}</span><span class="l">Open loans</span></div></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Loan</th><th>Employee</th><th>Type</th><th class="n">Amount</th><th class="n">Monthly</th><th>Starts</th><th class="n">Balance</th><th>Status</th></tr></thead><tbody>
+  ${list.map(l=>{ const e=empBy(l.empNo)||{}; const b=loanBalance(l); return `<tr class="clk" data-loan="${h(l.id)}"><td class="mono">${h(l.id)}</td><td>${h(empName(e)||l.empNo)}<div class="sub">${h(l.empNo)}</div></td><td>${h(l.kind||"Loan")}</td><td class="n">${money(l.amount)}</td><td class="n">${money(l.monthly)}</td><td>${h(l.startPeriod||"")}</td><td class="n"><b>${money(b)}</b></td><td>${b>0?`<span class="pill p-amber">Open</span>`:`<span class="pill p-green">Repaid</span>`}</td></tr>`; }).join("")}
+  </tbody></table>${list.length?"":`<div class="empty"><b>No loans or advances</b>Record a salary advance or loan; it is then deducted in payroll.</div>`}</div>`;
+}
+function openLoan(id,empNo){
+  const l0=id?S.loans.find(x=>x.id===id):null; const l=Object.assign({kind:"Salary advance",amount:0,monthly:0,startPeriod:today().slice(0,7),status:"ACTIVE"},l0||{}); if(empNo) l.empNo=empNo;
+  const emps=activeStaff().sort((a,b)=>a.empNo.localeCompare(b.empNo));
+  openModal(l0?`Loan ${l0.id}`:"New loan / advance · سلفة",`<div class="fgrid">
+    <div class="field"><label for="ln_e">Employee</label><select id="ln_e"><option value="">Select…</option>${emps.map(e=>`<option value="${h(e.empNo)}" ${e.empNo===l.empNo?"selected":""}>${h(e.empNo)} — ${h(empName(e))}</option>`).join("")}</select></div>
+    <div class="field"><label for="ln_k">Type</label><select id="ln_k">${["Salary advance","Personal loan","Housing advance","Other"].map(x=>`<option ${l.kind===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label for="ln_a">Amount (SAR)</label><input id="ln_a" type="number" step="0.01" value="${h(l.amount||"")}"></div>
+    <div class="field"><label for="ln_m">Monthly deduction (SAR)</label><input id="ln_m" type="number" step="0.01" value="${h(l.monthly||"")}"></div>
+    <div class="field"><label for="ln_s">First deduction month</label><input id="ln_s" type="month" value="${h(l.startPeriod)}"></div>
+    <div class="field"><label for="ln_n">Note</label><input id="ln_n" value="${h(l.note||"")}"></div></div><div class="calc" id="ln_c"></div>`,
+   [l0?{label:"Mark repaid",fn:async()=>{ const o=Object.assign({},l0,{status:"CLOSED",closedAt:today()}); delete o._id; await put("loans",o.id,o); closeModal(); }}:null,
+    {label:"Save",cls:"pri",fn:async()=>{ const o=Object.assign({},l,{empNo:$("#ln_e").value,kind:$("#ln_k").value,amount:parseFloat($("#ln_a").value)||0,monthly:parseFloat($("#ln_m").value)||0,startPeriod:$("#ln_s").value,note:$("#ln_n").value.trim()}); delete o._id;
+      if(!o.empNo||!(o.amount>0)||!(o.monthly>0)){ toast("Enter employee, amount and monthly deduction."); return; }
+      if(!l0){ await withNumberLock(async()=>{ o.id=nextId("LN-",S.loans); await put("loans",o.id,o); }); } else await put("loans",o.id,o); closeModal(); toast("Loan saved"); }}].filter(Boolean));
+  const upd=()=>{ const a=parseFloat($("#ln_a").value)||0, m=parseFloat($("#ln_m").value)||0; const e=empBy($("#ln_e").value); const g=e&&e.hr?(+e.hr.basic||0)+(+e.hr.housing||0)+(+e.hr.transport||0)+(+e.hr.otherAllow||0):0;
+    $("#ln_c").innerHTML=`<div><span>Months to repay</span><b>${m>0?Math.ceil(a/m):"—"}</b></div>${g?`<div><span>Share of monthly wage</span><b>${(m/g*100).toFixed(1)}%</b></div>`:""}${g&&m/g>0.5?`<div style="grid-column:1/-1;color:var(--red)">Above 50% of the wage. Saudi Labor Law limits deductions; reduce the monthly amount.</div>`:""}`; };
+  ["ln_a","ln_m","ln_e"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
+}
+/* letters */
+function openLetters(no){
+  const e=empBy(no); if(!e) return;
+  openModal(`Letters · ${empName(e)}`,`<div class="mlist">
+    <button class="mcard" data-letter="salary|${h(no)}"><span class="t">Salary certificate</span><span class="r sub">تعريف بالراتب</span><span class="s">Bilingual letter to banks / embassies with the monthly salary breakdown.</span></button>
+    <button class="mcard" data-letter="employment|${h(no)}"><span class="t">Employment certificate (no salary)</span><span class="r sub">شهادة تعريف</span><span class="s">Confirms employment, position and hire date.</span></button>
+    <button class="mcard" data-letter="experience|${h(no)}"><span class="t">Experience certificate</span><span class="r sub">شهادة خبرة</span><span class="s">Service period and position (Labor Law Art. 64).</span></button>
+    <button class="mcard" data-letter="noc|${h(no)}"><span class="t">No objection letter (NOC)</span><span class="r sub">خطاب عدم ممانعة</span><span class="s">For travel, visa or other purposes.</span></button>
+  </div>`,[]);
+}
+function makeLetter(kind,no){
+  const e=empBy(no); if(!e) return; const r=e.hr||{}, st=settings(), co=st.company&&st.company!=="Company name"?st.company:"________________";
+  const gross=(+r.basic||0)+(+r.housing||0)+(+r.transport||0)+(+r.otherAllow||0); const idl=e.saudi?"National ID":"Iqama No", idv=e.saudi?e.nationalId:e.iqamaNo;
+  const dt=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}), dth=hj(today());
+  const T={salary:["Salary Certificate","تعريف بالراتب"],employment:["Employment Certificate","شهادة تعريف"],experience:["Experience Certificate","شهادة خبرة"],noc:["No Objection Letter","خطاب عدم ممانعة"]}[kind];
+  const en={salary:`This is to certify that <b>${h(e.nameEn||e.nameAr)}</b>, ${h(e.nationality||"")} national, ${idl} <b>${h(idv||"")}</b>, has been employed by ${h(co)} since <b>${r.hireDate?fd(r.hireDate):"________"}</b> as <b>${h(e.jobTitle||"")}</b>, and is currently in service. The monthly salary is: basic SAR ${money(r.basic)}, housing SAR ${money(r.housing)}, transport SAR ${money(r.transport)}, other allowances SAR ${money(r.otherAllow)}; total <b>SAR ${money(gross)}</b>.`,
+    employment:`This is to certify that <b>${h(e.nameEn||e.nameAr)}</b>, ${h(e.nationality||"")} national, ${idl} <b>${h(idv||"")}</b>, has been employed by ${h(co)} since <b>${r.hireDate?fd(r.hireDate):"________"}</b> as <b>${h(e.jobTitle||"")}</b>, and is currently in service.`,
+    experience:`This is to certify that <b>${h(e.nameEn||e.nameAr)}</b>, ${h(e.nationality||"")} national, ${idl} <b>${h(idv||"")}</b>, worked with ${h(co)} as <b>${h(e.jobTitle||"")}</b> from <b>${r.hireDate?fd(r.hireDate):"________"}</b> to <b>${r.endDate?fd(r.endDate):"________"}</b>.`,
+    noc:`${h(co)} has no objection to <b>${h(e.nameEn||e.nameAr)}</b>, ${idl} <b>${h(idv||"")}</b>, ${h(e.jobTitle||"")}, travelling / applying for the purpose stated, during the period ________.`}[kind];
+  const ar={salary:`تشهد ${h(co)} بأن السيد/ة <b>${h(e.nameAr||e.nameEn)}</b>، الجنسية ${h(e.nationality||"")}، رقم ${e.saudi?"الهوية":"الإقامة"} <b>${h(idv||"")}</b>، يعمل لديها منذ <b>${r.hireDate?fd(r.hireDate):"________"}</b> بوظيفة <b>${h(e.jobTitle||"")}</b> ولا يزال على رأس العمل، وراتبه الشهري: الأساسي ${money(r.basic)} ريال، بدل السكن ${money(r.housing)} ريال، بدل النقل ${money(r.transport)} ريال، بدلات أخرى ${money(r.otherAllow)} ريال، الإجمالي <b>${money(gross)} ريال</b>.`,
+    employment:`تشهد ${h(co)} بأن السيد/ة <b>${h(e.nameAr||e.nameEn)}</b>، الجنسية ${h(e.nationality||"")}، رقم ${e.saudi?"الهوية":"الإقامة"} <b>${h(idv||"")}</b>، يعمل لديها منذ <b>${r.hireDate?fd(r.hireDate):"________"}</b> بوظيفة <b>${h(e.jobTitle||"")}</b> ولا يزال على رأس العمل.`,
+    experience:`تشهد ${h(co)} بأن السيد/ة <b>${h(e.nameAr||e.nameEn)}</b>، رقم ${e.saudi?"الهوية":"الإقامة"} <b>${h(idv||"")}</b>، عمل لديها بوظيفة <b>${h(e.jobTitle||"")}</b> من <b>${r.hireDate?fd(r.hireDate):"________"}</b> إلى <b>${r.endDate?fd(r.endDate):"________"}</b>.`,
+    noc:`لا تمانع ${h(co)} من سفر / تقديم السيد/ة <b>${h(e.nameAr||e.nameEn)}</b>، رقم ${e.saudi?"الهوية":"الإقامة"} <b>${h(idv||"")}</b>، للغرض الموضح خلال الفترة ________.`}[kind];
+  const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${T[0]} - ${h(e.empNo)}</title><style>body{font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;margin:48px;color:#111;line-height:1.8}h1{font-size:20px;text-align:center;margin:24px 0}.ar{direction:rtl;text-align:right}.meta{display:flex;justify-content:space-between;font-size:13px;color:#444}hr{margin:28px 0;border:0;border-top:1px solid #ccc}.sig{margin-top:60px;display:flex;justify-content:space-between}@media print{button{display:none}}</style></head><body>
+   <div class="meta"><span>Date: ${dt}</span><span>Ref: ${h(e.empNo)}-${kind.toUpperCase()}</span><span dir="rtl">التاريخ: ${h(dth)} هـ</span></div>
+   <h1>${T[0]} · ${T[1]}</h1><p>To whom it may concern,</p><p>${en}</p><p>This certificate was issued at the employee's request without any liability on the company.</p>
+   <hr><div class="ar"><p>إلى من يهمه الأمر،</p><p>${ar}</p><p>وقد أعطيت له هذه الشهادة بناءً على طلبه دون أدنى مسؤولية على الشركة.</p></div>
+   <div class="sig"><span>HR Manager · مدير الموارد البشرية<br><br>__________________</span><span>Company stamp · ختم الشركة</span></div>
+   <p style="text-align:center;margin-top:40px"><button onclick="print()">Print / Save as PDF</button></p></body></html>`;
+  const w=window.open("","_blank"); if(w){ w.document.write(doc); w.document.close(); } else saveFile(`${T[0]} - ${e.empNo}.html`,doc);
+  const o=JSON.parse(JSON.stringify(e)); delete o._id; o.letters=(o.letters||[]).concat([{kind,date:today(),by:uid||""}]); put("employees",o.empNo,o).catch(()=>{});
+}
+/* org structure */
+function vOrg(){
+  const act=activeStaff(); const byDept={}; act.forEach(e=>{ const d=e.department||"Unassigned"; (byDept[d]=byDept[d]||[]).push(e); });
+  const depts=Object.keys(byDept).sort((a,b)=>byDept[b].length-byDept[a].length);
+  const tree=root=>{ const kids=act.filter(x=>x.hr&&x.hr.managerEmpNo===root.empNo); return `<li><button class="linkish" data-profile="${h(root.empNo)}">${h(empName(root))}</button> <span class="sub">${h(root.jobTitle||"")}</span>${kids.length?`<ul>${kids.map(tree).join("")}</ul>`:""}</li>`; };
+  const tops=act.filter(e=>!(e.hr&&e.hr.managerEmpNo)&&act.some(x=>x.hr&&x.hr.managerEmpNo===e.empNo));
+  return `<div class="panel" style="margin-bottom:16px"><h2>Reporting lines <small>الهيكل الإداري</small></h2>${tops.length?`<ul class="org">${tops.map(tree).join("")}</ul>`:`<div class="sub">Set each employee's manager (Edit → Manager) to build the reporting tree.</div>`}</div>
+  <div class="grid3">${depts.map(d=>{ const list=byDept[d]; const sa=list.filter(e=>e.saudi).length; const pay=list.reduce((a,e)=>a+(e.hr?(+e.hr.basic||0)+(+e.hr.housing||0)+(+e.hr.transport||0)+(+e.hr.otherAllow||0):0),0);
+    return `<div class="panel"><h2>${h(d)}<span class="spacer"></span><span class="pill p-grey">${list.length}</span></h2><div class="sub" style="margin-bottom:8px">${sa} Saudi · ${list.length-sa} expat${pay?` · payroll ${money0(pay)} SAR/month`:""}</div><div class="lg-list">${list.slice(0,12).map(e=>`<div><i style="background:${e.saudi?"var(--s3)":"var(--s1)"}"></i><button class="linkish" data-profile="${h(e.empNo)}">${h(empName(e))}</button><b class="sub">${h(e.empNo)}</b></div>`).join("")}${list.length>12?`<div class="sub">+${list.length-12} more</div>`:""}</div></div>`; }).join("")}</div>`;
+}
+/* exit & final settlement */
+function openExit(no){
+  const e=empBy(no), H=HRX(), cfg=hrCfg(); if(!e) return;
+  const R=[["RESIGNATION","Resignation (Art. 85)"],["EMPLOYER_TERMINATION","Terminated by employer (Art. 84)"],["CONTRACT_END","Fixed contract ended"],["ART80","Dismissal under Art. 80"],["ART81","Employee left under Art. 81"],["FEMALE_MARRIAGE_CHILDBIRTH","Female employee: marriage / childbirth"],["DEATH","Death"],["RETIREMENT","Retirement"],["FORCE_MAJEURE","Force majeure"]];
+  openModal(`Exit & final settlement · ${empName(e)}`,`<div class="fgrid"><div class="field"><label for="ex_r">Reason</label><select id="ex_r">${R.map(x=>`<option value="${x[0]}">${h(x[1])}</option>`).join("")}</select></div><div class="field"><label for="ex_d">Last working day</label><input id="ex_d" type="date" value="${today()}"></div><div class="field"><label for="ex_s">New status</label><select id="ex_s">${["Final Exit","Transferred","Huroob"].map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label for="ex_o">Other dues / (deductions) SAR</label><input id="ex_o" type="number" step="0.01" value="0"></div></div><div class="calc" id="ex_c"></div><div class="sub">Settlement must be paid within one week of the end of service, or two weeks if the employee resigned (Labor Law Art. 88).</div>`,
+   [{label:"Cancel",fn:closeModal},{label:"Confirm exit",cls:"danger",fn:async()=>{ const s=exCalc(); const o=JSON.parse(JSON.stringify(e)); delete o._id; o.status=$("#ex_s").value; o.hr=Object.assign({},o.hr||{},{endDate:$("#ex_d").value,endReason:$("#ex_r").value,exit:Object.assign({processedAt:new Date().toISOString(),by:uid||""},s)}); await put("employees",o.empNo,o); closeModal(); toast(`Exit recorded · settlement ${money(s.total)} SAR`); }}]);
+  const exCalc=()=>{ const d=$("#ex_d").value, rs=$("#ex_r").value; const eo=H&&e.hr&&e.hr.hireDate&&hasPay(e)?hrSafe(()=>H.eosb(e,d,rs,cfg),{amount:0}):{amount:0}; const lb=H&&e.hr&&e.hr.hireDate&&hasPay(e)?hrSafe(()=>H.leaveBalance(e,S.leaves,d,cfg),{liability:0}):{liability:0};
+    const loans=S.loans.filter(l=>l.empNo===no).reduce((a,l)=>a+loanBalance(l),0); const other=parseFloat($("#ex_o").value)||0;
+    return {eosb:+eo.amount||0,leave:+lb.liability||0,leaveDays:+lb.balance||0,loans,other,total:Math.round(((+eo.amount||0)+(+lb.liability||0)-loans+other)*100)/100,years:eo.years}; };
+  const upd=()=>{ const s=exCalc(); $("#ex_c").innerHTML=[["End of service",s.eosb],["Leave encashment ("+(s.leaveDays||0).toFixed(1)+" days)",s.leave],["Less: loans outstanding",-s.loans],["Other",s.other],["Final settlement",s.total]].map(([l,v])=>`<div><span>${h(l)}</span><b>${money(v)}</b></div>`).join(""); };
+  ["ex_r","ex_d","ex_o"].forEach(i=>$("#"+i).addEventListener("input",upd)); upd();
 }
 
 /* ---------- HR: dashboard, leave, payroll, end of service ---------- */
@@ -1554,7 +1681,7 @@ function confirmBox(msg,fn){ openModal("Please confirm",`<p>${h(msg)}</p>`,[{lab
 
 /* ---------- events ---------- */
 document.addEventListener("click",async ev=>{
-  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-lease],[data-lact],[data-leavef],[data-leaveact],[data-eosb],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],[data-lang],#bellBtn,#ov");
+  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-lease],[data-lact],[data-profile],[data-loan],[data-letter],[data-leavef],[data-leaveact],[data-eosb],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],[data-lang],#bellBtn,#ov");
   if(!t) return;
   if(t.id==="ov"){ if(ev.target.id==="ov") closeModal(); return; }
   if(t.id==="bellBtn") return go("alerts");
@@ -1573,6 +1700,9 @@ document.addEventListener("click",async ev=>{
   if(d.visafilter){ S.ui.visaFilter=d.visafilter; return render(); }
   if(d.editcon) return openContract(d.editcon);
   if(d.lease) return openLease(d.lease);
+  if(d.profile){ closeModal(); return openProfile(d.profile); }
+  if(d.loan) return openLoan(d.loan);
+  if(d.letter){ const [k,n]=d.letter.split("|"); closeModal(); return makeLetter(k,n); }
   if(d.lact){ const [k,i]=d.lact.split("|"); closeModal(); return leaseAction(k,i); }
   if(d.leavef){ S.ui.leaveF=d.leavef; return render(); }
   if(d.eosb) return openEOSB(d.eosb);
@@ -1594,6 +1724,7 @@ document.addEventListener("click",async ev=>{
   switch(d.act){
     case "more": return openMore();
     case "addLeave": return openLeave();
+    case "addLoan": return openLoan(null);
     case "hrImport": return openHrImport();
     case "paySave": case "payLock": { const pid=S.ui.payM.slice(0,7); const cur=S.payruns.find(r=>r.id===pid)||{}; const inputs=S.ui.payInputs||cur.inputs||{}; const o={id:pid,inputs,status:d.act==="payLock"?"LOCKED":"DRAFT",updatedBy:uid||""}; if(d.act==="payLock"){ o.run=payrollRunNow(); o.lockedAt=new Date().toISOString(); } await put("payruns",pid,o); S.ui.payInputs=null; toast(d.act==="payLock"?"Payroll locked":"Inputs saved"); return; }
     case "payUnlock": return confirmBox("Unlock this payroll month? It will recalculate from current data.",async()=>{ const pid=S.ui.payM.slice(0,7); const cur=S.payruns.find(r=>r.id===pid)||{}; const o=Object.assign({},cur,{status:"DRAFT"}); delete o._id; delete o.run; await put("payruns",pid,o); closeModal(); });

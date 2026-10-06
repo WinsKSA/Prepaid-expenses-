@@ -35,6 +35,22 @@ function dbSheet_(col) {
   return sh;
 }
 
+/** Append-only audit trail: hidden tab "_audit" (time | user | collection | id | action | changed fields). */
+function audit_(col, id, action, oldJson, newJson) {
+  try {
+    var sh = ss_().getSheetByName('_audit');
+    if (!sh) { sh = ss_().insertSheet('_audit'); sh.getRange(1, 1, 1, 6).setValues([['at', 'user', 'collection', 'id', 'action', 'changes']]); sh.setFrozenRows(1); sh.hideSheet(); }
+    var changes = '';
+    if (oldJson && newJson) {
+      var a = JSON.parse(oldJson), b = JSON.parse(newJson), keys = {}, diff = [];
+      Object.keys(a).concat(Object.keys(b)).forEach(function (k) { keys[k] = 1; });
+      Object.keys(keys).forEach(function (k) { if (k === 'updatedAt' || k === '_id') return; var x = JSON.stringify(a[k]), y = JSON.stringify(b[k]); if (x !== y) diff.push(k + ': ' + String(x).slice(0, 80) + ' → ' + String(y).slice(0, 80)); });
+      changes = diff.join(' | ').slice(0, 45000);
+    }
+    sh.appendRow([new Date().toISOString(), who_(), col, String(id), action, changes]);
+  } catch (e) {}
+}
+
 function who_() { try { return Session.getActiveUser().getEmail() || ''; } catch (e) { return ''; } }
 
 /** Load every collection: {employees:[...], ...}. Runs the one-time migration from the readable tabs when empty. */
@@ -66,7 +82,9 @@ function saveDoc(col, id, json) {
       for (var i = 0; i < ids.length; i++) if (String(ids[i][0]) === String(id)) { row = i + 2; break; }
     }
     var vals = [[String(id), json, new Date().toISOString(), who_()]];
+    var oldJson = row > 0 ? sh.getRange(row, 2).getValue() : '';
     if (row > 0) sh.getRange(row, 1, 1, 4).setValues(vals); else sh.appendRow(vals[0]);
+    audit_(col, id, row > 0 ? 'update' : 'create', oldJson || '{}', json);
     return true;
   } finally { lock.releaseLock(); }
 }
@@ -97,7 +115,7 @@ function deleteDoc(col, id) {
     var sh = dbSheet_(col), n = sh.getLastRow() - 1;
     if (n < 1) return false;
     var ids = sh.getRange(2, 1, n, 1).getValues();
-    for (var i = ids.length - 1; i >= 0; i--) if (String(ids[i][0]) === String(id)) sh.deleteRow(i + 2);
+    for (var i = ids.length - 1; i >= 0; i--) if (String(ids[i][0]) === String(id)) { audit_(col, id, 'delete', sh.getRange(i + 2, 2).getValue(), '{}'); sh.deleteRow(i + 2); }
     return true;
   } finally { lock.releaseLock(); }
 }
