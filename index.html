@@ -417,7 +417,7 @@ function statusPill(s){ const c={"Requested":"p-grey","HR Approved":"p-blue","Fi
 
 /* ---------- data layer ---------- */
 async function put(col,id,data){
-  if(!db){ toast("Not connected to your data, so nothing was saved. Open the app from your claude.ai link while signed in."); throw new Error("no db"); }
+  if(!db){ toast("This copy is not connected, so nothing was saved. Open the live Google web app."); throw new Error("no db"); }
   const clean = JSON.parse(JSON.stringify(data));
   clean.updatedAt = new Date().toISOString();
   try{ await db.collection(col).doc(safeId(id)).set(clean); if(col!=="config"||id==="settings") gsSoon(); }
@@ -595,7 +595,7 @@ function render(){
   const loaded=COLS.every(c=>S.loaded[c]);
   const vw=$("#view"); vw.classList.toggle("enter",!!S.ui.animate&&loaded);
   $("#bellBtn").classList.toggle("urgent",urgent>0&&!S.ui.rang&&loaded); if(urgent&&loaded) S.ui.rang=true;
-  if(S.noDb&&S.ui.view!=="guide"){ vw.innerHTML=`<div class="panel"><div class="empty"><b>Not connected to your data</b>This copy of the app can't reach your saved records, so it shows nothing rather than example data. Open it from your private link <span class="mono">claude.ai/artifact/QGwfrq7tNfmresEgo2x67F</span> while signed in to Claude, then reload.</div></div>`; return; }
+  if(S.noDb&&S.ui.view!=="guide"){ vw.innerHTML=`<div class="panel"><div class="empty"><b>This copy is not connected to your data · هذه النسخة غير متصلة ببياناتك</b>Open your live Muqeem Desk (Google web app) to see and save your records.<div style="margin-top:14px"><a class="btn pri" style="text-decoration:none;display:inline-block" href="https://script.google.com/macros/s/AKfycbxBLNAzEoVBHAulbqjOKERJVzw4k1sj6mT-aFFC-h1XcJdpsKcYm5oKcFoUf8X3nzcm/exec" target="_blank" rel="noopener">فتح النظام المباشر · Open live app</a></div></div></div>`; return; }
   try{ vw.innerHTML = loaded||S.ui.view==="guide" ? fn() : `<div class="empty"><b>Loading records…</b>Employees, renewals, visas and contracts appear here as soon as they sync.</div>`; }
   catch(e){ console.error(e); $("#view").innerHTML=`<div class="warnbox">This screen could not be drawn: ${h(e.message)}</div>`; }
   if(loaded&&S.ui.animate){ countUp(); S.ui.animate=false; }
