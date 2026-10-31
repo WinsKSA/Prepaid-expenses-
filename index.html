@@ -332,7 +332,9 @@ html[dir="rtl"] .alert .stripe{order:0}
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+<script src="config.js"></script>
 <script src="engine.js"></script>
 <script src="io.js"></script>
 <script src="lease.js"></script>
@@ -464,7 +466,69 @@ function makeGasDb(){
     doc:path=>{ const i=path.indexOf("/"); return docRef(path.slice(0,i),path.slice(i+1)); } };
 }
 
+/* ---------- Supabase backend (GitHub Pages hosting): same interface, Postgres table "records" + sign-in + roles ---------- */
+const SUPA_CFG = !(typeof google!=="undefined"&&google.script) && window.MUQEEM_CONFIG && window.MUQEEM_CONFIG.supabaseUrl && window.supabase ? window.MUQEEM_CONFIG : null;
+let sb=null, appRole=null;
+function makeSupaDb(client){
+  const data={}, subs={}, docSubs={};
+  const clean=d=>{ const o=Object.assign({},d); delete o._id; return o; };
+  const snapCol=c=>({docs:(data[c]||[]).map(d=>({id:d._id,exists:true,data:()=>clean(d)}))});
+  const snapDoc=(c,id)=>{ const d=(data[c]||[]).find(x=>x._id===id); return {id,exists:!!d,data:()=>d?clean(d):undefined}; };
+  const emit=c=>{ (subs[c]||[]).forEach(cb=>cb(snapCol(c))); Object.keys(docSubs).forEach(p=>{ const i=p.indexOf("/"); if(p.slice(0,i)===c) docSubs[p].forEach(cb=>cb(snapDoc(c,p.slice(i+1)))); }); };
+  const fail=e=>{ const err={code:/permission|policy|42501/i.test((e&&e.message)||"")?"invalid_argument":"unavailable",message:(e&&e.message)||String(e)}; throw err; };
+  function put1(c,id,obj){ const arr=data[c]=data[c]||[]; const i=arr.findIndex(x=>x._id===id); const v=Object.assign({},obj,{_id:id}); if(i>=0) arr[i]=v; else arr.push(v); }
+  async function refresh(){
+    const all=[]; for(let from=0;;from+=1000){ const {data:rows,error}=await client.from("records").select("collection,id,data").range(from,from+999); if(error) fail(error); all.push(...rows); if(rows.length<1000) break; }
+    ["employees","renewals","visas","contracts","leaves","loans","payruns","config"].forEach(c=>{ data[c]=all.filter(r=>r.collection===c).map(r=>Object.assign({},r.data,{_id:r.id})); emit(c); });
+  }
+  client.channel("records-live").on("postgres_changes",{event:"*",schema:"public",table:"records"},p=>{
+    const r=p.new&&p.new.collection?p.new:p.old; if(!r||!r.collection) return;
+    if(p.eventType==="DELETE") data[r.collection]=(data[r.collection]||[]).filter(x=>x._id!==r.id); else put1(r.collection,r.id,p.new.data||{});
+    emit(r.collection); }).subscribe();
+  const docRef=(c,id)=>({
+    set:async obj=>{ const {error}=await client.from("records").upsert({collection:c,id,data:obj}); if(error) fail(error); put1(c,id,obj); emit(c); },
+    delete:async()=>{ const {error}=await client.from("records").delete().eq("collection",c).eq("id",id); if(error) fail(error); data[c]=(data[c]||[]).filter(x=>x._id!==id); emit(c); },
+    onSnapshot:cb=>{ const p=c+"/"+id; (docSubs[p]=docSubs[p]||[]).push(cb); if(data[c]) cb(snapDoc(c,id)); return ()=>{}; },
+    acquire:async()=>({acquired:true}) });
+  return { supa:true, refresh,
+    collection:c=>({ doc:id=>docRef(c,id), onSnapshot:cb=>{ (subs[c]=subs[c]||[]).push(cb); if(data[c]) cb(snapCol(c)); return ()=>{}; } }),
+    doc:path=>{ const i=path.indexOf("/"); return docRef(path.slice(0,i),path.slice(i+1)); } };
+}
+function showSignIn(msg){
+  const box=document.createElement("div"); box.className="overlay"; box.id="signin"; box.style.alignItems="center";
+  box.innerHTML=`<div class="modal" style="max-width:420px"><header><h3>مكتب مقيم · Muqeem Desk</h3></header><div class="body">
+    <div class="sub">Sign in with your work email. Only people an administrator has added can open the data.</div>
+    ${msg?`<div class="warnbox">${h(msg)}</div>`:""}
+    <div class="field"><label for="si_e">Email</label><input id="si_e" type="email" autocomplete="username"></div>
+    <div class="field"><label for="si_p">Password</label><input id="si_p" type="password" autocomplete="current-password"></div>
+    <div id="si_m" class="sub"></div></div>
+    <footer><button class="btn" id="si_link">Email me a sign-in link</button><button class="btn" id="si_up">Create password</button><button class="btn pri" id="si_in">Sign in</button></footer></div>`;
+  document.body.appendChild(box);
+  const m=t=>$("#si_m").textContent=t, em=()=>$("#si_e").value.trim().toLowerCase(), pw=()=>$("#si_p").value;
+  $("#si_in").onclick=async()=>{ m("Signing in…"); const {error}=await sb.auth.signInWithPassword({email:em(),password:pw()}); if(error) m(error.message); else location.reload(); };
+  $("#si_up").onclick=async()=>{ if(pw().length<10){ m("Use a password of at least 10 characters."); return; } const {error}=await sb.auth.signUp({email:em(),password:pw(),options:{emailRedirectTo:location.href.split("#")[0]}}); m(error?error.message:"Check your email to confirm, then sign in."); };
+  $("#si_link").onclick=async()=>{ const {error}=await sb.auth.signInWithOtp({email:em(),options:{emailRedirectTo:location.href.split("#")[0],shouldCreateUser:false}}); m(error?error.message:"Sign-in link sent. Open it on this device."); };
+}
+async function signOut(){ if(sb){ await sb.auth.signOut(); location.reload(); } }
+
 async function connect(){
+  if(SUPA_CFG){
+    const conn=$("#conn"); conn.textContent="Connecting…";
+    sb=window.supabase.createClient(SUPA_CFG.supabaseUrl,SUPA_CFG.supabaseKey,{auth:{persistSession:true,detectSessionInUrl:true}});
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ conn.textContent="Signed out"; conn.className="conn bad"; S.noDb=true; COLS.forEach(c=>S.loaded[c]=true); render(); showSignIn(); return; }
+    uid=(session.user.email||"").toLowerCase();
+    const {data:r}=await sb.rpc("app_role"); appRole=r||null;
+    if(!appRole){ conn.textContent="No access"; conn.className="conn bad"; S.noDb=true; COLS.forEach(c=>S.loaded[c]=true); render(); showSignIn(`${uid} is signed in but has not been given access yet. Ask an administrator to add this email.`); return; }
+    readOnly=appRole==="viewer";
+    db=makeSupaDb(sb);
+    try{ await db.refresh(); }catch(e){ conn.textContent="Database unavailable — reload"; conn.className="conn bad"; S.noDb=true; COLS.forEach(c=>S.loaded[c]=true); render(); return; }
+    conn.textContent=`Live · ${appRole}`; conn.className="conn ok"; conn.title=uid+" · click to sign out"; conn.style.cursor="pointer"; conn.onclick=()=>confirmBox(`Sign out ${uid}?`,signOut);
+    COLS.forEach(c=>db.collection(c).onSnapshot(snap=>{ S[c]=snap.docs.map(d=>Object.assign({_id:d.id},d.data())); S.loaded[c]=true; scheduleRender(); }));
+    db.doc("config/settings").onSnapshot(s=>{ S.settings=s.exists?s.data():{}; scheduleRender(); });
+    db.doc("config/acks").onSnapshot(s=>{ S.acks=s.exists?(s.data().items||{}):{}; scheduleRender(); });
+    return;
+  }
   if(GAS){
     const conn=$("#conn"); conn.textContent="Loading from Google Sheet…";
     db=makeGasDb();
