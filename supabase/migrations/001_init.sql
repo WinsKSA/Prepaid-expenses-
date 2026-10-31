@@ -161,3 +161,10 @@ create policy attendance_manual on public.attendance for insert to authenticated
 revoke all on public.records, public.app_users, public.audit_log, public.branches, public.attendance from anon;
 
 alter publication supabase_realtime add table public.records, public.attendance;
+
+------------------------------------------------------------------ hardening (applied as migration harden_function_execute)
+revoke execute on function public.app_role() from anon;
+revoke execute on function public.app_emp_no() from anon;
+revoke execute on function public.punch(text,double precision,double precision,double precision,text,text) from anon;
+revoke execute on function public.records_audit() from anon, authenticated, public;
+revoke execute on function public.records_stamp() from anon, authenticated, public;
