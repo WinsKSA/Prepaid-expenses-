@@ -6,6 +6,8 @@ import os, re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 src = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+# the page head (doctype, charset, viewport) is written by the wrapper below
+src = re.sub(r'^\s*<!doctype html>\s*<html[^>]*>\s*(<meta[^>]*>\s*)*', "", src, flags=re.I)
 
 def inline(m):
     path = os.path.join(ROOT, m.group(1))

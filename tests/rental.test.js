@@ -1,5 +1,5 @@
 const assert = require('assert');
-const R = require('./rental.js');
+const R = require('../rental.js');
 let passed = 0, failed = 0;
 function t(name, fn) { try { fn(); passed++; console.log('ok   ' + name); } catch (e) { failed++; console.log('FAIL ' + name + '\n     ' + (e && e.stack || e)); process.exitCode = 1; } }
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, (msg || '') + ` expected ${b} got ${a} (tol ${tol})`);

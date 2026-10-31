@@ -304,6 +304,158 @@ html[dir="rtl"] .alert .stripe{order:0}
 .lg-list b{font-family:var(--f-mono)}
 @media (max-width:500px){.donut-wrap{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== 2026 redesign: Najdi ink + palm, one Al-Sadu signature, sentence-case labels ===== */
+:root{--ink:#12261F;--palm:#0F6B4E;--sadu:#A63D2F;--saffron:#C8902E;--lime:#F3F5F2;--accent:#0F6B4E;--paper:#F3F5F2;--rail:#12261F;--rail-2:#1D362D;--gold:#C8902E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--accent:#4cc79a;--paper:#0e1513;--rail:#08110e;--rail-2:#15261f;--sadu:#d9705f;--saffron:#e0ac52}}
+:root[data-theme="dark"]{--accent:#4cc79a;--paper:#0e1513;--rail:#08110e;--rail-2:#15261f;--sadu:#d9705f;--saffron:#e0ac52}
+.kpi .tag{text-transform:none;letter-spacing:0;font-size:12px}
+.kpi .v{font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.nav .grp{text-transform:none;letter-spacing:0;font-size:12px;font-weight:600}
+.rail{position:sticky}
+.rail::before{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:4px;background:repeating-linear-gradient(180deg,var(--sadu) 0 10px,var(--saffron) 10px 13px,var(--sadu) 13px 23px,#efe9dc 23px 26px)}
+.av{width:34px;height:34px;border-radius:50%;display:inline-grid;place-items:center;font-weight:600;font-size:12.5px;flex:none;background:var(--accent-soft);color:var(--accent);font-family:var(--f-display)}
+.who{display:flex;gap:10px;align-items:center;min-width:0}.who>div{min-width:0}.who b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.who .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.userchip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:4px 10px 4px 4px;cursor:pointer;font-size:12.5px}
+.userchip .av{width:28px;height:28px;font-size:11px}
+.demo-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--amber-soft);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:13px}
+.btn{min-height:36px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:3px;background:var(--surface);gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;border-radius:7px;padding:6px 11px;cursor:pointer;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{background:var(--accent);color:#04120c}}
+
+/* ===== Sign-in ===== */
+.login{position:fixed;inset:0;z-index:100;display:grid;grid-template-columns:minmax(0,1.1fr) 56px minmax(380px,.9fr);background:var(--surface);overflow:auto}
+.lg-art{background:var(--ink);color:#e9efe9;padding:44px clamp(28px,5vw,72px);display:flex;flex-direction:column;gap:28px;min-height:100%}
+.lg-brand{display:flex;gap:12px;align-items:center}
+.lg-brand .mark{width:44px;height:44px;border-radius:12px;background:var(--palm);display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.lg-brand .mark svg{width:24px;height:24px;color:#f3d9a0}
+.lg-brand b{display:block;font-family:var(--f-display);font-size:18px;font-weight:600;color:#fff}
+.lg-brand span{font-size:13px;color:#9fb5aa}
+.lg-clock{margin-top:auto}
+.lg-clock .t{font-family:var(--f-display);font-weight:300;font-size:clamp(72px,10vw,148px);line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:#fff;direction:ltr;text-align:start}
+.lg-clock .t small{font-size:.32em;letter-spacing:0;color:var(--saffron);margin-inline-start:10px;font-weight:400}
+.lg-clock .d{font-size:17px;margin-top:14px;color:#dfe8e2}
+.lg-clock .hj{font-family:var(--f-ar);font-size:17px;color:var(--saffron);margin-top:2px}
+.lg-lede{font-size:16px;line-height:1.6;max-width:44ch;color:#c4d3cb;margin:0}
+.lg-points{list-style:none;margin:0;padding:0;display:grid;gap:12px;max-width:46ch}
+.lg-points li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;font-size:14px;color:#dfe8e2}
+.lg-points svg{width:20px;height:20px;color:var(--saffron)}
+.lg-sadu{background:var(--ink) url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2256%22%20height%3D%2248%22%3E%3Crect%20width%3D%2256%22%20height%3D%2248%22%20fill%3D%22%2312261F%22%2F%3E%3Crect%20width%3D%227%22%20height%3D%2248%22%20fill%3D%22%23A63D2F%22%2F%3E%3Crect%20x%3D%2249%22%20width%3D%227%22%20height%3D%2248%22%20fill%3D%22%23A63D2F%22%2F%3E%3Crect%20x%3D%227%22%20width%3D%222%22%20height%3D%2248%22%20fill%3D%22%23EFE9DC%22%2F%3E%3Crect%20x%3D%2247%22%20width%3D%222%22%20height%3D%2248%22%20fill%3D%22%23EFE9DC%22%2F%3E%3Cpath%20d%3D%22M9%200l5%206-5%206zM9%2012l5%206-5%206zM9%2024l5%206-5%206zM9%2036l5%206-5%206zM47%200l-5%206%205%206zM47%2012l-5%206%205%206zM47%2024l-5%206%205%206zM47%2036l-5%206%205%206z%22%20fill%3D%22%23EFE9DC%22%2F%3E%3Cpath%20d%3D%22M28%204l14%2020-14%2020-14-20z%22%20fill%3D%22%23A63D2F%22%2F%3E%3Cpath%20d%3D%22M28%2012l8.5%2012L28%2036l-8.5-12z%22%20fill%3D%22%23C8902E%22%2F%3E%3Cpath%20d%3D%22M28%2019l3.5%205-3.5%205-3.5-5z%22%20fill%3D%22%2312261F%22%2F%3E%3C%2Fsvg%3E") repeat-y center top/56px 48px}
+.lg-form{display:flex;flex-direction:column;padding:28px clamp(24px,5vw,64px) 24px;min-height:100%;background:var(--surface)}
+.lg-form .lg-top{display:flex;justify-content:flex-end;gap:8px}
+.lg-card{margin:auto 0;width:100%;max-width:400px;align-self:center;display:flex;flex-direction:column;gap:18px;padding-block:32px}
+.lg-card h1{font-family:var(--f-display);font-size:32px;font-weight:600;letter-spacing:-.01em}
+.lg-card .lead{color:var(--muted);font-size:14.5px;margin:-8px 0 0;line-height:1.55}
+.lg-field{display:flex;flex-direction:column;gap:6px}
+.lg-field label{font-size:13px;font-weight:600}
+.lg-field .in{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);transition:border-color .15s,box-shadow .15s}
+.lg-field .in:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.lg-field input{flex:1;min-width:0;border:0;background:none;padding:12px 14px;font-size:15px;min-height:48px;outline:none}
+.lg-field .eye{border:0;background:none;padding:0 14px;min-height:48px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600}
+.lg-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
+.lg-submit{width:100%;min-height:50px;font-size:15.5px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px}
+.lg-alt{width:100%;min-height:46px;border-radius:12px}
+.lg-or{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;color:var(--muted);font-size:12.5px}
+.lg-or::before,.lg-or::after{content:"";height:1px;background:var(--line)}
+.lg-msg{border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.5}
+.lg-msg.err{background:var(--red-soft);color:var(--red)}
+.lg-msg.ok{background:var(--green-soft);color:var(--green)}
+.lg-msg.info{background:var(--blue-soft);color:var(--blue)}
+.lg-foot{font-size:12.5px;color:var(--muted);text-align:center}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lg-art>*{animation:lgIn .7s cubic-bezier(.2,.7,.2,1) both}.lg-art>*:nth-child(2){animation-delay:.08s}.lg-art>*:nth-child(3){animation-delay:.16s}.lg-art>*:nth-child(4){animation-delay:.24s}
+@keyframes lgIn{from{opacity:0;transform:translateY(10px)}}
+@media (max-width:900px){
+  .login{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 18px auto}
+  .lg-art{min-height:0;padding:24px 20px 28px;gap:16px}
+  .lg-clock{margin-top:8px}.lg-clock .t{font-size:64px}
+  .lg-points{display:none}.lg-lede{font-size:14.5px}
+  .lg-sadu{background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2218%22%3E%3Crect%20width%3D%2248%22%20height%3D%2218%22%20fill%3D%22%23A63D2F%22%2F%3E%3Crect%20y%3D%223%22%20width%3D%2248%22%20height%3D%2212%22%20fill%3D%22%2312261F%22%2F%3E%3Cpath%20d%3D%22M0%209l6-6%206%206-6%206zM24%209l6-6%206%206-6%206z%22%20fill%3D%22%23C8902E%22%2F%3E%3Cpath%20d%3D%22M12%209l6-6%206%206-6%206zM36%209l6-6%206%206-6%206z%22%20fill%3D%22%23EFE9DC%22%2F%3E%3C%2Fsvg%3E") repeat-x left center/48px 18px}
+  .lg-form{min-height:0;padding:16px 16px 28px}
+  .lg-card{padding-block:12px}
+}
+
+/* ===== Attendance ===== */
+.att-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.att-bar .datepick{display:flex;align-items:center;gap:4px}
+.att-bar input[type=date],.att-bar input[type=month]{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 9px;min-height:36px}
+.kpi.sel{outline:2px solid var(--accent);outline-offset:-1px}
+.att-list{display:flex;flex-direction:column}
+.att-row{display:grid;grid-template-columns:minmax(200px,1.3fr) minmax(220px,2fr) 70px 70px 74px 120px;gap:14px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);cursor:pointer;text-align:start;background:none;border-inline:0;border-top:0;width:100%}
+.att-row:hover{background:var(--surface-2)}
+.att-row.hd{cursor:default;font-size:12px;color:var(--muted);font-weight:600;background:var(--surface-2);position:sticky;top:0}
+.att-row .n{font-variant-numeric:tabular-nums;font-family:var(--f-display);text-align:end}
+.tl{position:relative;height:24px;border-radius:7px;background:var(--surface-2);overflow:hidden;direction:ltr}
+.tl .sh{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--muted) 18%,transparent) 5px 7px);border-inline:1px dashed color-mix(in srgb,var(--muted) 50%,transparent)}
+.tl .wk{position:absolute;top:6px;bottom:6px;border-radius:4px;background:var(--accent)}
+.tl .wk.live{background:repeating-linear-gradient(90deg,var(--accent) 0 8px,color-mix(in srgb,var(--accent) 60%,transparent) 8px 12px)}
+.tl .tk{position:absolute;top:3px;bottom:3px;width:2px;border-radius:1px;background:var(--ink)}
+.tl .tk.bad{background:var(--sadu);width:3px}
+.tl .now{position:absolute;top:0;bottom:0;width:2px;background:var(--saffron)}
+.tl-scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);direction:ltr;padding-top:2px}
+.flagset{display:flex;gap:4px;flex-wrap:wrap}
+.flag{font-size:11px;padding:1px 7px;border-radius:9px;background:var(--surface-2);color:var(--muted)}
+.flag.r{background:var(--red-soft);color:var(--red)}.flag.a{background:var(--amber-soft);color:var(--amber)}
+@media (max-width:1100px){.att-row{grid-template-columns:minmax(180px,1fr) minmax(160px,1.4fr) 64px 64px 110px}.att-row>.c-wk{display:none}}
+@media (max-width:760px){.att-row{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px}.att-row .c-tl{grid-column:1/-1;order:3}.att-row .c-in,.att-row .c-out,.att-row .c-wk{display:none}.att-row.hd{display:none}}
+/* timesheet grid */
+.ts-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);max-height:calc(100vh - 260px)}
+table.ts{border-collapse:separate;border-spacing:0;font-size:12px}
+table.ts th,table.ts td{padding:0;border-bottom:1px solid var(--line);border-inline-end:1px solid var(--line);text-align:center;white-space:nowrap}
+table.ts th{position:sticky;top:0;z-index:2;background:var(--surface-2);padding:6px 0;font-weight:600;min-width:30px}
+table.ts th.we{color:var(--sadu)}
+table.ts .emp{position:sticky;inset-inline-start:0;z-index:1;background:var(--surface);text-align:start;padding:6px 12px;min-width:210px;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+table.ts th.emp{z-index:3;background:var(--surface-2)}
+table.ts td.c{width:30px;height:32px;font-weight:600;cursor:pointer}
+table.ts td.c:hover{outline:2px solid var(--accent);outline-offset:-2px}
+table.ts td.tot{padding:0 10px;font-variant-numeric:tabular-nums;font-family:var(--f-display);background:var(--surface)}
+.c-P{background:var(--green-soft);color:var(--green)}.c-L{background:var(--amber-soft);color:var(--amber)}.c-A{background:var(--red-soft);color:var(--red)}
+.c-V{background:var(--blue-soft);color:var(--blue)}.c-H,.c-W{background:repeating-linear-gradient(135deg,var(--surface-2) 0 4px,transparent 4px 8px);color:var(--muted);font-weight:400!important}
+.c-I{box-shadow:inset 0 0 0 2px var(--amber);color:var(--amber)}.c-half{background:linear-gradient(135deg,var(--green-soft) 50%,var(--red-soft) 50%);color:var(--fg)}.c-q{color:var(--red)}
+.ts-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:10px 0}
+.ts-legend span{display:inline-flex;gap:6px;align-items:center}.ts-legend i{width:18px;height:16px;border-radius:4px;display:inline-grid;place-items:center;font-style:normal;font-weight:600;font-size:10.5px}
+/* phone check-in */
+.me{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.me-hello{display:flex;gap:12px;align-items:center}
+.me-hello .av{width:46px;height:46px;font-size:15px}
+.me-hello h2{font-size:20px;font-family:var(--f-display)}
+.me-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.me-clock{text-align:center}
+.me-clock .t{font-family:var(--f-display);font-size:64px;font-weight:300;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1;direction:ltr}
+.me-clock .d{color:var(--muted);margin-top:6px}
+.me-shift{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.radar{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;align-items:center}
+.radar svg{width:132px;height:132px;display:block}
+.radar .st{font-weight:600;font-size:15px}
+.radar .ds{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.5}
+.punch{width:100%;min-height:64px;border:0;border-radius:16px;font-size:18px;font-weight:600;font-family:var(--f-display);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;background:var(--accent);color:var(--accent-fg);box-shadow:0 10px 26px color-mix(in srgb,var(--accent) 30%,transparent);transition:transform .12s}
+.punch:active{transform:scale(.98)}
+.punch.out{background:var(--ink);color:#fff;box-shadow:0 10px 26px rgba(18,38,31,.28)}
+.punch:disabled{opacity:.55;cursor:wait}
+.punch svg{width:24px;height:24px}
+.me-sub{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.me-sub .btn{min-height:44px}
+.me-tl{display:flex;flex-direction:column;gap:0}
+.me-tl .it{display:grid;grid-template-columns:62px 14px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0}
+.me-tl .it .tm{font-family:var(--f-display);font-variant-numeric:tabular-nums;font-weight:600;direction:ltr;text-align:end}
+.me-tl .it i{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.me-tl .it i.o{background:var(--ink);box-shadow:0 0 0 4px var(--surface-2)}
+.me-tl .it i.b{background:var(--saffron);box-shadow:0 0 0 4px var(--amber-soft)}
+.me-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.me-stats b{display:block;font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.me-stats span{font-size:11.5px;color:var(--muted)}
+.me-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.me-cal div{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-size:12px;font-variant-numeric:tabular-nums}
+.me-cal .hd{aspect-ratio:auto;color:var(--muted);font-size:11px}
+.me-cal .td{outline:2px solid var(--accent)}
+body.ess .rail,body.ess .tabbar,body.ess .fab,body.ess #bellBtn{display:none!important}
+body.ess .shell{grid-template-columns:minmax(0,1fr)}
+body.ess .main{padding-bottom:40px}
+.mapbox{border-radius:12px;overflow:hidden;border:1px solid var(--line);height:220px;background:var(--surface-2)}
+.mapbox iframe{width:100%;height:100%;border:0;display:block}
 </style>
 
 <div class="shell">
@@ -323,7 +475,9 @@ html[dir="rtl"] .alert .stripe{order:0}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <span class="badge" id="bellCount">0</span>
       </button>
+      <button class="userchip" id="userChip" hidden data-act="userMenu"></button>
     </div>
+    <div id="demoBar"></div>
     <div id="view"></div>
   </main>
 </div>
@@ -332,7 +486,18 @@ html[dir="rtl"] .alert .stripe{order:0}
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+<script>/* config.js */
+// Public connection settings for the hosted (GitHub Pages) version.
+// The publishable key is designed to be public: every table is protected by row-level security,
+// so it only allows what the signed-in user's role permits.
+window.MUQEEM_CONFIG = {
+  supabaseUrl: "https://wmlktvsubzpjbtmjuhua.supabase.co",
+  supabaseKey: "sb_publishable_uH2d0J4uo2Kg2uXcd6FPoA_DIsuoeD5"
+};
+
+</script>
 <script>/* engine.js */
 /* Iqama & Jawazat Control System - calculation engine (vanilla JS, ES2018, no deps) */
 (function (root) {
@@ -1533,7 +1698,7 @@ html[dir="rtl"] .alert .stripe{order:0}
       var cfb = CFB.read(new Uint8Array(ab), { type: 'array' });
       ySplits.forEach(function (ys, i) {
         if (!ys) return;
-        var path = 'xl/worksheets/sheet' + (i + 1) + '.xml';
+        var path = '/xl/worksheets/sheet' + (i + 1) + '.xml';
         var ent = CFB.find(cfb, path);
         if (!ent || !ent.content) return;
         var xml = utf8Decode(ent.content instanceof Uint8Array ? ent.content : new Uint8Array(ent.content));
@@ -3349,6 +3514,1154 @@ html[dir="rtl"] .alert .stripe{order:0}
 })(typeof window !== "undefined" ? window : this);
 
 </script>
+<script>/* attendance.js */
+/* Attendance engine (vanilla JS, ES2018, no deps).
+   Turns raw punches (check-in / check-out / break, GPS-verified) into daily and monthly attendance:
+   present, late, early leave, absent, leave, holiday, weekend, overtime, and the payroll inputs
+   (absence days, overtime hours) the HR engine already understands.
+   Times are stored as UTC ISO timestamps; days are evaluated in KSA local time (UTC+3, no DST). */
+(function (root) {
+  'use strict';
+
+  var DEFAULT_ATT = {
+    tzOffsetMin: 180,            // Asia/Riyadh
+    weekend: [5, 6],             // 0 = Sunday … 6 = Saturday → Friday + Saturday
+    graceMin: 15,                // late only when the first check-in is after start + grace
+    lateFromStart: true,         // late minutes counted from shift start (not from the end of grace)
+    earlyGraceMin: 10,           // early leave only when check-out is more than this before shift end
+    minOtMin: 30,                // overtime counted only when it reaches this many minutes
+    halfDayMin: 240,             // a day with less than 4 h worked counts as half a day absent
+    maxAccuracyM: 100,           // GPS fixes worse than this need review
+    geoMode: "any",              // "any" = nearest active branch, "assigned" = only the employee's assigned branches
+    blockOutside: false,         // true = refuse punches outside the zone instead of recording them for review
+    countOutside: true,          // punches outside the geofence still count (flagged for review); rejected ones never count
+    incompleteAbsence: 0,        // absence charged for a day with a check-in but no check-out (0 = none, flagged)
+    deductLate: false,           // convert late minutes into absence days for payroll
+    workHoursDay: 8,
+    ramadan: { from: "", to: "", hoursDay: 6, applyTo: "all" },   // Labor Law Art. 98: 6 h/day for Muslims in Ramadan; applyTo "muslims" uses hr.muslim / religion
+    defaultShiftId: "GEN",
+    shifts: [
+      { id: "GEN", name: "General · 8:00–17:00", start: "08:00", end: "17:00", breakMin: 60, graceMin: 15, days: [0, 1, 2, 3, 4] }
+    ],
+    holidays: [],                // [{date:"2026-09-23", to:"2026-09-23", name:"National Day"}]
+    trackingFrom: ""             // attendance go-live date: days before it are never counted (no absence, no deduction)
+  };
+
+  var DAY = 86400000;
+  function C(cfg) {
+    var c = {}, k; cfg = cfg || {};
+    for (k in DEFAULT_ATT) c[k] = DEFAULT_ATT[k];
+    for (k in cfg) if (cfg[k] !== undefined && cfg[k] !== null && cfg[k] !== "") c[k] = cfg[k];
+    c.ramadan = Object.assign({}, DEFAULT_ATT.ramadan, cfg.ramadan || {});
+    if (!c.shifts || !c.shifts.length) c.shifts = DEFAULT_ATT.shifts;
+    return c;
+  }
+  function hm(s) { var m = /^(\d{1,2}):(\d{2})/.exec(String(s || "")); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function fmtMin(min) { if (min == null || isNaN(min)) return ""; var m = Math.round(min); m = ((m % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ":" + pad(m % 60); }
+  function dur(min) { min = Math.max(0, Math.round(min || 0)); return Math.floor(min / 60) + "h " + pad(min % 60) + "m"; }
+  function addDays(d, n) { return new Date(Date.parse(d + "T00:00:00Z") + n * DAY).toISOString().slice(0, 10); }
+  function weekday(d) { return new Date(d + "T00:00:00Z").getUTCDay(); }
+  function dayStartMs(d, cfg) { return Date.parse(d + "T00:00:00Z") - cfg.tzOffsetMin * 60000; }
+  function localDate(ms, cfg) { return new Date(ms + cfg.tzOffsetMin * 60000).toISOString().slice(0, 10); }
+  function localToday(cfg, nowMs) { return localDate(nowMs == null ? Date.now() : nowMs, C(cfg)); }
+  function relMin(at, d, cfg) { return (Date.parse(at) - dayStartMs(d, cfg)) / 60000; }
+  function atFor(d, min, cfg) { return new Date(dayStartMs(d, C(cfg)) + min * 60000).toISOString(); }
+  function monthDays(monthISO) {
+    var y = +monthISO.slice(0, 4), m = +monthISO.slice(5, 7), n = new Date(Date.UTC(y, m, 0)).getUTCDate(), out = [];
+    for (var i = 1; i <= n; i++) out.push(monthISO.slice(0, 7) + "-" + pad(i));
+    return out;
+  }
+  function round2(v) { return Math.round(v * 100) / 100; }
+
+  function holidayOn(d, cfg) {
+    var hs = cfg.holidays || [];
+    for (var i = 0; i < hs.length; i++) { var h = hs[i]; if (!h || !h.date) continue; if (d >= h.date && d <= (h.to || h.date)) return h; }
+    return null;
+  }
+  function inRamadan(d, cfg) { var r = cfg.ramadan || {}; return !!(r.from && r.to && d >= r.from && d <= r.to); }
+  function leaveOn(emp, d, leaves) {
+    var no = emp.empNo;
+    for (var i = 0; i < (leaves || []).length; i++) {
+      var l = leaves[i];
+      if (l && l.empNo === no && l.status === "APPROVED" && l.from <= d && (l.to || l.from) >= d) return l;
+    }
+    return null;
+  }
+
+  /* The shift that applies to an employee on a date (with Ramadan hours when the date is in Ramadan). */
+  function resolveShift(emp, d, cfg) {
+    cfg = C(cfg);
+    var r = (emp && emp.hr) || {}, id = r.shiftId || cfg.defaultShiftId, sh = null;
+    for (var i = 0; i < cfg.shifts.length; i++) if (cfg.shifts[i].id === id) sh = cfg.shifts[i];
+    sh = sh || cfg.shifts[0];
+    var s = hm(sh.start), e = hm(sh.end); if (s == null) s = 480; if (e == null) e = 1020; if (e <= s) e += 1440;
+    var isMuslim = r.muslim === true || /^(muslim|islam|مسلم)/i.test(String((emp && emp.religion) || r.religion || ""));
+    var brk = +sh.breakMin || 0, ram = inRamadan(d, cfg) && sh.ramadan !== false && !r.ramadanExempt && (cfg.ramadan.applyTo !== "muslims" || isMuslim);
+    if (ram) { if (sh.ramadanStart) s = hm(sh.ramadanStart); e = s + Math.round((+cfg.ramadan.hoursDay || 6) * 60); brk = 0; }
+    var days = sh.days && sh.days.length ? sh.days : [0, 1, 2, 3, 4, 5, 6].filter(function (x) { return cfg.weekend.indexOf(x) < 0; });
+    return { id: sh.id, name: sh.name || sh.id, start: s, end: e, breakMin: brk,
+      grace: sh.graceMin != null && sh.graceMin !== "" ? +sh.graceMin : +cfg.graceMin,
+      flexible: !!sh.flexible, workday: days.indexOf(weekday(d)) >= 0, expected: Math.max(0, e - s - brk),
+      ramadan: ram, overnight: e > 1440 };
+  }
+  // Minutes (relative to local midnight of d) during which a punch belongs to day d.
+  function rawWindow(emp, d, cfg) {
+    var sh = resolveShift(emp, d, cfg);
+    if (!sh.workday) return { lo: 0, hi: 1440 };
+    return { lo: Math.max(-360, sh.start - 360), hi: Math.max(sh.end + 360, 1440) };
+  }
+  function windowFor(emp, d, cfg) {
+    // a day off starts where the previous night shift's window ends; a shift is cut only by the next day's own shift window
+    var w = rawWindow(emp, d, cfg), prev = rawWindow(emp, addDays(d, -1), cfg), next = rawWindow(emp, addDays(d, 1), cfg);
+    var nextWork = resolveShift(emp, addDays(d, 1), cfg).workday;
+    return { lo: Math.max(w.lo, prev.hi - 1440), hi: nextWork ? Math.min(w.hi, next.lo + 1440) : w.hi };
+  }
+
+  var CODES = { PRESENT: "P", LATE: "L", HALF_DAY: "½", ABSENT: "A", LEAVE: "V", HOLIDAY: "H", WEEKEND: "W", INCOMPLETE: "I", IN: "P", NOT_IN: "?", NOT_YET: "", UPCOMING: "", NA: "" };
+
+  /* One employee, one day. punches: that employee's punches (any order; others are ignored by date window). */
+  function day(emp, d, punches, ctx) {
+    ctx = ctx || {}; var cfg = C(ctx.cfg), now = ctx.now ? Date.parse(ctx.now) : Date.now();
+    var sh = resolveShift(emp, d, cfg), r = (emp && emp.hr) || {};
+    var out = { date: d, empNo: emp.empNo, shift: sh, status: "", code: "", firstIn: null, lastOut: null,
+      workedMin: 0, lateMin: 0, earlyMin: 0, otMin: 0, absence: 0, flags: [], punches: [], leave: null, holiday: null };
+    if ((r.hireDate && d < r.hireDate) || (r.endDate && d > r.endDate) || (cfg.trackingFrom && d < cfg.trackingFrom)) { out.status = "NA"; return out; }
+    var w = windowFor(emp, d, cfg), dayMs = dayStartMs(d, cfg);
+    var ps = (punches || []).filter(function (p) { return p && p.at && p.status !== "rejected" && (!p.empNo || p.empNo === emp.empNo); })
+      .filter(function (p) { return cfg.countOutside || p.status === "ok" || p.status === "manual" || p.status === "approved"; })
+      .map(function (p) { return Object.assign({}, p, { rel: relMin(p.at, d, cfg) }); })
+      .filter(function (p) { return p.rel >= w.lo && p.rel < w.hi; })
+      .sort(function (a, b) { return a.rel - b.rel; });
+    out.punches = ps;
+    ps.forEach(function (p) {
+      if (p.status === "outside" || p.status === "low_accuracy") { if (out.flags.indexOf("REVIEW") < 0) out.flags.push("REVIEW"); }
+      if (p.status === "manual" && out.flags.indexOf("MANUAL") < 0) out.flags.push("MANUAL");
+    });
+    // pair punches into worked segments; a break closes the segment, break end reopens it
+    var open = null, worked = 0, breaks = 0, firstIn = null, lastOut = null, bStart = null;
+    ps.forEach(function (p) {
+      if (p.kind === "in") { if (open == null) open = p.rel; if (firstIn == null) firstIn = p.rel; }
+      else if (p.kind === "out") { if (open != null) { worked += p.rel - open; open = null; } lastOut = p.rel; }
+      else if (p.kind === "break_start") { if (open != null) { worked += p.rel - open; open = null; bStart = p.rel; } }
+      else if (p.kind === "break_end") { if (bStart != null) { breaks += p.rel - bStart; bStart = null; } if (open == null) open = p.rel; }
+    });
+    var nowRel = (now - dayMs) / 60000, live = false;
+    if (open != null) { if (nowRel < w.hi && nowRel > open) { worked += nowRel - open; live = true; } }
+    if (!breaks && sh.breakMin && worked > 300) worked = Math.max(300, worked - sh.breakMin);
+    out.firstIn = firstIn; out.lastOut = open == null ? lastOut : null; out.workedMin = Math.round(worked); out.breakMin = Math.round(breaks);
+    // Labor Law Art. 101: no more than 5 hours in a row without a 30-minute break; no more than 12 hours at the workplace
+    if (firstIn != null && out.lastOut != null) {
+      if (out.lastOut - firstIn > 720) out.flags.push("OVER_12H");
+      var longest = 0, segStart = null;
+      ps.forEach(function (p) { if (p.kind === "in" || p.kind === "break_end") { if (segStart == null) segStart = p.rel; } else if (segStart != null) { longest = Math.max(longest, p.rel - segStart); segStart = null; } });
+      if (longest > 300 && !breaks && !(sh.breakMin >= 30)) out.flags.push("NO_BREAK");
+    }
+
+    var leave = leaveOn(emp, d, ctx.leaves), hol = holidayOn(d, cfg);
+    if (leave) {
+      out.status = "LEAVE"; out.leave = leave; if (ps.length) out.flags.push("WORKED_ON_LEAVE");
+    } else if (hol || !sh.workday) {
+      out.status = hol ? "HOLIDAY" : "WEEKEND"; out.holiday = hol;
+      if (out.workedMin >= cfg.minOtMin && open == null) { out.otMin = out.workedMin; out.flags.push("OFFDAY_WORK"); } // Art. 107: rest-day / holiday hours are overtime
+    } else if (firstIn == null) {
+      if (now < dayMs) out.status = "UPCOMING";
+      else if (nowRel < sh.start + sh.grace) out.status = "NOT_YET";
+      else if (nowRel < sh.end) out.status = "NOT_IN";
+      else { out.status = "ABSENT"; out.absence = 1; }
+    } else {
+      if (!sh.flexible && firstIn > sh.start + sh.grace) out.lateMin = Math.round(cfg.lateFromStart ? firstIn - sh.start : firstIn - sh.start - sh.grace);
+      if (open != null) {
+        out.status = live ? "IN" : "INCOMPLETE";
+        if (!live) { out.flags.push("MISSING_OUT"); out.absence = +cfg.incompleteAbsence || 0; }
+      } else {
+        if (!sh.flexible && lastOut != null && lastOut < sh.end - cfg.earlyGraceMin) { out.earlyMin = Math.round(sh.end - lastOut); out.flags.push("EARLY_LEAVE"); }
+        var extra = out.workedMin - sh.expected;
+        if (extra >= cfg.minOtMin) out.otMin = Math.round(extra);
+        if (sh.flexible && extra < 0) out.shortMin = Math.round(-extra);
+        if (out.workedMin < cfg.halfDayMin) { out.status = "HALF_DAY"; out.absence = 0.5; }
+        else out.status = out.lateMin > 0 ? "LATE" : "PRESENT";
+      }
+      if (out.lateMin > 0 && out.status !== "LATE" && out.flags.indexOf("LATE") < 0) out.flags.push("LATE");
+    }
+    out.code = CODES[out.status] || "";
+    return out;
+  }
+
+  function groupBy(punches) { var g = {}; (punches || []).forEach(function (p) { (g[p.empNo] = g[p.empNo] || []).push(p); }); return g; }
+
+  /* Everyone, one day: rows + counts for the live board. */
+  function board(emps, punches, ctx, d) {
+    var g = groupBy(punches), rows = (emps || []).map(function (e) { return day(e, d, g[e.empNo] || [], ctx); }).filter(function (r) { return r.status !== "NA"; });
+    var c = { total: rows.length, present: 0, late: 0, absent: 0, notIn: 0, leave: 0, off: 0, incomplete: 0, inNow: 0, review: 0, early: 0, notYet: 0 };
+    rows.forEach(function (r) {
+      var s = r.status;
+      if (s === "PRESENT" || s === "LATE" || s === "IN" || s === "INCOMPLETE" || s === "HALF_DAY") c.present++;
+      if (r.lateMin > 0) c.late++;
+      if (s === "ABSENT") c.absent++;
+      if (s === "NOT_IN") c.notIn++;
+      if (s === "NOT_YET") c.notYet++;
+      if (s === "LEAVE") c.leave++;
+      if (s === "HOLIDAY" || s === "WEEKEND") c.off++;
+      if (s === "INCOMPLETE") c.incomplete++;
+      if (s === "IN") c.inNow++;
+      if (r.earlyMin > 0) c.early++;
+      if (r.flags.indexOf("REVIEW") >= 0) c.review++;
+    });
+    var expected = c.total - c.leave - c.off;
+    c.rate = expected > 0 ? round2(c.present / expected * 100) : 0;
+    return { date: d, rows: rows, counts: c };
+  }
+
+  /* Everyone, one month: per-employee day rows + totals. */
+  function month(emps, punches, ctx, monthISO) {
+    var g = groupBy(punches), days = monthDays(monthISO);
+    var todayL = localToday(ctx && ctx.cfg, ctx && ctx.now ? Date.parse(ctx.now) : null);
+    var rows = (emps || []).map(function (e) {
+      var ds = days.map(function (d) { return day(e, d, g[e.empNo] || [], ctx); });
+      var t = { workDays: 0, present: 0, late: 0, lateMin: 0, earlyMin: 0, absent: 0, leave: 0, holiday: 0, off: 0, otMin: 0, workedMin: 0, incomplete: 0, review: 0 };
+      ds.forEach(function (x) {
+        var s = x.status;
+        if (s === "NA" || s === "UPCOMING" || s === "NOT_YET" || x.date > todayL) return;
+        if (x.shift.workday && s !== "HOLIDAY" && s !== "LEAVE") t.workDays++;
+        if (s === "PRESENT" || s === "LATE" || s === "IN" || s === "INCOMPLETE") t.present++;
+        if (s === "HALF_DAY") t.present += 0.5;
+        if (x.lateMin > 0) { t.late++; t.lateMin += x.lateMin; }
+        t.earlyMin += x.earlyMin; t.absent += x.absence; t.otMin += x.otMin; t.workedMin += x.workedMin;
+        if (s === "LEAVE") t.leave++;
+        if (s === "HOLIDAY") t.holiday++;
+        if (s === "WEEKEND") t.off++;
+        if (s === "INCOMPLETE") t.incomplete++;
+        if (x.flags.indexOf("REVIEW") >= 0) t.review++;
+      });
+      t.absent = round2(t.absent);
+      return { empNo: e.empNo, emp: e, days: ds, totals: t };
+    });
+    var T = { present: 0, absent: 0, late: 0, lateMin: 0, otMin: 0, incomplete: 0, review: 0, workDays: 0 };
+    rows.forEach(function (r) { Object.keys(T).forEach(function (k) { T[k] += r.totals[k] || 0; }); });
+    T.attendanceRate = T.workDays > 0 ? round2((T.workDays - T.absent) / T.workDays * 100) : 0;
+    return { month: monthISO.slice(0, 7), days: days, rows: rows, totals: T };
+  }
+
+  /* Labor Law Art. 80 / 107 watch over a period (normally the last 12 months):
+     unexcused absence days (total and longest run) against the warning (20 / 10) and dismissal (30 / 15) thresholds,
+     and overtime hours against the 720 h/year guideline. Approved leave, weekends and holidays never count as absence. */
+  function lawWatch(emps, punches, ctx, fromISO, toISO) {
+    var g = groupBy(punches), c = C(ctx && ctx.cfg), todayL = localToday(c, ctx && ctx.now ? Date.parse(ctx.now) : null);
+    var lim = { warnTotal: 20, warnRun: 10, dismissTotal: 30, dismissRun: 15, otYear: 720 };
+    return (emps || []).map(function (e) {
+      var total = 0, run = 0, maxRun = 0, ot = 0, noBreak = 0, over12 = 0, days = [];
+      for (var d = fromISO; d <= toISO && d <= todayL; d = addDays(d, 1)) {
+        var x = day(e, d, g[e.empNo] || [], ctx);
+        if (x.status === "ABSENT") { total++; run++; if (run > maxRun) maxRun = run; days.push(d); }
+        else if (x.status !== "WEEKEND" && x.status !== "HOLIDAY" && x.status !== "NA") run = 0;
+        ot += x.otMin; if (x.flags.indexOf("NO_BREAK") >= 0) noBreak++; if (x.flags.indexOf("OVER_12H") >= 0) over12++;
+      }
+      var level = total > lim.dismissTotal || maxRun > lim.dismissRun ? "dismissal" : total >= lim.warnTotal || maxRun >= lim.warnRun ? "warning" : total >= lim.warnTotal / 2 || maxRun >= lim.warnRun / 2 ? "watch" : "ok";
+      return { empNo: e.empNo, emp: e, absentDays: total, longestRun: maxRun, absentDates: days, otHours: round2(ot / 60), otOverCap: ot / 60 > lim.otYear, noBreakDays: noBreak, over12Days: over12, level: level };
+    });
+  }
+
+  /* Payroll inputs for HR.payroll: { empNo: { absenceDays, otHours } } */
+  function payrollInputs(m, cfg) {
+    cfg = C(cfg); var out = {};
+    (m.rows || []).forEach(function (r) {
+      var t = r.totals, abs = t.absent;
+      if (cfg.deductLate && t.lateMin > 0) abs += t.lateMin / (cfg.workHoursDay * 60);
+      out[r.empNo] = { absenceDays: round2(abs), otHours: round2(t.otMin / 60) };
+    });
+    return out;
+  }
+
+  /* Geofence — the same rule the server applies (Supabase punch()). */
+  function haversine(lat1, lng1, lat2, lng2) {
+    var R = 6371000, toR = Math.PI / 180, dLat = (lat2 - lat1) * toR, dLng = (lng2 - lng1) * toR;
+    var a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(lat1 * toR) * Math.cos(lat2 * toR) * Math.pow(Math.sin(dLng / 2), 2);
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+  /* allowedIds: the employee's assigned branch ids. cfg.geoMode "any" = nearest active branch, "assigned" = only assigned branches.
+     cfg.blockOutside = refuse the punch (instead of recording it for review) when it is not inside a zone with a usable GPS fix. */
+  function allowedBranches(emp) { var r = (emp && emp.hr) || {}; var ids = [].concat(r.branchIds || [], r.branchId ? [r.branchId] : []); return ids.filter(function (x, i) { return x && ids.indexOf(x) === i; }); }
+  function evaluatePunch(branches, lat, lng, accuracy, cfg, allowedIds) {
+    cfg = C(cfg); var best = null, bestD = null;
+    var list = (branches || []).filter(function (b) { return b && b.active !== false && isFinite(b.lat) && isFinite(b.lng); });
+    if (cfg.geoMode === "assigned" && allowedIds && allowedIds.length) list = list.filter(function (b) { return allowedIds.indexOf(b.id) >= 0; });
+    list.forEach(function (b) { var d = haversine(lat, lng, +b.lat, +b.lng); if (bestD == null || d < bestD) { bestD = d; best = b; } });
+    var inside = !!(best && bestD <= (+best.radius_m || +best.radius || 150));
+    var status = accuracy == null || accuracy > cfg.maxAccuracyM ? "low_accuracy" : inside ? "ok" : "outside";
+    return { branchId: best ? best.id : null, branch: best, distance: bestD == null ? null : Math.round(bestD * 10) / 10, inside: inside, status: status,
+      blocked: !!cfg.blockOutside && status !== "ok", reason: status === "ok" ? "" : status === "low_accuracy" ? "GPS accuracy is too weak (±" + Math.round(accuracy || 0) + " m)" : !best ? "No branch zone is set up" : "Outside " + (best.name || best.id) + " by " + Math.round(bestD - (+best.radius_m || 150)) + " m" };
+  }
+  /* Flags a punch whose location implies impossible travel since the previous one (likely a fake-GPS app). */
+  function travelCheck(prev, cur, maxKmh) {
+    if (!prev || !cur || !isFinite(prev.lat) || !isFinite(cur.lat) || prev.lat == null || cur.lat == null) return null;
+    var km = haversine(+prev.lat, +prev.lng, +cur.lat, +cur.lng) / 1000, h = Math.abs(Date.parse(cur.at) - Date.parse(prev.at)) / 3600000;
+    if (km < 5) return null; var kmh = h > 0 ? km / h : Infinity;
+    return kmh > (maxKmh || 250) ? { km: Math.round(km), kmh: Math.round(kmh) } : null;
+  }
+  function bearing(lat1, lng1, lat2, lng2) {
+    var toR = Math.PI / 180, y = Math.sin((lng2 - lng1) * toR) * Math.cos(lat2 * toR),
+      x = Math.cos(lat1 * toR) * Math.sin(lat2 * toR) - Math.sin(lat1 * toR) * Math.cos(lat2 * toR) * Math.cos((lng2 - lng1) * toR);
+    return (Math.atan2(y, x) / toR + 360) % 360;
+  }
+
+  /* Next punch an employee should make, given today's punches. */
+  function nextAction(todayPunches) {
+    var ps = (todayPunches || []).filter(function (p) { return p.status !== "rejected"; }).slice().sort(function (a, b) { return Date.parse(a.at) - Date.parse(b.at); });
+    var last = ps[ps.length - 1];
+    if (!last || last.kind === "out") return "in";
+    if (last.kind === "break_start") return "break_end";
+    return "out";
+  }
+
+  /* Device / Excel import: rows [{empNo, at}] → punches; per employee per day first = in, last = out, middle ignored. */
+  function fromDeviceRows(rows, cfg) {
+    cfg = C(cfg); var g = {};
+    (rows || []).forEach(function (r) {
+      var ms = Date.parse(r.at); if (!r.empNo || isNaN(ms)) return;
+      var k = r.empNo + "|" + localDate(ms, cfg); (g[k] = g[k] || []).push({ empNo: r.empNo, at: new Date(ms).toISOString(), ms: ms });
+    });
+    var out = [];
+    Object.keys(g).forEach(function (k) {
+      var l = g[k].sort(function (a, b) { return a.ms - b.ms; });
+      out.push({ empNo: l[0].empNo, at: l[0].at, kind: "in" });
+      if (l.length > 1 && l[l.length - 1].ms - l[0].ms >= 60000) out.push({ empNo: l[0].empNo, at: l[l.length - 1].at, kind: "out" });
+    });
+    return out;
+  }
+  /* "2026-10-05 07:58", "05/10/2026 07:58", Excel serial → UTC ISO (input is KSA local time). */
+  function parseLocal(v, cfg) {
+    cfg = C(cfg);
+    if (typeof v === "number" && isFinite(v)) { var ms = Math.round((v - 25569) * DAY); return new Date(ms - cfg.tzOffsetMin * 60000).toISOString(); }
+    var s = String(v || "").trim(), m;
+    if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(s))) return new Date(Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)) - cfg.tzOffsetMin * 60000).toISOString();
+    if ((m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i.exec(s))) {
+      var hh = +m[4]; if (m[7]) { if (/pm/i.test(m[7]) && hh < 12) hh += 12; if (/am/i.test(m[7]) && hh === 12) hh = 0; }
+      return new Date(Date.UTC(+m[3], m[2] - 1, +m[1], hh, +m[5], +(m[6] || 0)) - cfg.tzOffsetMin * 60000).toISOString();
+    }
+    return null;
+  }
+
+  /* Estimated KSA public holidays and Ramadan for a Gregorian year from the Umm al-Qura calendar (needs Intl).
+     Private sector: Eid al-Fitr 4 days from 1 Shawwal, Eid al-Adha 4 days from 9 Dhu al-Hijjah (Arafah),
+     Founding Day 22 Feb, National Day 23 Sep. Confirm each year with the MHRSD announcement. */
+  function hijriParts(d) {
+    var f = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", { day: "numeric", month: "numeric", year: "numeric", timeZone: "UTC" });
+    var o = {}; f.formatToParts(new Date(d + "T00:00:00Z")).forEach(function (p) { if (p.type === "day" || p.type === "month" || p.type === "year") o[p.type] = parseInt(p.value, 10); });
+    return o;
+  }
+  function suggestHolidays(year) {
+    var out = [{ date: year + "-02-22", to: year + "-02-22", name: "Founding Day", fixed: true }, { date: year + "-09-23", to: year + "-09-23", name: "Saudi National Day", fixed: true }];
+    var ramadan = { from: "", to: "" };
+    try {
+      var d = year + "-01-01", end = year + "-12-31";
+      while (d <= end) {
+        var p = hijriParts(d);
+        if (p.month === 10 && p.day === 1) out.push({ date: d, to: addDays(d, 3), name: "Eid al-Fitr", estimated: true });
+        if (p.month === 12 && p.day === 9) out.push({ date: d, to: addDays(d, 3), name: "Eid al-Adha", estimated: true });
+        if (p.month === 9 && p.day === 1 && !ramadan.from) ramadan.from = d;
+        if (p.month === 10 && p.day === 1 && ramadan.from && !ramadan.to) ramadan.to = addDays(d, -1);
+        d = addDays(d, 1);
+      }
+    } catch (e) {}
+    out.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    return { holidays: out, ramadan: ramadan };
+  }
+
+  var API = { DEFAULT_ATT: DEFAULT_ATT, config: C, hm: hm, fmtMin: fmtMin, dur: dur, addDays: addDays, weekday: weekday, monthDays: monthDays,
+    localToday: localToday, localDate: function (ms, cfg) { return localDate(ms, C(cfg)); }, relMin: function (at, d, cfg) { return relMin(at, d, C(cfg)); }, atFor: atFor,
+    resolveShift: resolveShift, day: day, board: board, month: month, payrollInputs: payrollInputs, lawWatch: lawWatch,
+    haversine: haversine, bearing: bearing, evaluatePunch: evaluatePunch, allowedBranches: allowedBranches, travelCheck: travelCheck, nextAction: nextAction,
+    fromDeviceRows: fromDeviceRows, parseLocal: parseLocal, suggestHolidays: suggestHolidays, hijriParts: hijriParts, CODES: CODES };
+  if (typeof module !== "undefined" && module.exports) module.exports = API;
+  root.Attendance = API;
+})(typeof window !== "undefined" ? window : this);
+
+</script>
+<script>/* demo.js */
+/* Preview mode (open the app with ?demo): fictional sample company kept in memory only. Nothing is saved. */
+(function (root) {
+  'use strict';
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+
+  var BRANCHES = [
+    { id: "RUH", name: "Riyadh HQ · Olaya", lat: 24.6905, lng: 46.6853, radius_m: 150, active: true },
+    { id: "JED", name: "Jeddah · Tahlia", lat: 21.5540, lng: 39.1490, radius_m: 200, active: true },
+    { id: "DMM", name: "Dammam warehouse", lat: 26.4207, lng: 50.0888, radius_m: 250, active: true }
+  ];
+  var SHIFTS = [
+    { id: "GEN", name: "Office · 8:00–17:00", start: "08:00", end: "17:00", breakMin: 60, graceMin: 15, days: [0, 1, 2, 3, 4] },
+    { id: "EARLY", name: "Warehouse · 6:00–14:00", start: "06:00", end: "14:00", breakMin: 30, graceMin: 10, days: [6, 0, 1, 2, 3, 4] },
+    { id: "NIGHT", name: "Security night · 22:00–06:00", start: "22:00", end: "06:00", breakMin: 30, graceMin: 10, days: [0, 1, 2, 3, 4, 6] },
+    { id: "FLEX", name: "Flexible · 9 h window", start: "07:00", end: "16:00", breakMin: 60, flexible: true, days: [0, 1, 2, 3, 4] }
+  ];
+  var PEOPLE = [
+    ["Faisal Al-Qahtani", "فيصل القحطاني", "Saudi", "General Manager", "Management", "RUH", "FLEX", "M"],
+    ["Noura Al-Harbi", "نورة الحربي", "Saudi", "HR Manager", "Human Resources", "RUH", "GEN", "F"],
+    ["Mohammed Rafiq", "محمد رفيق", "India", "Accountant", "Finance", "RUH", "GEN", "M"],
+    ["Ahmed Hassan", "أحمد حسن", "Egypt", "Finance Manager", "Finance", "RUH", "GEN", "M"],
+    ["Sara Al-Otaibi", "سارة العتيبي", "Saudi", "HR Specialist", "Human Resources", "RUH", "GEN", "F"],
+    ["Imran Khan", "عمران خان", "Pakistan", "Sales Executive", "Sales", "RUH", "GEN", "M"],
+    ["Joseph Santos", "جوزيف سانتوس", "Philippines", "IT Support", "IT", "RUH", "GEN", "M"],
+    ["Khalid Al-Dosari", "خالد الدوسري", "Saudi", "Sales Manager", "Sales", "JED", "GEN", "M"],
+    ["Rahul Menon", "راهول مينون", "India", "Sales Executive", "Sales", "JED", "GEN", "M"],
+    ["Omar Abdelrahman", "عمر عبدالرحمن", "Sudan", "Branch Supervisor", "Operations", "JED", "GEN", "M"],
+    ["Maria Cruz", "ماريا كروز", "Philippines", "Cashier", "Sales", "JED", "GEN", "F"],
+    ["Yasser Mahmoud", "ياسر محمود", "Egypt", "Storekeeper", "Warehouse", "DMM", "EARLY", "M"],
+    ["Abdul Karim", "عبدالكريم", "Bangladesh", "Forklift Operator", "Warehouse", "DMM", "EARLY", "M"],
+    ["Shahid Hussain", "شاهد حسين", "Pakistan", "Driver", "Logistics", "DMM", "EARLY", "M"],
+    ["Ravi Kumar", "رافي كومار", "India", "Driver", "Logistics", "DMM", "EARLY", "M"],
+    ["Mohammed Saleh", "محمد صالح", "Yemen", "Warehouse Helper", "Warehouse", "DMM", "EARLY", "M"],
+    ["Anwar Hossain", "أنور حسين", "Bangladesh", "Warehouse Helper", "Warehouse", "DMM", "EARLY", "M"],
+    ["Tariq Mehmood", "طارق محمود", "Pakistan", "Security Guard", "Security", "DMM", "NIGHT", "M"],
+    ["Hamid Osman", "حامد عثمان", "Sudan", "Security Guard", "Security", "RUH", "NIGHT", "M"],
+    ["Fahad Al-Shehri", "فهد الشهري", "Saudi", "Operations Manager", "Operations", "DMM", "GEN", "M"],
+    ["Priya Nair", "بريا ناير", "India", "Receptionist", "Administration", "RUH", "GEN", "F"],
+    ["Bilal Ahmed", "بلال أحمد", "Pakistan", "Technician", "Operations", "JED", "GEN", "M"]
+  ];
+
+  function seed(todayISO) {
+    var R = rng(20261031), A = root.Attendance, E = root.Engine;
+    var year = +todayISO.slice(0, 4), sh = A.suggestHolidays(year), shPrev = A.suggestHolidays(year - 1);
+    var attCfg = { shifts: SHIFTS, branches: BRANCHES, defaultShiftId: "GEN", holidays: shPrev.holidays.concat(sh.holidays), ramadan: { from: sh.ramadan.from, to: sh.ramadan.to, hoursDay: 6 } };
+    var add = function (d, n) { return E.addDays(d, n); };
+    var employees = PEOPLE.map(function (p, i) {
+      var no = "EMP-" + ("000" + (i + 1)).slice(-4), saudi = p[2] === "Saudi";
+      var basic = [18000, 14000, 6500, 12000, 8000, 5000, 5500, 13000, 5000, 6000, 3800, 4200, 2800, 2600, 2600, 2200, 2200, 2400, 2400, 15000, 3500, 4000][i];
+      return { empNo: no, hrNo: String(1001 + i), nameEn: p[0], nameAr: p[1], nationality: p[2], saudi: saudi || undefined, gender: p[7] === "F" ? "Female" : "Male",
+        jobTitle: p[3], department: p[4], branch: p[5], status: "Active", iqamaFeesBy: saudi ? "" : "Company",
+        iqamaNo: saudi ? "" : "2" + String(400000000 + i * 7919), nationalId: saudi ? "1" + String(100000000 + i * 3571) : "",
+        iqamaExpiry: saudi ? "" : add(todayISO, Math.round(-12 + R() * 320)), passportExpiry: add(todayISO, Math.round(60 + R() * 900)), insuranceExpiry: add(todayISO, Math.round(10 + R() * 300)),
+        hr: { hireDate: add(todayISO, -Math.round(200 + R() * 3200)), basic: basic, housing: Math.round(basic * 0.25), transport: Math.round(basic * 0.1),
+          iban: "SA03800000006080" + String(10167519 + i).slice(-8), bankName: "Al Rajhi", shiftId: p[6], branchId: p[5], managerEmpNo: i === 0 ? "" : (i < 7 ? "EMP-0001" : i < 11 ? "EMP-0008" : "EMP-0020"), qiwaDocumented: true } };
+    });
+    var leaves = [
+      { id: "LV-0001", empNo: "EMP-0010", type: "ANNUAL", from: add(todayISO, -3), to: add(todayISO, 4), days: 8, status: "APPROVED" },
+      { id: "LV-0002", empNo: "EMP-0016", type: "SICK", from: add(todayISO, -1), to: add(todayISO, 1), days: 3, status: "APPROVED" },
+      { id: "LV-0003", empNo: "EMP-0006", type: "ANNUAL", from: add(todayISO, 12), to: add(todayISO, 21), days: 10, status: "PENDING" }
+    ];
+    // punches: previous month start → now
+    var punches = [], n = 0, cfg = A.config(attCfg), nowMs = Date.now();
+    var start = todayISO.slice(0, 8) + "01"; start = add(start, -1).slice(0, 8) + "01";
+    var br = {}; BRANCHES.forEach(function (b) { br[b.id] = b; });
+    for (var d = start; d <= todayISO; d = add(d, 1)) {
+      employees.forEach(function (e) {
+        var s = A.resolveShift(e, d, cfg), hol = cfg.holidays.some(function (h) { return d >= h.date && d <= (h.to || h.date); });
+        var onLeave = leaves.some(function (l) { return l.status === "APPROVED" && l.empNo === e.empNo && l.from <= d && l.to >= d; });
+        if (onLeave) return;
+        if (!s.workday || hol) { if (R() < 0.03) { push(e, d, s.start + 60, "in"); push(e, d, s.start + 300, "out"); } return; }
+        var r = R(); if (r < 0.035) return;                       // absent
+        var inMin = s.start - 12 + Math.round(R() * 18); if (R() < 0.13) inMin = s.start + 16 + Math.round(R() * 40);
+        if (s.flexible) inMin = s.start + Math.round(R() * 150);
+        var outMin = (s.flexible ? inMin + s.expected + s.breakMin : s.end) - 3 + Math.round(R() * 22);
+        var x = R(); if (x < 0.09) outMin += 45 + Math.round(R() * 110); else if (x < 0.13) outMin -= 35 + Math.round(R() * 60);
+        var bad = R() < 0.045 ? "outside" : R() < 0.01 ? "low_accuracy" : "ok";
+        push(e, d, inMin, "in", bad);
+        if (R() < 0.03 && d < todayISO) return;                  // forgot to check out
+        push(e, d, outMin, "out");
+      });
+    }
+    function push(e, d, min, kind, status) {
+      var at = A.atFor(d, min, cfg); if (Date.parse(at) > nowMs) return;
+      var b = br[e.hr.branchId], out = status === "outside", dist = out ? 300 + R() * 700 : R() * (b.radius_m * 0.7), ang = R() * 6.283;
+      var lat = b.lat + Math.cos(ang) * dist / 111320, lng = b.lng + Math.sin(ang) * dist / (111320 * Math.cos(b.lat * Math.PI / 180));
+      punches.push({ id: "P" + (++n), empNo: e.empNo, email: "", kind: kind, at: at, lat: +lat.toFixed(6), lng: +lng.toFixed(6), accuracy: status === "low_accuracy" ? 180 : Math.round(6 + R() * 20),
+        branchId: b.id, distance: Math.round(dist), inside: !out, status: status || "ok", device: "Preview phone" });
+    }
+    var y1 = add(todayISO, -2), y2 = add(todayISO, -5);
+    var attreq = [
+      { id: "RQ-0001", empNo: "EMP-0013", day: y1, kind: "out", time: "14:05", reason: "Phone battery died before I could check out.", status: "pending", createdAt: new Date().toISOString() },
+      { id: "RQ-0002", empNo: "EMP-0009", day: y2, kind: "in", time: "08:02", reason: "GPS did not load at the gate; I was at the branch on time.", status: "pending", createdAt: new Date().toISOString() }
+    ];
+    return { employees: employees, leaves: leaves, loans: [], payruns: [], renewals: [], visas: [], contracts: [], attendance: punches, attreq: attreq,
+      config: [{ _id: "settings", company: "Al Waha Trading Co." }, Object.assign({ _id: "attendance" }, attCfg)], linkedEmpNo: "EMP-0002" };
+  }
+
+  /* In-memory database with the same interface the app uses for its live backends. */
+  function memDb(seed) {
+    var data = {}, subs = {}, docSubs = {};
+    Object.keys(seed).forEach(function (c) { if (Array.isArray(seed[c])) data[c] = seed[c].map(function (d) { return Object.assign({ _id: d._id || d.id || d.empNo }, d); }); });
+    var clean = function (d) { var o = Object.assign({}, d); delete o._id; return o; };
+    var snapCol = function (c) { return { docs: (data[c] || []).map(function (d) { return { id: d._id, exists: true, data: function () { return clean(d); } }; }) }; };
+    var snapDoc = function (c, id) { var d = (data[c] || []).find(function (x) { return x._id === id; }); return { id: id, exists: !!d, data: function () { return d ? clean(d) : undefined; } }; };
+    var emit = function (c) { setTimeout(function () { (subs[c] || []).forEach(function (cb) { cb(snapCol(c)); }); Object.keys(docSubs).forEach(function (p) { var i = p.indexOf("/"); if (p.slice(0, i) === c) docSubs[p].forEach(function (cb) { cb(snapDoc(c, p.slice(i + 1))); }); }); }, 0); };
+    var docRef = function (c, id) { return {
+      set: function (obj) { var arr = data[c] = data[c] || []; var i = arr.findIndex(function (x) { return x._id === id; }); var v = Object.assign({}, JSON.parse(JSON.stringify(obj)), { _id: id }); if (i >= 0) arr[i] = v; else arr.push(v); emit(c); return Promise.resolve(); },
+      delete: function () { data[c] = (data[c] || []).filter(function (x) { return x._id !== id; }); emit(c); return Promise.resolve(); },
+      onSnapshot: function (cb) { var p = c + "/" + id; (docSubs[p] = docSubs[p] || []).push(cb); setTimeout(function () { cb(snapDoc(c, id)); }, 0); return function () {}; },
+      acquire: function () { return Promise.resolve({ acquired: true }); } }; };
+    return { mem: true, linkedEmpNo: seed.linkedEmpNo,
+      collection: function (c) { return { doc: function (id) { return docRef(c, id); }, onSnapshot: function (cb) { (subs[c] = subs[c] || []).push(cb); setTimeout(function () { cb(snapCol(c)); }, 0); return function () {}; } }; },
+      doc: function (path) { var i = path.indexOf("/"); return docRef(path.slice(0, i), path.slice(i + 1)); } };
+  }
+  root.Demo = { seed: seed, memDb: memDb, BRANCHES: BRANCHES };
+})(typeof window !== "undefined" ? window : this);
+
+</script>
+<script>/* attendance_ui.js */
+/* Attendance module UI: live board, locations map, timesheet, exceptions, shifts & branches, phone check-in.
+   Loaded before the main app script; the app calls window.AttendanceUI(MQ) with its internals. */
+window.AttendanceUI = function (MQ) {
+  "use strict";
+  const { S, $, h, fd, toast, openModal, closeModal, confirmBox, put, E } = MQ;
+  const A = window.Attendance;
+  S.att = { punches: [], requests: [], branches: [], months: {}, pos: null, locating: false };
+  S.attCfg = S.attCfg || {};
+  const U = S.ui;
+
+  /* ---------- helpers ---------- */
+  const isSupa = () => !!(MQ.sb && MQ.db && MQ.db.supa);
+  // attendance go-live: the saved date, else the first punch on record (so earlier days never become absences)
+  let firstMemo = { n: -1, d: "" };
+  const firstPunchDay = () => { const n = S.att.punches.length; if (firstMemo.n !== n) { let m = ""; S.att.punches.forEach(p => { const d = p.at ? A.localDate(Date.parse(p.at)) : ""; if (d && (!m || d < m)) m = d; }); firstMemo = { n, d: m }; } return firstMemo.d; };
+  const cfgRaw = () => Object.assign({}, S.attCfg || {}, { trackingFrom: (S.attCfg && S.attCfg.trackingFrom) || firstPunchDay() || A.localToday({}) });
+  const cfg = () => A.config(cfgRaw());
+  const branches = () => (isSupa() ? S.att.branches : ((S.attCfg && S.attCfg.branches) || []));
+  const branchBy = id => branches().find(b => b.id === id);
+  const tLocal = at => new Date(Date.parse(at) + cfg().tzOffsetMin * 60000).toISOString().slice(11, 16);
+  const dLocal = at => A.localDate(Date.parse(at), cfg());
+  const todayL = () => A.localToday(cfg());
+  const nowISO = () => new Date().toISOString();
+  const ctx = () => ({ cfg: cfgRaw(), leaves: S.leaves || [], now: nowISO() });
+  const nm = e => (e && (e.nameEn || e.nameAr)) || (e && e.empNo) || "";
+  const initials = e => (nm(e).split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0]).join("") || "?").toUpperCase();
+  const av = e => `<span class="av" aria-hidden="true">${h(initials(e))}</span>`;
+  const who = (e, sub) => `<span class="who">${av(e)}<span><b>${h(nm(e))}</b><span class="sub">${h(sub != null ? sub : [e.empNo, e.jobTitle].filter(Boolean).join(" · "))}</span></span></span>`;
+  const empBranch = e => (e && e.hr && e.hr.branchId) || "";
+  const fmtM = m => (m == null ? "—" : A.fmtMin(m));
+  const durS = m => { m = Math.round(m || 0); if (!m) return "—"; const hh = Math.floor(m / 60), mm = m % 60; return hh ? `${hh}h${mm ? " " + mm + "m" : ""}` : `${mm}m`; };
+  const ym = d => d.slice(0, 7);
+  const staff = () => MQ.activeStaff().slice().sort((a, b) => nm(a).localeCompare(nm(b)));
+  const filterEmps = list => list.filter(e => (!U.attBr || empBranch(e) === U.attBr) && (!U.attDept || (e.department || "") === U.attDept)
+    && (!U.attQ || [e.empNo, e.hrNo, e.nameEn, e.nameAr, e.jobTitle].join(" ").toLowerCase().includes(U.attQ.toLowerCase())));
+  const depts = () => [...new Set(MQ.activeStaff().map(e => e.department).filter(Boolean))].sort();
+  const canEdit = () => !MQ.readOnly && !S.essOnly;
+  const errMsg = e => (e && (e.message || e.details)) || String(e);
+
+  /* ---------- data ---------- */
+  const normP = r => ({ id: String(r.id), empNo: r.emp_no, email: r.email, kind: r.kind, at: r.at, lat: r.lat, lng: r.lng, accuracy: r.accuracy_m, branchId: r.branch_id,
+    distance: r.distance_m, inside: r.inside, status: r.status, note: r.note, device: r.device, reviewedBy: r.reviewed_by, reviewedAt: r.reviewed_at, flags: r.flags || [] });
+  const normR = r => ({ id: String(r.id), empNo: r.emp_no, email: r.email, day: r.day, kind: r.kind, time: r.at_time, reason: r.reason, status: r.status, createdAt: r.created_at, reviewedBy: r.reviewed_by, reviewNote: r.review_note });
+  function upsertP(p) { const i = S.att.punches.findIndex(x => x.id === p.id); if (i >= 0) S.att.punches[i] = p; else S.att.punches.push(p); }
+  function upsertR(r) { const i = S.att.requests.findIndex(x => x.id === r.id); if (i >= 0) S.att.requests[i] = r; else S.att.requests.push(r); }
+  async function supaAll(q) { const out = []; for (let f = 0; ; f += 1000) { const { data, error } = await q().range(f, f + 999); if (error) throw error; out.push(...data); if (data.length < 1000) break; } return out; }
+  async function loadMonth(m) {
+    if (!isSupa() || S.att.months[m]) return; S.att.months[m] = "loading";
+    const from = new Date(Date.parse(m + "-01T00:00:00+03:00") - 86400000).toISOString();
+    const y = +m.slice(0, 4), mo = +m.slice(5, 7), to = new Date(Date.UTC(y, mo, 2) - 3 * 3600000).toISOString();
+    try { const rows = await supaAll(() => MQ.sb.from("attendance").select("*").gte("at", from).lt("at", to).order("at")); rows.forEach(r => upsertP(normP(r))); S.att.months[m] = true; MQ.render(); }
+    catch (e) { S.att.months[m] = false; console.error(e); toast("Attendance could not load: " + errMsg(e)); }
+  }
+  async function loadSupaSide() {
+    const sb = MQ.sb;
+    try { const { data } = await sb.from("branches").select("*").order("name"); S.att.branches = data || []; } catch (e) { console.error(e); }
+    try { const since = new Date(Date.now() - 62 * 86400000).toISOString().slice(0, 10); const { data, error } = await sb.from("attendance_requests").select("*").gte("day", since).order("created_at", { ascending: false }); if (!error) S.att.requests = (data || []).map(normR); } catch (e) {}
+    sb.channel("att-live").on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, p => { if (p.new && p.new.id) { upsertP(normP(p.new)); MQ.render(); } })
+      .on("postgres_changes", { event: "*", schema: "public", table: "attendance_requests" }, p => { if (p.new && p.new.id) { upsertR(normR(p.new)); MQ.render(); } })
+      .on("postgres_changes", { event: "*", schema: "public", table: "branches" }, async () => { const { data } = await sb.from("branches").select("*").order("name"); S.att.branches = data || []; MQ.render(); }).subscribe();
+  }
+  async function start() {
+    const db = MQ.db;
+    db.doc("config/attendance").onSnapshot(s => { S.attCfg = s.exists ? s.data() : {}; MQ.render(); }, () => {});
+    if (isSupa()) {
+      await loadSupaSide(); loadMonth(ym(todayL()));
+      try { const { data } = await MQ.sb.rpc("app_emp_no"); if (data) S.me = { empNo: data }; } catch (e) {}
+    } else {
+      db.collection("attendance").onSnapshot(s => { S.att.punches = s.docs.map(d => Object.assign({ id: d.id }, d.data(), { id: d.id })); MQ.render(); }, () => {});
+      db.collection("attreq").onSnapshot(s => { S.att.requests = s.docs.map(d => Object.assign({}, d.data(), { id: d.id })); MQ.render(); }, () => {});
+      if (db.linkedEmpNo) S.me = { empNo: db.linkedEmpNo };
+    }
+    setInterval(() => { if (document.visibilityState === "visible" && !$("#ov") && ["att", "attmap", "me", "dashboard"].includes(U.view) && !document.activeElement.matches("input,select,textarea")) MQ.renderNow(); }, 30000);
+  }
+  async function startEss() {
+    const sb = MQ.sb;
+    try { const { data, error } = await sb.rpc("my_context"); if (error) throw error; if (data) { S.me = { empNo: data.empNo, emp: data }; S.attCfg = data.attendance || {}; } }
+    catch (e) { try { const { data } = await sb.rpc("app_emp_no"); if (data) S.me = { empNo: data, emp: { empNo: data } }; } catch (x) {} }
+    await loadSupaSide();
+    try { const since = new Date(Date.now() - 45 * 86400000).toISOString(); const rows = await supaAll(() => sb.from("attendance").select("*").gte("at", since).order("at")); rows.forEach(r => upsertP(normP(r))); } catch (e) { console.error(e); }
+    locate(); setInterval(() => { if (document.visibilityState === "visible") MQ.renderNow(); }, 30000);
+  }
+  const meEmp = () => { if (!S.me) return null; return MQ.empBy(S.me.empNo) || S.me.emp || { empNo: S.me.empNo }; };
+
+  async function savePunchDoc(row) { await put("attendance", row.id, row); upsertP(row); }
+  async function punchNow(kind) {
+    const e = meEmp(); if (!e) { toast("This sign-in is not linked to an employee."); return; }
+    if (S.att.busy) return; S.att.busy = true; MQ.renderNow();
+    try {
+      const pos = await locate(true);
+      if (!pos || pos.err) throw new Error((pos && pos.err) || "Location is needed to check in. Allow location access and try again.");
+      const ev = A.evaluatePunch(branches(), pos.lat, pos.lng, pos.acc, cfg(), A.allowedBranches(e));
+      if (isSupa()) {
+        const { data, error } = await MQ.sb.rpc("punch", { p_kind: kind, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.acc, p_device: (navigator.userAgent || "").slice(0, 280), p_note: null });
+        if (error) throw error; const p = normP(data); upsertP(p); done(p);
+      } else {
+        if (ev.blocked) throw new Error(ev.reason + ". Check-in is only allowed inside the zone.");
+        const mine = S.att.punches.filter(p => p.empNo === e.empNo).sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+        if (mine[0] && mine[0].kind === kind && Date.now() - Date.parse(mine[0].at) < 60000) throw new Error("Duplicate punch — wait a minute.");
+        const row = { id: "P-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), empNo: e.empNo, email: MQ.uid || "", kind, at: nowISO(),
+          lat: +pos.lat.toFixed(6), lng: +pos.lng.toFixed(6), accuracy: Math.round(pos.acc), branchId: ev.branchId, distance: ev.distance, inside: ev.inside, status: ev.status,
+          device: (navigator.userAgent || "").slice(0, 120), flags: [] };
+        const tr = A.travelCheck(mine[0], row); if (tr) { row.flags.push("IMPOSSIBLE_TRAVEL"); row.status = "outside"; row.note = `Moved ${tr.km} km since the last punch (${tr.kmh} km/h)`; }
+        await savePunchDoc(row); done(row);
+      }
+    } catch (x) { toast(errMsg(x)); }
+    finally { S.att.busy = false; MQ.renderNow(); }
+    function done(p) { const b = branchBy(p.branchId); const lbl = { in: "Checked in", out: "Checked out", break_start: "Break started", break_end: "Break ended" }[p.kind];
+      toast(`${lbl} at ${tLocal(p.at)}${b ? " · " + b.name : ""}${p.status !== "ok" ? " · outside the zone, HR will review" : ""}`); }
+  }
+  function locate(fresh) {
+    return new Promise(res => {
+      if (U.fakeLoc && S.demo) { const e = meEmp(), b = branchBy(empBranch(e)) || branches()[0]; if (b) { S.att.pos = { lat: b.lat + 0.0003, lng: b.lng + 0.0002, acc: 12, at: Date.now(), fake: true }; MQ.render(); return res(S.att.pos); } }
+      if (!navigator.geolocation) { S.att.pos = { err: "This browser cannot share location." }; MQ.render(); return res(S.att.pos); }
+      if (!fresh && S.att.pos && !S.att.pos.err && Date.now() - S.att.pos.at < 60000) return res(S.att.pos);
+      S.att.locating = true; MQ.render();
+      navigator.geolocation.getCurrentPosition(p => { S.att.locating = false; S.att.pos = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy, at: Date.now() }; MQ.render(); res(S.att.pos); },
+        er => { S.att.locating = false; S.att.pos = { err: er.code === 1 ? "Location permission is off. Allow location for this site in your browser settings." : er.code === 3 ? "Location timed out. Move near a window or outdoors and try again." : "Location is unavailable on this device." }; MQ.render(); res(S.att.pos); },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: fresh ? 0 : 30000 });
+    });
+  }
+  async function manualPunch(empNo, at, kind, note) {
+    if (isSupa()) {
+      const { data, error } = await MQ.sb.from("attendance").insert({ emp_no: empNo, email: MQ.uid || "", kind, at, status: "manual", inside: true, note: note || null }).select().single();
+      if (error) throw error; upsertP(normP(data));
+    } else await savePunchDoc({ id: "M-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), empNo, email: MQ.uid || "", kind, at, status: "manual", inside: true, note: note || "", device: "HR entry" });
+  }
+  async function review(id, status, note) {
+    const p = S.att.punches.find(x => x.id === id); if (!p) return;
+    if (isSupa()) { const { data, error } = await MQ.sb.from("attendance").update({ status, reviewed_by: MQ.uid, reviewed_at: nowISO(), note: note != null ? note : p.note }).eq("id", +id).select().single(); if (error) throw error; upsertP(normP(data)); }
+    else await savePunchDoc(Object.assign({}, p, { status, reviewedBy: MQ.uid || "", reviewedAt: nowISO(), prevStatus: p.status }));
+  }
+  async function saveRequest(r) {
+    if (isSupa()) { const { data, error } = await MQ.sb.from("attendance_requests").insert({ emp_no: r.empNo, email: MQ.uid, day: r.day, kind: r.kind, at_time: r.time, reason: r.reason }).select().single(); if (error) throw error; upsertR(normR(data)); }
+    else { const id = "RQ-" + Date.now().toString(36); await put("attreq", id, Object.assign({ id, status: "pending", createdAt: nowISO() }, r)); }
+  }
+  async function decide(id, status) {
+    const r = S.att.requests.find(x => x.id === id); if (!r) return;
+    if (status === "approved") await manualPunch(r.empNo, A.atFor(r.day, A.hm(r.time), cfg()), r.kind, "Correction request: " + r.reason);
+    if (isSupa()) { const { data, error } = await MQ.sb.from("attendance_requests").update({ status, reviewed_by: MQ.uid, reviewed_at: nowISO() }).eq("id", +id).select().single(); if (error) throw error; upsertR(normR(data)); }
+    else { const o = Object.assign({}, r, { status, reviewedBy: MQ.uid || "", reviewedAt: nowISO() }); delete o._id; await put("attreq", id, o); }
+  }
+  async function saveCfg(patch) { const o = Object.assign({}, S.attCfg || {}, patch); delete o._id; await put("config", "attendance", o); S.attCfg = o; }
+  async function saveBranch(b) {
+    if (isSupa()) { const { error } = await MQ.sb.from("branches").upsert({ id: b.id, name: b.name, lat: b.lat, lng: b.lng, radius_m: b.radius_m, active: b.active !== false }); if (error) throw error;
+      const { data } = await MQ.sb.from("branches").select("*").order("name"); S.att.branches = data || []; }
+    else { const list = branches().filter(x => x.id !== b.id).concat([b]).sort((a, c) => a.name.localeCompare(c.name)); await saveCfg({ branches: list }); }
+  }
+
+  /* ---------- maps (Leaflet + OpenStreetMap, loaded on demand) ---------- */
+  let LP = null; const maps = [];
+  function leaflet() {
+    if (window.L) return Promise.resolve(window.L); if (LP) return LP;
+    LP = new Promise((res, rej) => {
+      const c = document.createElement("link"); c.rel = "stylesheet"; c.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"; document.head.appendChild(c);
+      const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"; s.onload = () => res(window.L); s.onerror = () => { LP = null; rej(new Error("map")); }; document.head.appendChild(s);
+    }); return LP;
+  }
+  const COL = { ok: "#0F6B4E", outside: "#A63D2F", low_accuracy: "#C8902E", manual: "#2856a8", approved: "#0F6B4E", rejected: "#7a7a7a" };
+  function mountMaps() {
+    maps.splice(0).forEach(m => { try { m.remove(); } catch (e) {} });
+    document.querySelectorAll("[data-lmap]").forEach(el => {
+      leaflet().then(L => {
+        if (!document.body.contains(el)) return;
+        const spec = JSON.parse(el.dataset.lmap || "{}");
+        const m = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: !!spec.wheel }); maps.push(m);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(m);
+        const pts = [];
+        (spec.branches || []).forEach(b => { const c = L.circle([b.lat, b.lng], { radius: b.r, color: "#0F6B4E", weight: 2, fillColor: "#0F6B4E", fillOpacity: .12 }).addTo(m);
+          c.bindTooltip(`${h(b.name)}${b.label ? " · " + h(b.label) : ""}`, { permanent: !!spec.labels, direction: "top", className: "lm-tip" }); pts.push([b.lat, b.lng]); });
+        (spec.points || []).forEach(p => { L.circleMarker([p.lat, p.lng], { radius: 6, color: "#fff", weight: 1.5, fillColor: COL[p.s] || "#0F6B4E", fillOpacity: .95 }).addTo(m).bindPopup(h(p.t)); pts.push([p.lat, p.lng]); });
+        if (spec.edit) {
+          const st = spec.edit; let mk = L.marker([st.lat, st.lng], { draggable: true }).addTo(m), ci = L.circle([st.lat, st.lng], { radius: st.r, color: "#0F6B4E", fillOpacity: .15 }).addTo(m);
+          const sync = ll => { ci.setLatLng(ll); const la = $("#br_lat"), lo = $("#br_lng"); if (la) la.value = ll.lat.toFixed(6); if (lo) lo.value = ll.lng.toFixed(6); };
+          mk.on("drag", ev => sync(ev.target.getLatLng())); m.on("click", ev => { mk.setLatLng(ev.latlng); sync(ev.latlng); });
+          el._setR = r => ci.setRadius(r); el._move = (la, lo) => { mk.setLatLng([la, lo]); ci.setLatLng([la, lo]); m.setView([la, lo], 17); };
+          m.setView([st.lat, st.lng], st.lat ? 17 : 5); return;
+        }
+        const key = el.dataset.key;
+        if (spec.focus) m.setView([spec.focus.lat, spec.focus.lng], spec.focus.z);
+        else if (key && U["mv_" + key]) m.setView(U["mv_" + key].c, U["mv_" + key].z);
+        else if (pts.length > 1) m.fitBounds(pts, { padding: [30, 30], maxZoom: 17 }); else if (pts.length) m.setView(pts[0], 16); else m.setView([24.2, 45.1], 5);
+        if (key) m.on("moveend", () => { U["mv_" + key] = { c: m.getCenter(), z: m.getZoom() }; });
+      }).catch(() => { el.innerHTML = `<div class="empty"><b>Map could not load</b>Check the internet connection. Locations still work without the map.</div>`; });
+    });
+  }
+
+  /* ---------- shared bits ---------- */
+  function statusPill(r) {
+    const late = r.lateMin > 0 ? ` · late ${durS(r.lateMin)}` : "";
+    const lv = r.leave ? (window.HR && r.leave.type ? r.leave.type[0] + r.leave.type.slice(1).toLowerCase() + " leave" : "On leave") : "On leave";
+    const m = { PRESENT: ["p-green", "On time"], LATE: ["p-amber", "Late " + durS(r.lateMin)], IN: [r.lateMin > 0 ? "p-amber" : "p-green", "Working" + late], NOT_IN: ["p-red", "Not checked in"],
+      NOT_YET: ["p-grey", "Shift not started"], ABSENT: ["p-red", "Absent"], LEAVE: ["p-blue", lv], HOLIDAY: ["p-grey", r.holiday ? r.holiday.name : "Holiday"], WEEKEND: ["p-grey", "Day off"],
+      INCOMPLETE: ["p-amber", "No check-out"], HALF_DAY: ["p-amber", "Half day"], UPCOMING: ["p-grey", "Upcoming"], NA: ["p-grey", "—"] }[r.status] || ["p-grey", r.status];
+    return `<span class="pill ${m[0]}">${h(m[1])}</span>`;
+  }
+  function flagsHtml(r) {
+    const f = [];
+    if (r.flags.includes("REVIEW")) f.push(`<span class="flag r">Outside zone</span>`);
+    if (r.punches.some(p => (p.flags || []).includes("IMPOSSIBLE_TRAVEL"))) f.push(`<span class="flag r">Location jump</span>`);
+    if (r.lateMin > 0 && r.status !== "LATE" && r.status !== "IN") f.push(`<span class="flag a">Late ${durS(r.lateMin)}</span>`);
+    if (r.flags.includes("MANUAL")) f.push(`<span class="flag">Manual</span>`);
+    if (r.earlyMin > 0) f.push(`<span class="flag a">Left ${durS(r.earlyMin)} early</span>`);
+    if (r.otMin > 0) f.push(`<span class="flag">Overtime ${durS(r.otMin)}</span>`);
+    if (r.flags.includes("NO_BREAK")) f.push(`<span class="flag a" title="Labor Law Art. 101">No break over 5h</span>`);
+    if (r.flags.includes("OVER_12H")) f.push(`<span class="flag r" title="Labor Law Art. 101">Over 12h on site</span>`);
+    if (r.flags.includes("WORKED_ON_LEAVE")) f.push(`<span class="flag a">Punched on leave</span>`);
+    return f.length ? `<span class="flagset">${f.join("")}</span>` : "";
+  }
+  function segments(r, nowRel) {
+    const out = []; let open = null;
+    r.punches.forEach(p => { if (p.kind === "in" || p.kind === "break_end") { if (open == null) open = p.rel; } else if (open != null) { out.push([open, p.rel, false]); open = null; } });
+    if (open != null && r.status === "IN") out.push([open, Math.max(open, nowRel), true]);
+    return out;
+  }
+  function timeline(r, lo, hi, nowRel) {
+    const pc = v => ((Math.min(Math.max(v, lo), hi) - lo) / (hi - lo) * 100).toFixed(2) + "%";
+    const w = (a, b) => ((Math.min(b, hi) - Math.max(a, lo)) / (hi - lo) * 100).toFixed(2) + "%";
+    const sh = r.shift; let x = "";
+    if (sh.workday && !["HOLIDAY", "LEAVE", "NA"].includes(r.status)) x += `<span class="sh" style="left:${pc(sh.start)};width:${w(sh.start, sh.end)}"></span>`;
+    segments(r, nowRel).forEach(s => { x += `<span class="wk${s[2] ? " live" : ""}" style="left:${pc(s[0])};width:${w(s[0], s[1])}"></span>`; });
+    r.punches.forEach(p => { x += `<span class="tk${p.status === "outside" || p.status === "low_accuracy" ? " bad" : ""}" style="left:${pc(p.rel)}" title="${h(tLocal(p.at) + " " + p.kind.replace("_", " "))}"></span>`; });
+    if (nowRel > lo && nowRel < hi) x += `<span class="now" style="left:${pc(nowRel)}"></span>`;
+    return `<div class="tl" role="img" aria-label="${h("Shift " + fmtM(sh.start) + "–" + fmtM(sh.end) + ", worked " + durS(r.workedMin))}">${x}</div>`;
+  }
+  const branchSel = (id, val, all) => `<select class="sel" id="${id}"><option value="">${all || "All branches"}</option>${branches().map(b => `<option value="${h(b.id)}" ${val === b.id ? "selected" : ""}>${h(b.name)}</option>`).join("")}</select>`;
+  const deptSel = (id, val) => `<select class="sel" id="${id}"><option value="">All departments</option>${depts().map(d => `<option ${val === d ? "selected" : ""}>${h(d)}</option>`).join("")}</select>`;
+  const noBranches = () => !branches().length ? `<div class="warnbox row" style="margin-bottom:14px"><span><b>No branch zones yet.</b> Phone check-ins need at least one branch with a location and radius.</span><span class="spacer"></span>${canEdit() ? `<button class="btn sm pri" data-a="brEdit">Add a branch</button>` : ""}</div>` : "";
+
+  /* ---------- view: attendance today ---------- */
+  function vAtt() {
+    U.attDay = U.attDay || todayL(); const day = U.attDay; if (isSupa()) loadMonth(ym(day));
+    const c = ctx(), emps = filterEmps(staff()), b = A.board(emps, S.att.punches, c, day), k = b.counts;
+    const nowRel = A.relMin(nowISO(), day, cfg()), isToday = day === todayL();
+    const F = U.attF || "";
+    const match = r => !F || (F === "present" && ["PRESENT", "LATE", "IN", "INCOMPLETE", "HALF_DAY"].includes(r.status)) || (F === "late" && r.lateMin > 0)
+      || (F === "notin" && (r.status === "NOT_IN" || r.status === "NOT_YET")) || (F === "absent" && r.status === "ABSENT") || (F === "leave" && r.status === "LEAVE")
+      || (F === "review" && r.flags.includes("REVIEW")) || (F === "early" && r.earlyMin > 0) || (F === "incomplete" && r.status === "INCOMPLETE");
+    const order = { NOT_IN: 0, ABSENT: 1, INCOMPLETE: 2, LATE: 3, IN: 4, HALF_DAY: 5, PRESENT: 6, NOT_YET: 7, LEAVE: 8, HOLIDAY: 9, WEEKEND: 10 };
+    const rows = b.rows.filter(match).sort((x, y) => (order[x.status] ?? 11) - (order[y.status] ?? 11) || nm(x.emp || MQ.empBy(x.empNo)).localeCompare(nm(y.emp || MQ.empBy(y.empNo))));
+    let lo = 1440, hi = 0; b.rows.forEach(r => { if (r.shift.workday) { lo = Math.min(lo, r.shift.start - 60); hi = Math.max(hi, r.shift.end + 60); } r.punches.forEach(p => { lo = Math.min(lo, p.rel - 30); hi = Math.max(hi, p.rel + 30); }); });
+    if (lo >= hi) { lo = 360; hi = 1260; } lo = Math.floor(lo / 60) * 60; hi = Math.ceil(hi / 60) * 60;
+    const ticks = []; const step = (hi - lo) > 960 ? 240 : 180; for (let t = lo; t <= hi; t += step) ticks.push(t);
+    const kpi = (f, cls, v, l, tag) => `<button class="kpi ${cls}${F === f ? " sel" : ""}" data-a="attf" data-v="${f}"><span class="tag"><i></i>${tag}</span><span class="v">${v}</span><span class="l">${l}</span></button>`;
+    const expected = k.total - k.leave - k.off;
+    return `${noBranches()}<div class="att-bar">
+      <div class="datepick"><button class="btn sm" data-a="attDayStep" data-v="-1" aria-label="Previous day">‹</button><input type="date" id="attDay" value="${h(day)}" max="${h(todayL())}"><button class="btn sm" data-a="attDayStep" data-v="1" aria-label="Next day" ${isToday ? "disabled" : ""}>›</button>${isToday ? "" : `<button class="btn sm" data-a="attToday">Today</button>`}</div>
+      ${branchSel("attBr", U.attBr)}${deptSel("attDept", U.attDept)}
+      <input class="search" id="attQ" placeholder="Search employee…" value="${h(U.attQ || "")}">
+      <span class="spacer"></span>${canEdit() ? `<button class="btn" data-a="manual">Add punch</button>` : ""}<button class="btn" data-nav="attmap">Locations map</button></div>
+    <div class="panel" style="margin-bottom:16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+      <div style="font-family:var(--f-display);font-size:44px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums">${expected > 0 ? Math.round(k.present / expected * 100) : 0}<small style="font-size:20px">%</small></div>
+      <div style="flex:1;min-width:220px"><b>${k.present} of ${expected} expected staff ${isToday ? "are in" : "attended"}</b><div class="sub">${new Date(day + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" })} · <bdi dir="rtl" class="ar">${h(MQ.hj(day))} هـ</bdi>${k.off ? ` · ${k.off} on a day off` : ""}${isToday ? ` · updated ${tLocal(nowISO())}` : ""}</div></div>
+      ${F ? `<button class="btn sm" data-a="attf" data-v="">Show everyone</button>` : ""}</div>
+    <div class="kpis">
+      ${kpi("present", "green", k.present, isToday ? `${k.inNow} working now` : "Present", "Present")}
+      ${kpi("late", "amber", k.late, "Checked in after grace", "Late")}
+      ${kpi("notin", "red", isToday ? k.notIn : k.absent, isToday ? `Shift started, no check-in${k.notYet ? ` · ${k.notYet} not started` : ""}` : "No punches", isToday ? "Not in" : "Absent")}
+      ${isToday ? kpi("absent", "red", k.absent, "Shift ended, no punches", "Absent") : ""}
+      ${kpi("leave", "blue", k.leave, "Approved leave", "On leave")}
+      ${kpi("review", "red", k.review, "Outside zone or weak GPS", "Review")}
+      ${kpi("early", "amber", k.early, "Left before shift end", "Early")}
+    </div>
+    <div class="panel" style="padding:0;overflow:hidden">
+      <div class="att-row hd"><span>Employee</span><span class="c-tl"><div class="tl-scale">${ticks.map(t => `<span>${A.fmtMin(t)}</span>`).join("")}</div></span><span class="c-in n">In</span><span class="c-out n">Out</span><span class="c-wk n">Worked</span><span>Status</span></div>
+      <div class="att-list">${rows.map(r => { const e = MQ.empBy(r.empNo) || { empNo: r.empNo }; const br = branchBy(empBranch(e));
+        return `<button class="att-row" data-a="day" data-emp="${h(r.empNo)}" data-d="${h(day)}">${who(e, [e.empNo, br ? br.name : e.department, r.shift.name].filter(Boolean).join(" · "))}
+          <span class="c-tl">${timeline(r, lo, hi, nowRel)}</span><span class="c-in n">${fmtM(r.firstIn)}</span><span class="c-out n">${fmtM(r.lastOut)}</span><span class="c-wk n">${durS(r.workedMin)}</span>
+          <span style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">${statusPill(r)}${flagsHtml(r)}</span></button>`; }).join("")}</div>
+      ${rows.length ? "" : `<div class="empty"><b>${emps.length ? "No one matches this filter" : "No active employees"}</b>${emps.length ? "Choose another card above or show everyone." : "Add employees first; each one gets a shift and a branch."}</div>`}
+    </div>
+    <div class="ts-legend"><span><i style="background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(90,106,100,.25) 5px 7px);border:1px dashed var(--muted)"></i>Shift hours</span><span><i style="background:var(--accent)"></i>Worked</span><span><i style="background:var(--ink);width:3px"></i>Punch</span><span><i style="background:var(--sadu);width:3px"></i>Punch outside the zone</span><span><i style="background:var(--saffron);width:3px"></i>Now</span></div>`;
+  }
+
+  /* ---------- view: locations live ---------- */
+  function vMap() {
+    const day = U.attDay || todayL(); if (isSupa()) loadMonth(ym(day));
+    const emps = staff(), c = ctx(), bd = A.board(emps, S.att.punches, c, day);
+    const byB = {}; bd.rows.forEach(r => { const e = MQ.empBy(r.empNo); const id = empBranch(e) || "_"; (byB[id] = byB[id] || []).push(r); });
+    const dayP = S.att.punches.filter(p => dLocal(p.at) === day && p.lat != null && p.status !== "rejected");
+    const fb = U.mapFocus ? branchBy(U.mapFocus) : null;
+    const spec = { labels: true, focus: fb ? { lat: +fb.lat, lng: +fb.lng, z: (+fb.radius_m || 150) > 400 ? 15 : 17 } : null, branches: branches().map(b => { const rs = byB[b.id] || []; const pr = rs.filter(r => ["PRESENT", "LATE", "IN", "INCOMPLETE", "HALF_DAY"].includes(r.status)).length; return { lat: +b.lat, lng: +b.lng, r: +b.radius_m || 150, name: b.name, label: `${pr}/${rs.filter(r => r.shift.workday && r.status !== "LEAVE" && r.status !== "HOLIDAY").length} in` }; }),
+      points: dayP.map(p => { const e = MQ.empBy(p.empNo); const b = branchBy(p.branchId); return { lat: +p.lat, lng: +p.lng, s: p.status, t: `${nm(e)} · ${p.kind === "in" ? "check-in" : p.kind === "out" ? "check-out" : p.kind.replace("_", " ")} ${tLocal(p.at)}\n${p.distance != null ? Math.round(p.distance) + " m from " + (b ? b.name : "branch") : ""} · ±${Math.round(p.accuracy || 0)} m` }; }) };
+    const outside = dayP.filter(p => p.status === "outside" || p.status === "low_accuracy");
+    return `${noBranches()}<div class="att-bar"><div class="datepick"><input type="date" id="attDay" value="${h(day)}" max="${h(todayL())}"></div><div class="seg" role="group" aria-label="Zoom to branch"><button data-a="mapFocus" data-v="" aria-pressed="${!fb}">All branches</button>${branches().map(b => `<button data-a="mapFocus" data-v="${h(b.id)}" aria-pressed="${fb && fb.id === b.id}">${h(b.name)}</button>`).join("")}</div><span class="sub">Green circles are branch check-in zones. Dots are punches: green inside the zone, red outside, gold weak GPS.</span><span class="spacer"></span>${canEdit() ? `<button class="btn" data-a="brEdit">Add branch</button>` : ""}</div>
+    <div class="panel" style="padding:0;overflow:hidden;margin-bottom:16px"><div data-lmap='${h(JSON.stringify(spec))}' data-key="live" style="height:min(62vh,560px)"></div></div>
+    <div class="grid3">${branches().map(b => { const rs = byB[b.id] || []; const k = { in: 0, late: 0, miss: 0, out: 0 };
+      rs.forEach(r => { if (["PRESENT", "LATE", "IN", "INCOMPLETE", "HALF_DAY"].includes(r.status)) k.in++; if (r.lateMin > 0) k.late++; if (r.status === "NOT_IN" || r.status === "ABSENT") k.miss++; if (r.flags.includes("REVIEW")) k.out++; });
+      return `<div class="panel"><h2>${h(b.name)}<span class="spacer"></span><span class="pill ${b.active === false ? "p-grey" : "p-green"}">${b.active === false ? "Inactive" : (b.radius_m || 150) + " m zone"}</span></h2>
+        <div class="me-stats"><div><b>${k.in}</b><span>In</span></div><div><b>${k.late}</b><span>Late</span></div><div><b>${k.miss}</b><span>Missing</span></div><div><b style="color:${k.out ? "var(--red)" : "inherit"}">${k.out}</b><span>Outside</span></div></div>
+        <div class="row" style="margin-top:12px"><span class="sub">${rs.length} staff assigned</span><span class="spacer"></span><button class="btn sm" data-a="attGoBranch" data-v="${h(b.id)}">See staff</button>${canEdit() ? `<button class="btn sm" data-a="brEdit" data-v="${h(b.id)}">Edit zone</button>` : ""}</div></div>`; }).join("")}
+      ${byB._ && byB._.length ? `<div class="panel"><h2>No branch assigned<span class="spacer"></span><span class="pill p-amber">${byB._.length}</span></h2><div class="sub">These employees can check in at any branch zone. Assign each one in Shifts &amp; Branches.</div><div class="row" style="margin-top:12px"><span class="spacer"></span><button class="btn sm" data-nav="attsetup">Assign</button></div></div>` : ""}</div>
+    ${outside.length ? `<div class="panel" style="padding:0;margin-top:16px"><div style="padding:16px 18px 6px"><h2>Punches outside a zone today <small>خارج النطاق</small></h2></div>${punchTable(outside, true)}</div>` : ""}`;
+  }
+  function punchTable(list, withWho) {
+    return `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr>${withWho ? "<th>Employee</th>" : ""}<th>Time</th><th>Type</th><th>Result</th><th class="n">Distance</th><th class="n">GPS ±</th><th>Branch</th><th></th></tr></thead><tbody>
+      ${list.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).map(p => { const e = MQ.empBy(p.empNo) || { empNo: p.empNo }; const b = branchBy(p.branchId);
+        const res = { ok: ["p-green", "Inside zone"], outside: ["p-red", "Outside zone"], low_accuracy: ["p-amber", "Weak GPS"], manual: ["p-blue", "Entered by HR"], approved: ["p-green", "Approved"], rejected: ["p-grey", "Rejected"] }[p.status] || ["p-grey", p.status];
+        const pend = p.status === "outside" || p.status === "low_accuracy";
+        return `<tr>${withWho ? `<td>${who(e)}</td>` : ""}<td class="mono">${fd(dLocal(p.at))} ${tLocal(p.at)}</td><td>${h({ in: "Check-in", out: "Check-out", break_start: "Break start", break_end: "Break end" }[p.kind] || p.kind)}</td>
+          <td><span class="pill ${res[0]}">${h(res[1])}</span>${(p.flags || []).includes("IMPOSSIBLE_TRAVEL") ? ` <span class="flag r">Location jump</span>` : ""}${p.note ? `<div class="sub" style="white-space:normal;max-width:260px">${h(p.note)}</div>` : ""}</td>
+          <td class="n">${p.distance != null ? Math.round(p.distance).toLocaleString("en-US") + " m" : "—"}</td><td class="n">${p.accuracy != null ? Math.round(p.accuracy) + " m" : "—"}</td><td>${h(b ? b.name : "—")}</td>
+          <td>${p.lat != null ? `<a class="btn sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lng}#map=18/${p.lat}/${p.lng}">Map</a> ` : ""}${pend && canEdit() ? `<button class="btn sm pri" data-a="rev" data-v="approved" data-id="${h(p.id)}">Accept</button> <button class="btn sm" data-a="rev" data-v="rejected" data-id="${h(p.id)}">Reject</button>` : ""}</td></tr>`; }).join("")}
+      </tbody></table></div>`;
+  }
+
+  /* ---------- day detail ---------- */
+  function openDay(empNo, day) {
+    const e = MQ.empBy(empNo) || (S.me && S.me.empNo === empNo ? meEmp() : { empNo }); const r = A.day(e, day, S.att.punches.filter(p => p.empNo === empNo), ctx());
+    const all = S.att.punches.filter(p => p.empNo === empNo && dLocal(p.at) === day).concat(r.punches.filter(p => dLocal(p.at) !== day));
+    const uniq = [...new Map(all.map(p => [p.id, p])).values()];
+    const br = branchBy(empBranch(e)); const pts = uniq.filter(p => p.lat != null);
+    const spec = { branches: (br ? [br] : branches()).map(b => ({ lat: +b.lat, lng: +b.lng, r: +b.radius_m || 150, name: b.name })), points: pts.map(p => ({ lat: +p.lat, lng: +p.lng, s: p.status, t: `${p.kind} ${tLocal(p.at)}` })) };
+    openModal(`${nm(e)} · ${fd(day)}`, `<div class="row">${statusPill(r)}${flagsHtml(r)}<span class="sub">${h(r.shift.name)}${r.shift.ramadan ? " · Ramadan hours" : ""}</span></div>
+      <div class="calc"><div><span>Shift</span><b>${r.shift.workday ? fmtM(r.shift.start) + "–" + fmtM(r.shift.end) : "Day off"}</b></div><div><span>First in</span><b>${fmtM(r.firstIn)}</b></div><div><span>Last out</span><b>${fmtM(r.lastOut)}</b></div>
+        <div><span>Worked</span><b>${durS(r.workedMin)}</b></div><div><span>Late</span><b>${durS(r.lateMin)}</b></div><div><span>Left early</span><b>${durS(r.earlyMin)}</b></div><div><span>Overtime</span><b>${durS(r.otMin)}</b></div><div><span>Absence charged</span><b>${r.absence ? r.absence + " day" : "—"}</b></div></div>
+      ${pts.length ? `<div class="mapbox" data-lmap='${h(JSON.stringify(spec))}'></div>` : ""}
+      ${uniq.length ? `<div class="tbl-wrap">${punchTable(uniq, false)}</div>` : `<div class="empty"><b>No punches this day</b>${canEdit() ? "Add one if the employee was at work." : ""}</div>`}`,
+      [canEdit() ? { label: "Add punch", fn: () => { closeModal(); openManual(empNo, day); } } : null, { label: "Close", fn: closeModal }].filter(Boolean));
+    setTimeout(mountMaps, 30);
+  }
+  function openManual(empNo, day, kind, time) {
+    const emps = staff();
+    openModal("Add a punch · إضافة بصمة", `<div class="fgrid">
+      <div class="field"><label for="mp_e">Employee</label><select id="mp_e"><option value="">Select…</option>${emps.map(e => `<option value="${h(e.empNo)}" ${e.empNo === empNo ? "selected" : ""}>${h(e.empNo)} — ${h(nm(e))}</option>`).join("")}</select></div>
+      <div class="field"><label for="mp_d">Date</label><input id="mp_d" type="date" value="${h(day || todayL())}" max="${h(todayL())}"></div>
+      <div class="field"><label for="mp_t">Time (KSA)</label><input id="mp_t" type="time" value="${h(time || "08:00")}"></div>
+      <div class="field"><label for="mp_k">Type</label><select id="mp_k">${[["in", "Check-in"], ["out", "Check-out"], ["break_start", "Break start"], ["break_end", "Break end"]].map(([v, l]) => `<option value="${v}" ${kind === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+      <div class="field" style="grid-column:1/-1"><label for="mp_n">Reason (kept in the audit trail)</label><input id="mp_n" placeholder="e.g. Device was down at the gate"></div></div>`,
+      [{ label: "Cancel", fn: closeModal }, { label: "Save punch", cls: "pri", fn: async () => {
+        const e = $("#mp_e").value, d = $("#mp_d").value, t = $("#mp_t").value, k = $("#mp_k").value, n = $("#mp_n").value.trim();
+        if (!e || !d || !t) { toast("Choose the employee, date and time."); return; } if (n.length < 3) { toast("Write a short reason."); return; }
+        try { await manualPunch(e, A.atFor(d, A.hm(t), cfg()), k, n); closeModal(); toast("Punch saved"); MQ.render(); } catch (x) { toast("Not saved: " + errMsg(x)); } } }]);
+  }
+
+  /* ---------- view: timesheet ---------- */
+  function monthCalc() { U.attM = U.attM || ym(todayL()); if (isSupa()) loadMonth(U.attM); return A.month(filterEmps(staff()), S.att.punches, ctx(), U.attM + "-01"); }
+  function vSheet() {
+    const m = monthCalc(), T = m.totals; const run = (S.payruns || []).find(r => r.id === U.attM);
+    const cls = x => x.status === "HALF_DAY" ? "c-half" : x.status === "NOT_IN" ? "c-q" : x.code ? "c-" + x.code : "";
+    const totOT = m.rows.reduce((a, r) => a + r.totals.otMin, 0);
+    const tip = (x, e) => `${nm(e)} · ${new Date(x.date + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}\n${statusPill(x).replace(/<[^>]+>/g, "")}${x.firstIn != null ? `\n${fmtM(x.firstIn)} – ${fmtM(x.lastOut)} · ${durS(x.workedMin)}` : ""}${x.otMin ? "\nOvertime " + durS(x.otMin) : ""}`;
+    return `${noBranches()}<div class="att-bar"><input type="month" id="attM" value="${h(U.attM)}" max="${h(ym(todayL()))}">${branchSel("attBr", U.attBr)}${deptSel("attDept", U.attDept)}<input class="search" id="attQ" placeholder="Search employee…" value="${h(U.attQ || "")}">
+      <span class="spacer"></span><button class="btn" data-a="sheetXlsx">Export Excel</button>${canEdit() ? `<button class="btn pri" data-a="toPayroll" ${run && run.status === "LOCKED" ? "disabled title=\"Payroll is locked\"" : ""}>Send to payroll</button>` : ""}</div>
+    <div class="kpis"><div class="kpi green"><span class="tag"><i></i>Attendance</span><span class="v">${T.attendanceRate}%</span><span class="l">Of scheduled workdays so far</span></div>
+      <div class="kpi red"><span class="tag"><i></i>Absence</span><span class="v">${+T.absent.toFixed(1)}</span><span class="l">Days to deduct in payroll</span></div>
+      <div class="kpi amber"><span class="tag"><i></i>Lateness</span><span class="v">${T.late}</span><span class="l">Late days · ${durS(T.lateMin)} in total</span></div>
+      <div class="kpi blue"><span class="tag"><i></i>Overtime</span><span class="v">${+(totOT / 60).toFixed(1)}</span><span class="l">Hours (Art. 107: +50% of basic)</span></div>
+      <div class="kpi amber"><span class="tag"><i></i>Missing</span><span class="v">${T.incomplete}</span><span class="l">Days without check-out</span></div></div>
+    ${run && run.attendanceSyncedAt ? `<div class="okbox" style="margin-bottom:12px">Sent to ${h(U.attM)} payroll on ${h(fd(run.attendanceSyncedAt.slice(0, 10)))}${run.status === "LOCKED" ? " · payroll is now locked" : ". Send again after corrections."}</div>` : ""}
+    <div class="ts-wrap"><table class="ts"><thead><tr><th class="emp">Employee</th>${m.days.map(d => { const wd = A.weekday(d); const off = cfg().weekend.includes(wd); return `<th class="${off ? "we" : ""}" title="${h(d)}">${+d.slice(8)}<div style="font-weight:400;font-size:10px">${"SMTWTFS"[wd]}</div></th>`; }).join("")}<th>Present</th><th>Absent</th><th>Late</th><th>OT</th></tr></thead><tbody>
+      ${m.rows.map(r => `<tr><td class="emp">${who(r.emp, r.emp.empNo)}</td>${r.days.map(x => `<td class="c ${cls(x)}" data-a="day" data-emp="${h(r.empNo)}" data-d="${h(x.date)}" data-tip="${h(tip(x, r.emp))}">${h(x.code || (x.status === "NOT_IN" ? "?" : ""))}</td>`).join("")}
+        <td class="tot">${r.totals.present}</td><td class="tot" style="color:${r.totals.absent ? "var(--red)" : "inherit"}">${r.totals.absent || ""}</td><td class="tot">${r.totals.lateMin ? durS(r.totals.lateMin) : ""}</td><td class="tot">${r.totals.otMin ? +(r.totals.otMin / 60).toFixed(1) + "h" : ""}</td></tr>`).join("")}
+    </tbody></table>${m.rows.length ? "" : `<div class="empty"><b>No employees in this filter</b></div>`}</div>
+    <div class="ts-legend">${[["c-P", "P", "Present"], ["c-L", "L", "Late"], ["c-half", "½", "Half day"], ["c-A", "A", "Absent"], ["c-I", "I", "No check-out"], ["c-V", "V", "Leave"], ["c-H", "H", "Holiday"], ["c-W", "W", "Day off"]].map(([c, t, l]) => `<span><i class="${c}">${t}</i>${l}</span>`).join("")}<span>Click any day to see punches and fix them.</span></div>`;
+  }
+  async function toPayroll() {
+    const m = monthCalc(), inp = A.payrollInputs(m, cfgRaw()); const id = U.attM; const cur = (S.payruns || []).find(r => r.id === id) || {};
+    if (cur.status === "LOCKED") { toast("This payroll month is locked. Unlock it in Payroll first."); return; }
+    const n = Object.values(inp).filter(x => x.absenceDays || x.otHours).length; const abs = Object.values(inp).reduce((a, x) => a + x.absenceDays, 0), ot = Object.values(inp).reduce((a, x) => a + x.otHours, 0);
+    confirmBox(`Send ${id} attendance to payroll? ${n} employees get ${+abs.toFixed(2)} absence days and ${+ot.toFixed(2)} overtime hours in total. Bonus and other deductions already typed in payroll are kept.`, async () => {
+      const inputs = JSON.parse(JSON.stringify(cur.inputs || {}));
+      Object.keys(inp).forEach(no => { inputs[no] = Object.assign({}, inputs[no] || {}, { absenceDays: inp[no].absenceDays, otHours: inp[no].otHours }); });
+      const o = Object.assign({}, cur, { id, inputs, status: cur.status || "DRAFT", attendanceSyncedAt: nowISO() }); delete o._id;
+      await put("payruns", id, o); closeModal(); toast("Attendance sent to payroll"); });
+  }
+  function sheetXlsx() {
+    if (!window.XLSX) { toast("The Excel library did not load."); return; }
+    const m = monthCalc(), X = window.XLSX, wb = X.utils.book_new();
+    const grid = [["Emp No", "Name", "Department", ...m.days.map(d => +d.slice(8)), "Present", "Absent days", "Late days", "Late minutes", "Overtime hours", "No check-out"]];
+    m.rows.forEach(r => grid.push([r.empNo, nm(r.emp), r.emp.department || "", ...r.days.map(x => x.code || ""), r.totals.present, r.totals.absent, r.totals.late, r.totals.lateMin, +(r.totals.otMin / 60).toFixed(2), r.totals.incomplete]));
+    X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(grid), "Timesheet");
+    const det = [["Date", "Emp No", "Name", "Status", "Shift", "First in", "Last out", "Worked hours", "Late min", "Early min", "Overtime min", "Absence", "Flags"]];
+    m.rows.forEach(r => r.days.forEach(x => { if (["NA", "UPCOMING"].includes(x.status)) return; det.push([x.date, r.empNo, nm(r.emp), x.status, x.shift.name, x.firstIn == null ? "" : fmtM(x.firstIn), x.lastOut == null ? "" : fmtM(x.lastOut), +(x.workedMin / 60).toFixed(2), x.lateMin, x.earlyMin, x.otMin, x.absence, x.flags.join(" ")]); }));
+    X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(det), "Daily detail");
+    const pun = [["Date", "Time", "Emp No", "Name", "Type", "Result", "Branch", "Distance m", "GPS accuracy m", "Latitude", "Longitude", "Note"]];
+    S.att.punches.filter(p => ym(dLocal(p.at)) === U.attM).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).forEach(p => { const e = MQ.empBy(p.empNo); const b = branchBy(p.branchId); pun.push([dLocal(p.at), tLocal(p.at), p.empNo, nm(e), p.kind, p.status, b ? b.name : "", p.distance == null ? "" : Math.round(p.distance), p.accuracy == null ? "" : Math.round(p.accuracy), p.lat == null ? "" : p.lat, p.lng == null ? "" : p.lng, p.note || ""]); });
+    X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(pun), "Punches & locations");
+    MQ.saveFile(`Attendance-${U.attM}.xlsx`, new Blob([X.write(wb, { type: "array", bookType: "xlsx" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  }
+
+  /* ---------- view: exceptions ---------- */
+  function pendingPunches() { const since = Date.now() - 45 * 86400000; return S.att.punches.filter(p => (p.status === "outside" || p.status === "low_accuracy") && Date.parse(p.at) >= since); }
+  function badge() { return pendingPunches().length + S.att.requests.filter(r => r.status === "pending").length; }
+  function vReview() {
+    const reqs = S.att.requests.filter(r => r.status === "pending").sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+    const pp = pendingPunches();
+    const t = todayL(), from = A.addDays(t, -30); const inc = [];
+    const months = [...new Set([ym(from), ym(t)])]; months.forEach(mm => { if (isSupa()) loadMonth(mm); A.month(staff(), S.att.punches, ctx(), mm + "-01").rows.forEach(r => r.days.forEach(x => { if (x.status === "INCOMPLETE" && x.date >= from) inc.push({ r, x }); })); });
+    return `<div class="att-bar"><div class="sub prose">Punches outside a branch zone or with weak GPS still count until you reject them. Accepting keeps them; rejecting removes them from the timesheet and payroll.</div><span class="spacer"></span>${canEdit() ? `<button class="btn" data-a="importDev">Import device / Excel file</button><button class="btn" data-a="manual">Add punch</button>` : ""}</div>
+    <div class="panel" style="padding:0;margin-bottom:16px"><div style="padding:16px 18px 6px"><h2>Correction requests <small>طلبات التصحيح</small><span class="spacer"></span><span class="pill ${reqs.length ? "p-amber" : "p-green"}">${reqs.length} waiting</span></h2></div>
+      ${reqs.length ? `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Day</th><th>Missing punch</th><th>Reason</th><th></th></tr></thead><tbody>${reqs.map(r => { const e = MQ.empBy(r.empNo) || { empNo: r.empNo };
+        return `<tr><td>${who(e)}</td><td>${fd(r.day)}</td><td>${h({ in: "Check-in", out: "Check-out", break_start: "Break start", break_end: "Break end" }[r.kind])} at <b>${h(r.time)}</b></td><td style="white-space:normal;max-width:340px">${h(r.reason)}</td>
+        <td>${canEdit() ? `<button class="btn sm pri" data-a="req" data-v="approved" data-id="${h(r.id)}">Approve</button> <button class="btn sm" data-a="req" data-v="rejected" data-id="${h(r.id)}">Reject</button>` : ""}</td></tr>`; }).join("")}</tbody></table></div>` : `<div class="empty"><b>No requests waiting</b>Employees ask for corrections from their check-in screen.</div>`}</div>
+    <div class="panel" style="padding:0;margin-bottom:16px"><div style="padding:16px 18px 6px"><h2>Location exceptions · last 45 days <small>خارج النطاق</small><span class="spacer"></span>${pp.length && canEdit() ? `<button class="btn sm" data-a="revNear">Accept all within 2× zone</button>` : ""}</h2></div>
+      ${pp.length ? punchTable(pp, true) : `<div class="empty"><b>Every punch was inside a zone</b>Nothing to review.</div>`}</div>
+    <div class="panel" style="padding:0"><div style="padding:16px 18px 6px"><h2>Missing check-outs · last 30 days <small>بدون انصراف</small><span class="spacer"></span><span class="pill ${inc.length ? "p-amber" : "p-green"}">${inc.length}</span></h2></div>
+      ${inc.length ? `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Day</th><th>Checked in</th><th>Shift end</th><th></th></tr></thead><tbody>${inc.sort((a, b) => b.x.date.localeCompare(a.x.date)).map(({ r, x }) => `<tr><td>${who(r.emp)}</td><td>${fd(x.date)}</td><td>${fmtM(x.firstIn)}</td><td>${fmtM(x.shift.end)}</td><td>${canEdit() ? `<button class="btn sm" data-a="addOut" data-emp="${h(r.empNo)}" data-d="${h(x.date)}" data-v="${h(fmtM(x.shift.end))}">Add check-out</button>` : ""}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty"><b>No missing check-outs</b></div>`}</div>
+    ${lawPanel()}`;
+  }
+  function lawPanel() {
+    const W = S.att.law; const lvl = { dismissal: ["p-red", "Art. 80 dismissal threshold passed"], warning: ["p-amber", "Written warning due"], watch: ["p-blue", "Watch"], ok: ["p-green", "OK"] };
+    const rows = W ? W.rows.filter(r => r.level !== "ok" || r.otOverCap || r.noBreakDays || r.over12Days).sort((a, b) => ["dismissal", "warning", "watch", "ok"].indexOf(a.level) - ["dismissal", "warning", "watch", "ok"].indexOf(b.level) || b.absentDays - a.absentDays) : [];
+    return `<div class="panel" style="padding:0;margin-top:16px"><div style="padding:16px 18px 6px"><h2>Labour-law watch · last 12 months <small>متابعة نظام العمل</small><span class="spacer"></span><button class="btn sm ${W ? "" : "pri"}" data-a="lawRun">${W ? "Recalculate" : "Check now"}</button></h2>
+      <div class="sub prose">Art. 80: a written warning is required after 20 days of unexcused absence in a year (or 10 in a row); dismissal without notice is possible only above 30 days (or 15 in a row). Art. 101: at most 5 hours in a row without a 30-minute break and 12 hours at the workplace a day. Overtime is capped at 720 hours a year unless the employee agrees (HRSD). Approved leave, weekends and holidays never count as absence.${W ? ` Checked ${h(fd(W.from))} – ${h(fd(W.to))}.` : ""}</div></div>
+      ${!W ? "" : rows.length ? `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th class="n">Absent days</th><th class="n">Longest run</th><th>Art. 80</th><th class="n">Overtime h</th><th class="n">No-break days</th><th class="n">Over 12h days</th></tr></thead><tbody>${rows.map(r => `<tr><td>${who(r.emp)}</td><td class="n">${r.absentDays}</td><td class="n">${r.longestRun}</td><td><span class="pill ${lvl[r.level][0]}">${h(lvl[r.level][1])}</span></td><td class="n" style="color:${r.otOverCap ? "var(--red)" : "inherit"}">${r.otHours}${r.otOverCap ? " · over 720" : ""}</td><td class="n">${r.noBreakDays || ""}</td><td class="n">${r.over12Days || ""}</td></tr>`).join("")}</tbody></table></div>`
+        : `<div class="empty"><b>No one is near a legal threshold</b>Absence, breaks, long days and overtime are within the limits.</div>`}</div>`;
+  }
+  async function lawRun() {
+    const t = todayL(), from = [A.addDays(t, -364), cfgRaw().trackingFrom].sort().pop();
+    if (isSupa()) { toast("Loading 12 months of punches…"); const ms = []; for (let d = from.slice(0, 7) + "-01"; ym(d) <= ym(t); d = A.addDays(A.addDays(d, 32).slice(0, 7) + "-01", 0)) ms.push(ym(d)); for (const mm of ms) await loadMonth(mm); }
+    S.att.law = { from, to: t, rows: A.lawWatch(staff(), S.att.punches, ctx(), from, t) }; MQ.renderNow();
+  }
+  function openImport() {
+    openModal("Import punches from a device or Excel · استيراد البصمات", `<div class="sub prose">Export the attendance log from your fingerprint / face device (ZKTeco and most others) or any Excel sheet. Needed columns: an employee code (Emp No, HR No or device user ID) and a date-time (or separate date and time columns). Times are read as KSA time. For each person and day the first punch is the check-in and the last is the check-out.</div>
+      <div class="field"><label for="im_f">File (.xlsx, .xls or .csv)</label><input id="im_f" type="file" accept=".xlsx,.xls,.csv,.txt"></div><div id="im_p"></div>`,
+      [{ label: "Cancel", fn: closeModal }, { label: "Import punches", cls: "pri", fn: async () => {
+        const rows = S.att.importRows || []; if (!rows.length) { toast("Choose a file with punches first."); return; }
+        let ok = 0, fail = 0;
+        for (const p of rows) { try { await manualPunch(p.empNo, p.at, p.kind, "Imported from device file"); ok++; } catch (e) { fail++; } }
+        S.att.importRows = null; closeModal(); toast(`${ok} punches imported${fail ? `, ${fail} skipped (already there or not allowed)` : ""}`); MQ.render(); } }]);
+    $("#im_f").addEventListener("change", async ev => {
+      const f = ev.target.files[0]; if (!f || !window.XLSX) return; const X = window.XLSX;
+      const wb = X.read(await f.arrayBuffer(), { type: "array", cellDates: false }); const ws = wb.Sheets[wb.SheetNames[0]]; const data = X.utils.sheet_to_json(ws, { defval: "", raw: true });
+      if (!data.length) { $("#im_p").innerHTML = `<div class="warnbox">The file has no rows.</div>`; return; }
+      const keys = Object.keys(data[0]); const find = re => keys.find(k => re.test(String(k).trim()));
+      const kEmp = find(/^(emp|employee).*(no|id|code|number)|^(ac-?no|user ?id|enroll|pin|badge|hr ?no|رقم)/i) || keys[0];
+      const kDT = find(/date.?time|^time$|^checktime|^punch|^التاريخ والوقت/i), kD = find(/^date|التاريخ/i), kT = find(/^time|الوقت/i);
+      const idx = {}; MQ.activeStaff().concat(S.employees || []).forEach(e => { [e.empNo, e.hrNo, e.hr && e.hr.deviceId].forEach(c => { if (c) idx[String(c).trim().toUpperCase()] = e.empNo; }); });
+      const raw = [], miss = new Set();
+      data.forEach(r => { const code = String(r[kEmp]).trim().toUpperCase(); const no = idx[code] || idx["EMP-" + code.padStart(4, "0")]; if (!no) { if (code) miss.add(code); return; }
+        let at = null; if (kDT && kDT !== kD) at = A.parseLocal(r[kDT]); else if (kD && kT) { const dv = r[kD], tv = r[kT]; const ds = typeof dv === "number" ? new Date(Math.round((dv - 25569) * 86400000)).toISOString().slice(0, 10) : String(dv).trim(); const ts = typeof tv === "number" ? A.fmtMin(Math.round(tv * 1440)) : String(tv).trim(); at = A.parseLocal(ds + " " + ts) || A.parseLocal(ds.split(/[\/.-]/).length === 3 && /^\d{1,2}[\/.-]/.test(ds) ? ds + " " + ts : ""); }
+        if (at) raw.push({ empNo: no, at }); });
+      const rows = A.fromDeviceRows(raw, cfg()); S.att.importRows = rows;
+      $("#im_p").innerHTML = rows.length ? `<div class="okbox">${raw.length} raw scans → <b>${rows.length} punches</b> for ${new Set(rows.map(r => r.empNo)).size} employees. Columns used: employee “${h(kEmp)}”, time “${h(kDT || (kD + " + " + kT))}”.</div>${miss.size ? `<div class="warnbox" style="margin-top:8px">${miss.size} codes did not match any employee (e.g. ${h([...miss].slice(0, 6).join(", "))}). Add the device user ID to each employee in Shifts &amp; Branches.</div>` : ""}`
+        : `<div class="warnbox">No punches could be read. Check that the file has an employee code column and a date-time column.</div>`;
+    });
+  }
+
+  /* ---------- view: shifts, branches, holidays, rules, assignments ---------- */
+  function vSetup() {
+    const c = cfg(), sh = c.shifts, emps = staff(); const year = +todayL().slice(0, 4); const hol = (c.holidays || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+    const useCnt = id => emps.filter(e => ((e.hr && e.hr.shiftId) || c.defaultShiftId) === id).length;
+    const DN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; const ro = !canEdit();
+    const spec = { labels: true, branches: branches().map(b => ({ lat: +b.lat, lng: +b.lng, r: +b.radius_m || 150, name: b.name })) };
+    return `<div class="grid2">
+      <div class="panel" style="padding:0"><div style="padding:16px 18px 6px"><h2>Branch check-in zones <small>نطاقات الفروع</small><span class="spacer"></span>${ro ? "" : `<button class="btn sm pri" data-a="brEdit">Add branch</button>`}</h2></div>
+        ${branches().length ? `<div data-lmap='${h(JSON.stringify(spec))}' data-key="setup" style="height:240px"></div>` : ""}
+        <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Branch</th><th class="n">Zone</th><th class="n">Staff</th><th>Location</th><th></th></tr></thead><tbody>${branches().map(b => `<tr><td><b>${h(b.name)}</b><div class="sub">${h(b.id)}${b.active === false ? " · inactive" : ""}</div></td><td class="n">${h(b.radius_m || 150)} m</td><td class="n">${emps.filter(e => empBranch(e) === b.id).length}</td><td class="mono" style="font-size:12px">${(+b.lat).toFixed(5)}, ${(+b.lng).toFixed(5)}</td><td>${ro ? "" : `<button class="btn sm" data-a="brEdit" data-v="${h(b.id)}">Edit</button>`}</td></tr>`).join("")}</tbody></table>${branches().length ? "" : `<div class="empty"><b>No branches yet</b>Add each branch with its location and a check-in radius (150 m suits most offices; use more for warehouses and yards).</div>`}</div></div>
+      <div class="panel"><h2>Location rules <small>قواعد الموقع</small></h2><div class="fgrid">
+        <div class="field"><label for="r_geo">Where can an employee check in?</label><select id="r_geo" ${ro ? "disabled" : ""}><option value="any" ${c.geoMode !== "assigned" ? "selected" : ""}>At any branch zone</option><option value="assigned" ${c.geoMode === "assigned" ? "selected" : ""}>Only at their assigned branch</option></select></div>
+        <div class="field"><label for="r_blk">Outside the zone</label><select id="r_blk" ${ro ? "disabled" : ""}><option value="0" ${!c.blockOutside ? "selected" : ""}>Record it and send to HR review</option><option value="1" ${c.blockOutside ? "selected" : ""}>Refuse the check-in</option></select></div>
+        <div class="field"><label for="r_acc">Weakest GPS accepted (m)</label><input id="r_acc" type="number" min="10" max="1000" value="${h(c.maxAccuracyM)}" ${ro ? "disabled" : ""}></div>
+        <div class="field"><label for="r_out">Outside-zone punches in the timesheet</label><select id="r_out" ${ro ? "disabled" : ""}><option value="1" ${c.countOutside ? "selected" : ""}>Count until HR rejects</option><option value="0" ${!c.countOutside ? "selected" : ""}>Count only after HR accepts</option></select></div>
+      </div><div class="sub" style="margin-top:10px">The server measures the distance again on every punch, so a changed phone clock or app cannot move it. Punches more than 5 km from the previous one at an impossible speed are flagged as a location jump.</div>
+      <h2 style="margin-top:18px">Time rules <small>قواعد الوقت</small></h2><div class="fgrid">
+        <div class="field"><label for="r_gr">Late after (grace, min)</label><input id="r_gr" type="number" min="0" max="120" value="${h(c.graceMin)}" ${ro ? "disabled" : ""}></div>
+        <div class="field"><label for="r_eg">Early leave after (min)</label><input id="r_eg" type="number" min="0" max="120" value="${h(c.earlyGraceMin)}" ${ro ? "disabled" : ""}></div>
+        <div class="field"><label for="r_ot">Overtime counts from (min)</label><input id="r_ot" type="number" min="0" max="240" value="${h(c.minOtMin)}" ${ro ? "disabled" : ""}></div>
+        <div class="field"><label for="r_hd">Half day below (worked min)</label><input id="r_hd" type="number" min="0" max="600" value="${h(c.halfDayMin)}" ${ro ? "disabled" : ""}></div>
+        <div class="field"><label for="r_inc">Day without check-out</label><select id="r_inc" ${ro ? "disabled" : ""}><option value="0" ${!+c.incompleteAbsence ? "selected" : ""}>No deduction (flag only)</option><option value="0.5" ${+c.incompleteAbsence === 0.5 ? "selected" : ""}>Half day absent</option><option value="1" ${+c.incompleteAbsence === 1 ? "selected" : ""}>Full day absent</option></select></div>
+        <div class="field"><label for="r_dl">Late minutes in payroll</label><select id="r_dl" ${ro ? "disabled" : ""}><option value="0" ${!c.deductLate ? "selected" : ""}>Do not deduct</option><option value="1" ${c.deductLate ? "selected" : ""}>Deduct as part-days</option></select></div>
+        <div class="field"><label for="r_tf">Attendance tracking starts on</label><input id="r_tf" type="date" value="${h(cfgRaw().trackingFrom)}" ${ro ? "disabled" : ""}></div>
+        <div class="field"><label>Weekend</label><div class="row" style="gap:4px">${DN.map((d, i) => `<label class="chip" style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" class="r_we" value="${i}" ${c.weekend.includes(i) ? "checked" : ""} ${ro ? "disabled" : ""}>${d}</label>`).join("")}</div></div>
+      </div>${ro ? "" : `<div class="row" style="margin-top:14px"><span class="spacer"></span><button class="btn pri" data-a="saveRules">Save rules</button></div>`}</div></div>
+    <div class="panel" style="padding:0;margin-bottom:16px"><div style="padding:16px 18px 6px"><h2>Shifts <small>الورديات</small><span class="spacer"></span>${ro ? "" : `<button class="btn sm pri" data-a="shEdit">Add shift</button>`}</h2></div>
+      <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Shift</th><th>Hours</th><th class="n">Break</th><th class="n">Grace</th><th>Workdays</th><th class="n">Staff</th><th></th></tr></thead><tbody>${sh.map(s => `<tr><td><b>${h(s.name || s.id)}</b><div class="sub">${h(s.id)}${s.id === c.defaultShiftId ? " · default" : ""}${s.flexible ? " · flexible" : ""}</div></td><td class="mono">${h(s.start)}–${h(s.end)}${A.hm(s.end) <= A.hm(s.start) ? " (+1)" : ""}</td><td class="n">${h(s.breakMin || 0)}m</td><td class="n">${s.flexible ? "—" : h(s.graceMin != null ? s.graceMin : c.graceMin) + "m"}</td><td>${(s.days || []).map(d => DN[d]).join(" ")}</td><td class="n">${useCnt(s.id)}</td><td>${ro ? "" : `<button class="btn sm" data-a="shEdit" data-v="${h(s.id)}">Edit</button>`}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="grid2">
+      <div class="panel"><h2>Public holidays ${year} <small>العطل الرسمية</small><span class="spacer"></span>${ro ? "" : `<button class="btn sm" data-a="holFill" data-v="${year}">Fill ${year} from Umm al-Qura</button><button class="btn sm" data-a="holFill" data-v="${year + 1}">${year + 1}</button>`}</h2>
+        ${hol.length ? `<div class="lg-list">${hol.filter(x => x.date.slice(0, 4) >= String(year - 1)).map((x, i) => `<div><i style="background:${x.estimated ? "var(--saffron)" : "var(--accent)"}"></i><span>${h(x.name)} · ${fd(x.date)}${x.to && x.to !== x.date ? " → " + fd(x.to) : ""}${x.estimated ? " <span class=\"sub\">(estimated, confirm with MHRSD)</span>" : ""}</span>${ro ? "" : `<button class="btn sm" data-a="holDel" data-v="${h(x.date + "|" + x.name)}" aria-label="Remove">✕</button>`}</div>`).join("")}</div>` : `<div class="empty"><b>No holidays yet</b>Fill them from the Umm al-Qura calendar: Founding Day, Eid al-Fitr, Eid al-Adha and National Day.</div>`}
+        ${ro ? "" : `<div class="row" style="margin-top:12px"><input type="date" id="hol_d" class="sel"><input type="date" id="hol_t" class="sel" title="Last day (optional)"><input id="hol_n" class="sel" placeholder="Holiday name" style="flex:1;min-width:120px"><button class="btn sm" data-a="holAdd">Add</button></div>`}</div>
+      <div class="panel"><h2>Ramadan hours <small>ساعات رمضان</small></h2><div class="sub prose" style="margin-bottom:10px">Labor Law Art. 98: working hours for Muslim employees in Ramadan are reduced (6 hours a day by default; editable). Shifts end ${h(c.ramadan.hoursDay)} hours after they start, with no break. Exempt individual employees from their profile if needed.</div>
+        <div class="fgrid"><div class="field"><label for="rm_f">Ramadan starts</label><input id="rm_f" type="date" value="${h(c.ramadan.from)}" ${ro ? "disabled" : ""}></div><div class="field"><label for="rm_t">Ramadan ends</label><input id="rm_t" type="date" value="${h(c.ramadan.to)}" ${ro ? "disabled" : ""}></div><div class="field"><label for="rm_h">Hours per day</label><input id="rm_h" type="number" step="0.5" min="4" max="8" value="${h(c.ramadan.hoursDay)}" ${ro ? "disabled" : ""}></div>
+          <div class="field"><label for="rm_a">Applies to</label><select id="rm_a" ${ro ? "disabled" : ""}><option value="all" ${c.ramadan.applyTo !== "muslims" ? "selected" : ""}>All employees</option><option value="muslims" ${c.ramadan.applyTo === "muslims" ? "selected" : ""}>Muslim employees only (Art. 98)</option></select></div></div>
+        ${ro ? "" : `<div class="row" style="margin-top:12px"><button class="btn sm" data-a="ramFill">Use Umm al-Qura dates</button><span class="spacer"></span><button class="btn sm pri" data-a="ramSave">Save</button></div>`}</div></div>
+    <div class="panel" style="padding:0"><div style="padding:16px 18px 6px"><h2>Who works where <small>توزيع الموظفين</small></h2><div class="sub">Each employee's shift, branch zone and device user ID (for fingerprint imports). Changes save straight away.</div>
+      ${ro ? "" : `<div class="row" style="margin:10px 0 4px">${deptSel("asgDept", U.asgDept)}<select class="sel" id="asgShift"><option value="">Shift…</option>${sh.map(s => `<option value="${h(s.id)}">${h(s.name || s.id)}</option>`).join("")}</select>${branchSel("asgBranch", "", "Branch…")}<button class="btn sm" data-a="asgBulk">Apply to ${U.asgDept ? h(U.asgDept) : "everyone shown"}</button></div>`}</div>
+      <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Department</th><th>Shift</th><th>Branch zone</th><th>Device ID</th><th>Ramadan hours</th></tr></thead><tbody>${emps.filter(e => !U.asgDept || e.department === U.asgDept).map(e => { const r = e.hr || {};
+        return `<tr><td>${who(e)}</td><td>${h(e.department || "")}</td><td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="shiftId" ${ro ? "disabled" : ""}><option value="">Default (${h(c.defaultShiftId)})</option>${sh.map(s => `<option value="${h(s.id)}" ${r.shiftId === s.id ? "selected" : ""}>${h(s.name || s.id)}</option>`).join("")}</select></td>
+          <td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="branchId" ${ro ? "disabled" : ""}><option value="">Any branch</option>${branches().map(b => `<option value="${h(b.id)}" ${r.branchId === b.id ? "selected" : ""}>${h(b.name)}</option>`).join("")}</select></td>
+          <td><input class="sel asg" data-emp="${h(e.empNo)}" data-k="deviceId" value="${h(r.deviceId || "")}" style="width:90px" ${ro ? "disabled" : ""}></td>
+          <td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="muslim" ${ro ? "disabled" : ""}><option value="">${c.ramadan.applyTo === "muslims" ? "No" : "Yes (all staff)"}</option><option value="yes" ${r.muslim === true ? "selected" : ""}>Yes (Muslim)</option></select></td></tr>`; }).join("")}</tbody></table></div></div>`;
+  }
+  function openBranch(id) {
+    const b0 = id ? branchBy(id) : null; const b = Object.assign({ id: "", name: "", lat: "", lng: "", radius_m: 150, active: true }, b0 || {});
+    const start = { lat: +b.lat || 24.7136, lng: +b.lng || 46.6753, r: +b.radius_m || 150 };
+    openModal(b0 ? `Branch zone · ${b.name}` : "New branch zone · فرع جديد", `<div class="sub">Click the map or drag the pin to the branch entrance, then set the radius. Paste coordinates or a Google Maps link if you have one.</div>
+      <div class="mapbox" style="height:280px" id="brMap" data-lmap='${h(JSON.stringify({ edit: start, wheel: true }))}'></div>
+      <div class="fgrid"><div class="field"><label for="br_id">Code</label><input id="br_id" value="${h(b.id)}" ${b0 ? "readonly" : ""} placeholder="RUH"></div><div class="field"><label for="br_n">Name</label><input id="br_n" value="${h(b.name)}" placeholder="Riyadh HQ"></div>
+        <div class="field"><label for="br_r">Radius (m): <b id="br_rv">${h(b.radius_m)}</b></label><input id="br_r" type="range" min="30" max="1500" step="10" value="${h(b.radius_m)}"></div>
+        <div class="field"><label for="br_a">Status</label><select id="br_a"><option value="1" ${b.active !== false ? "selected" : ""}>Active</option><option value="0" ${b.active === false ? "selected" : ""}>Inactive</option></select></div>
+        <div class="field"><label for="br_lat">Latitude</label><input id="br_lat" value="${h(b.lat === "" ? "" : (+b.lat).toFixed(6))}" inputmode="decimal"></div><div class="field"><label for="br_lng">Longitude</label><input id="br_lng" value="${h(b.lng === "" ? "" : (+b.lng).toFixed(6))}" inputmode="decimal"></div>
+        <div class="field" style="grid-column:1/-1"><label for="br_paste">Paste coordinates or a map link</label><input id="br_paste" placeholder="24.6905, 46.6853  or  https://maps.google.com/…@24.6905,46.6853,17z"></div></div>`,
+      [{ label: "Use my current location", fn: async () => { const p = await locate(true); if (p && !p.err) { $("#br_lat").value = p.lat.toFixed(6); $("#br_lng").value = p.lng.toFixed(6); const m = $("#brMap"); if (m && m._move) m._move(p.lat, p.lng); toast(`Location set (±${Math.round(p.acc)} m)`); } else toast((p && p.err) || "Location unavailable"); } },
+       { label: "Save zone", cls: "pri", fn: async () => {
+        const o = { id: ($("#br_id").value || "").trim().toUpperCase().replace(/[^A-Z0-9_-]/g, ""), name: $("#br_n").value.trim(), lat: parseFloat($("#br_lat").value), lng: parseFloat($("#br_lng").value), radius_m: Math.round(+$("#br_r").value), active: $("#br_a").value === "1" };
+        if (!o.id || !o.name) { toast("Enter a code and a name."); return; } if (!(o.lat >= -90 && o.lat <= 90 && o.lng >= -180 && o.lng <= 180)) { toast("Set the location on the map."); return; }
+        if (!b0 && branchBy(o.id)) { toast("That code is already used."); return; }
+        try { await saveBranch(o); closeModal(); toast("Branch zone saved"); MQ.render(); } catch (x) { toast("Not saved: " + errMsg(x)); } } }]);
+    $("#br_r").addEventListener("input", ev => { $("#br_rv").textContent = ev.target.value; const m = $("#brMap"); if (m && m._setR) m._setR(+ev.target.value); });
+    $("#br_paste").addEventListener("input", ev => { const v = ev.target.value; const mm = v.match(/@?(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/) || v.match(/[?&](?:q|ll|query)=(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/);
+      if (mm) { $("#br_lat").value = (+mm[1]).toFixed(6); $("#br_lng").value = (+mm[2]).toFixed(6); const m = $("#brMap"); if (m && m._move) m._move(+mm[1], +mm[2]); } });
+    ["br_lat", "br_lng"].forEach(i => $("#" + i).addEventListener("change", () => { const la = parseFloat($("#br_lat").value), lo = parseFloat($("#br_lng").value); const m = $("#brMap"); if (m && m._move && isFinite(la) && isFinite(lo)) m._move(la, lo); }));
+    setTimeout(mountMaps, 30);
+  }
+  function openShift(id) {
+    const c = cfg(); const s0 = id ? c.shifts.find(s => s.id === id) : null; const s = Object.assign({ id: "", name: "", start: "08:00", end: "17:00", breakMin: 60, graceMin: c.graceMin, days: [0, 1, 2, 3, 4], flexible: false }, s0 || {});
+    const DN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    openModal(s0 ? `Shift · ${s.name || s.id}` : "New shift · وردية جديدة", `<div class="fgrid">
+      <div class="field"><label for="sh_id">Code</label><input id="sh_id" value="${h(s.id)}" ${s0 ? "readonly" : ""} placeholder="EARLY"></div><div class="field"><label for="sh_n">Name</label><input id="sh_n" value="${h(s.name)}" placeholder="Warehouse · 6:00–14:00"></div>
+      <div class="field"><label for="sh_s">Starts</label><input id="sh_s" type="time" value="${h(s.start)}"></div><div class="field"><label for="sh_e">Ends (earlier than start = next day)</label><input id="sh_e" type="time" value="${h(s.end)}"></div>
+      <div class="field"><label for="sh_b">Unpaid break (min)</label><input id="sh_b" type="number" min="0" max="180" value="${h(s.breakMin)}"></div><div class="field"><label for="sh_g">Grace (min)</label><input id="sh_g" type="number" min="0" max="120" value="${h(s.graceMin)}"></div>
+      <div class="field"><label for="sh_f">Type</label><select id="sh_f"><option value="0" ${!s.flexible ? "selected" : ""}>Fixed start time</option><option value="1" ${s.flexible ? "selected" : ""}>Flexible (hours only)</option></select></div>
+      <div class="field"><label for="sh_d">Default shift for new staff</label><select id="sh_d"><option value="0">No</option><option value="1" ${c.defaultShiftId === s.id ? "selected" : ""}>Yes</option></select></div>
+      <div class="field" style="grid-column:1/-1"><label>Workdays</label><div class="row" style="gap:4px">${DN.map((d, i) => `<label class="chip" style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" class="sh_day" value="${i}" ${(s.days || []).includes(i) ? "checked" : ""}>${d}</label>`).join("")}</div></div></div><div class="calc" id="sh_c"></div>`,
+      [s0 && c.shifts.length > 1 ? { label: "Delete", cls: "danger", fn: async () => { await saveCfg({ shifts: c.shifts.filter(x => x.id !== s.id), defaultShiftId: c.defaultShiftId === s.id ? c.shifts.find(x => x.id !== s.id).id : c.defaultShiftId }); closeModal(); toast("Shift deleted"); } } : null,
+       { label: "Save shift", cls: "pri", fn: async () => {
+        const o = { id: ($("#sh_id").value || "").trim().toUpperCase().replace(/[^A-Z0-9_-]/g, ""), name: $("#sh_n").value.trim(), start: $("#sh_s").value, end: $("#sh_e").value, breakMin: +$("#sh_b").value || 0, graceMin: +$("#sh_g").value || 0, flexible: $("#sh_f").value === "1", days: [...document.querySelectorAll(".sh_day:checked")].map(x => +x.value) };
+        if (!o.id || !o.start || !o.end) { toast("Enter a code, start and end."); return; } if (!o.days.length) { toast("Choose at least one workday."); return; }
+        if (!s0 && c.shifts.some(x => x.id === o.id)) { toast("That code is already used."); return; }
+        o.name = o.name || `${o.id} · ${o.start}–${o.end}`;
+        const list = c.shifts.filter(x => x.id !== o.id).concat([o]);
+        await saveCfg({ shifts: list, defaultShiftId: $("#sh_d").value === "1" ? o.id : (c.defaultShiftId && list.some(x => x.id === c.defaultShiftId) ? c.defaultShiftId : o.id) }); closeModal(); toast("Shift saved"); } }].filter(Boolean));
+    const upd = () => { const st = A.hm($("#sh_s").value), en = A.hm($("#sh_e").value); if (st == null || en == null) return; const span = (en <= st ? en + 1440 : en) - st, net = span - (+$("#sh_b").value || 0);
+      $("#sh_c").innerHTML = `<div><span>Paid hours a day</span><b>${durS(net)}</b></div><div><span>Days a week</span><b>${document.querySelectorAll(".sh_day:checked").length}</b></div><div><span>Hours a week</span><b>${durS(net * document.querySelectorAll(".sh_day:checked").length)}</b></div>${net > 480 ? `<div style="grid-column:1/-1;color:var(--amber)">Above 8 hours a day: the extra time is overtime (Labor Law Art. 98 / 107).</div>` : ""}${net * document.querySelectorAll(".sh_day:checked").length > 2880 ? `<div style="grid-column:1/-1;color:var(--amber)">Above 48 hours a week (Art. 98).</div>` : ""}`; };
+    ["sh_s", "sh_e", "sh_b"].forEach(i => $("#" + i).addEventListener("input", upd)); document.querySelectorAll(".sh_day").forEach(x => x.addEventListener("change", upd)); upd();
+  }
+
+  /* ---------- view: my check-in (employee phone screen) ---------- */
+  function radar(pos, ev) {
+    const b = ev && ev.branch; const R = 46, C = 66;
+    if (!pos || pos.err || !b) return `<svg viewBox="0 0 132 132" aria-hidden="true"><circle cx="66" cy="66" r="${R}" fill="var(--accent-soft)" stroke="var(--accent)" stroke-dasharray="4 4"/><circle cx="66" cy="66" r="4" fill="var(--muted)"/></svg>`;
+    const rad = +b.radius_m || 150, d = ev.distance || 0; let px = d / rad * R; const far = px > 60; if (far) px = 60;
+    const br = A.bearing(+b.lat, +b.lng, pos.lat, pos.lng) * Math.PI / 180; const x = C + Math.sin(br) * px, y = C - Math.cos(br) * px;
+    const col = ev.inside ? "var(--accent)" : "var(--sadu)"; const accPx = Math.min(60, (pos.acc || 0) / rad * R);
+    return `<svg viewBox="0 0 132 132" role="img" aria-label="${h(ev.inside ? "Inside the zone" : "Outside the zone")}"><circle cx="66" cy="66" r="62" fill="none" stroke="var(--line)"/><circle cx="66" cy="66" r="${R}" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+      <circle cx="66" cy="66" r="3" fill="var(--accent)"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${accPx.toFixed(1)}" fill="${col}" opacity=".15"/>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${col}" stroke="var(--surface)" stroke-width="2.5"><animate attributeName="r" values="7;8.5;7" dur="2s" repeatCount="indefinite"/></circle>${far ? `<text x="66" y="128" text-anchor="middle" style="font-size:10px;fill:var(--muted)">not to scale</text>` : ""}</svg>`;
+  }
+  function vMe() {
+    const e = meEmp();
+    if (!e) return `<div class="me"><div class="me-card"><div class="empty"><b>This sign-in is not linked to an employee</b>Ask HR to link your email to your employee number. ${S.demo ? "" : "Admins do this in Supabase → app_users → emp_no."}</div></div></div>`;
+    if (!U.meLocated) { U.meLocated = true; setTimeout(() => locate(), 50); }
+    const t = todayL(), c = cfg(); const mine = S.att.punches.filter(p => p.empNo === e.empNo);
+    const r = A.day(e, t, mine, ctx()); const todayP = r.punches; const next = A.nextAction(todayP); const pos = S.att.pos;
+    const ev = pos && !pos.err ? A.evaluatePunch(branches(), pos.lat, pos.lng, pos.acc, c, A.allowedBranches(e)) : null;
+    const br = branchBy(empBranch(e)); const sh = r.shift;
+    const locTxt = S.att.locating ? ["Finding your location…", "Keep this screen open for a few seconds."]
+      : !pos ? ["Location not checked yet", "Tap “Refresh location”."] : pos.err ? ["Location unavailable", pos.err]
+      : !ev.branch ? ["No branch zone is set up", "Ask HR to add your branch."]
+      : ev.status === "ok" ? [`Inside ${ev.branch.name}`, `${Math.round(ev.distance)} m from the centre · zone ${ev.branch.radius_m || 150} m · GPS ±${Math.round(pos.acc)} m`]
+      : ev.status === "low_accuracy" ? ["GPS signal is weak", `±${Math.round(pos.acc)} m. Step outside or near a window, then refresh.`]
+      : [`Outside the zone`, `${Math.round(ev.distance).toLocaleString("en-US")} m from ${ev.branch.name} (zone ${ev.branch.radius_m || 150} m).${c.blockOutside ? " Check-in is only allowed inside." : " You can still punch; HR will review it."}`];
+    const blocked = c.blockOutside && ev && ev.status !== "ok";
+    const btn = { in: ["Check in", ""], out: ["Check out", "out"], break_end: ["End break", "out"] }[next];
+    const m = A.month([e], mine, ctx(), t.slice(0, 8) + "01"), mt = m.rows[0] ? m.rows[0].totals : {}; const days = m.rows[0] ? m.rows[0].days : [];
+    const first = A.weekday(t.slice(0, 8) + "01"); const myReq = S.att.requests.filter(x => x.empNo === e.empNo).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 5);
+    const cal = ["S", "M", "T", "W", "T", "F", "S"].map(d => `<div class="hd">${d}</div>`).join("") + Array(first).fill("<div></div>").join("") + days.map(x => `<div class="${x.code ? (x.status === "HALF_DAY" ? "c-half" : "c-" + x.code) : ""} ${x.date === t ? "td" : ""}" title="${h(x.status)}">${+x.date.slice(8)}</div>`).join("");
+    const kindL = { in: "Checked in", out: "Checked out", break_start: "Break", break_end: "Back from break" };
+    return `<div class="me">
+      <div class="me-hello">${av(e)}<div><h2>${h(greet())}, ${h(nm(e).split(" ")[0])}</h2><div class="sub">${h([e.jobTitle, br ? br.name : null].filter(Boolean).join(" · "))}</div></div></div>
+      <div class="me-card me-clock"><div class="t" id="meClock">${h(tLocal(nowISO()))}</div><div class="d">${new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Riyadh" })} · <bdi dir="rtl" class="ar">${h(MQ.hj(t))} هـ</bdi></div>
+        <div class="me-shift">${sh.workday ? `<span class="pill p-grey">Shift ${fmtM(sh.start)}–${fmtM(sh.end)}${sh.ramadan ? " · Ramadan" : ""}</span>` : `<span class="pill p-grey">${r.holiday ? h(r.holiday.name) : "Day off today"}</span>`}${sh.workday && !r.holiday ? statusPill(r) : ""}${r.workedMin ? `<span class="pill p-blue" id="meWorked">Worked ${durS(r.workedMin)}</span>` : ""}</div></div>
+      <div class="me-card"><div class="radar">${radar(pos, ev)}<div><div class="st" style="color:${ev && ev.status === "ok" ? "var(--accent)" : ev ? "var(--sadu)" : "inherit"}">${h(locTxt[0])}</div><div class="ds">${h(locTxt[1])}</div>
+        <div class="row" style="margin-top:10px"><button class="btn sm" data-a="meLocate" ${S.att.locating ? "disabled" : ""}>Refresh location</button>${S.demo ? `<label class="check"><input type="checkbox" data-a="fakeLoc" ${U.fakeLoc ? "checked" : ""}> Preview: stand at my branch</label>` : ""}</div></div></div>
+        <div style="margin-top:16px"><button class="punch ${btn[1]}" data-a="punch" data-v="${next}" ${S.att.busy || S.att.locating || blocked || (S.essOnly && MQ.readOnly) ? "disabled" : ""}>${S.att.busy ? `<span class="spin"></span>Saving…` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${next === "in" ? '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>' : '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'}</svg>${btn[0]}`}</button>
+        ${next === "out" ? `<div class="me-sub"><button class="btn" data-a="punch" data-v="break_start" ${S.att.busy ? "disabled" : ""}>Start break</button><button class="btn" data-a="meReq">Fix a missed punch</button></div>` : `<div class="me-sub"><span></span><button class="btn" data-a="meReq">Fix a missed punch</button></div>`}</div></div>
+      <div class="me-card"><h2 style="font-size:15px;margin-bottom:6px">Today</h2>${todayP.length ? `<div class="me-tl">${todayP.map(p => `<div class="it"><span class="tm">${tLocal(p.at)}</span><i class="${p.kind === "in" ? "" : p.kind === "out" ? "o" : "b"}"></i><span>${h(kindL[p.kind])}${p.branchId && branchBy(p.branchId) ? ` <span class="sub">· ${h(branchBy(p.branchId).name)}</span>` : ""}</span>${p.status === "ok" || p.status === "approved" ? `<span class="pill p-green">In zone</span>` : p.status === "manual" ? `<span class="pill p-blue">By HR</span>` : p.status === "rejected" ? `<span class="pill p-grey">Rejected</span>` : `<span class="pill p-amber">HR review</span>`}</div>`).join("")}</div>` : `<div class="sub">No punches yet today.</div>`}</div>
+      <div class="me-card"><h2 style="font-size:15px;margin-bottom:10px">${new Date().toLocaleDateString("en-GB", { month: "long", timeZone: "Asia/Riyadh" })} so far</h2>
+        <div class="me-stats"><div><b>${mt.present || 0}</b><span>Days present</span></div><div><b>${mt.late || 0}</b><span>Late</span></div><div><b>${mt.absent || 0}</b><span>Absent</span></div><div><b>${+((mt.otMin || 0) / 60).toFixed(1)}</b><span>Overtime h</span></div></div><div class="me-cal">${cal}</div></div>
+      ${myReq.length ? `<div class="me-card"><h2 style="font-size:15px;margin-bottom:8px">My correction requests</h2>${myReq.map(q => `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>${fd(q.day)} · ${h(kindL[q.kind] || q.kind)} ${h(q.time)}</span><span class="spacer"></span><span class="pill ${q.status === "approved" ? "p-green" : q.status === "rejected" ? "p-red" : "p-amber"}">${h(q.status[0].toUpperCase() + q.status.slice(1))}</span></div>`).join("")}</div>` : ""}
+      ${S.essOnly ? `<div class="row" style="justify-content:center"><button class="btn" data-act="userMenu">Account · sign out</button></div>` : ""}</div>`;
+  }
+  function greet() { const hr = +new Date().toLocaleTimeString("en-GB", { hour: "2-digit", hour12: false, timeZone: "Asia/Riyadh" }); return hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening"; }
+  function openReq() {
+    const e = meEmp(); if (!e) return;
+    openModal("Fix a missed punch · طلب تصحيح", `<div class="sub">HR reviews the request. Once approved, the punch is added to your record.</div><div class="fgrid">
+      <div class="field"><label for="rq_d">Day</label><input id="rq_d" type="date" value="${h(A.addDays(todayL(), -1))}" max="${h(todayL())}" min="${h(A.addDays(todayL(), -45))}"></div>
+      <div class="field"><label for="rq_k">Missing punch</label><select id="rq_k"><option value="in">Check-in</option><option value="out">Check-out</option></select></div>
+      <div class="field"><label for="rq_t">Actual time</label><input id="rq_t" type="time" value="08:00"></div>
+      <div class="field" style="grid-column:1/-1"><label for="rq_r">What happened?</label><input id="rq_r" maxlength="500" placeholder="e.g. My phone had no battery at the end of the shift"></div></div>`,
+      [{ label: "Cancel", fn: closeModal }, { label: "Send to HR", cls: "pri", fn: async () => {
+        const o = { empNo: e.empNo, day: $("#rq_d").value, kind: $("#rq_k").value, time: $("#rq_t").value, reason: $("#rq_r").value.trim() };
+        if (!o.day || !o.time) { toast("Choose the day and time."); return; } if (o.reason.length < 3) { toast("Explain what happened in a few words."); return; }
+        try { await saveRequest(o); closeModal(); toast("Request sent to HR"); MQ.render(); } catch (x) { toast("Not sent: " + errMsg(x)); } } }]);
+  }
+
+  /* ---------- dashboard strip ---------- */
+  function dashStrip() {
+    const emps = staff(); if (!emps.length) return "";
+    const b = A.board(emps, S.att.punches, ctx(), todayL()), k = b.counts; const exp = k.total - k.leave - k.off; if (exp <= 0 && !k.present) return "";
+    return `<div class="panel" style="margin-bottom:16px;display:flex;gap:20px;align-items:center;flex-wrap:wrap"><div><div class="sub">Attendance today</div><div style="font-family:var(--f-display);font-size:34px;font-weight:600;font-variant-numeric:tabular-nums">${k.present}<span class="sub" style="font-size:16px"> / ${exp}</span></div></div>
+      <div class="row" style="gap:8px;flex:1">${k.late ? `<span class="pill p-amber">${k.late} late</span>` : ""}${k.notIn ? `<span class="pill p-red">${k.notIn} not checked in</span>` : ""}${k.absent ? `<span class="pill p-red">${k.absent} absent</span>` : ""}${k.leave ? `<span class="pill p-blue">${k.leave} on leave</span>` : ""}${k.review ? `<span class="pill p-red">${k.review} outside zone</span>` : ""}${!k.late && !k.notIn && !k.absent && !k.review ? `<span class="pill p-green">All on time so far</span>` : ""}</div>
+      <button class="btn" data-nav="att">Open attendance</button><button class="btn" data-nav="attmap">Locations map</button></div>`;
+  }
+
+  /* ---------- actions & inputs ---------- */
+  async function act(a, t) {
+    const d = t.dataset;
+    try {
+      switch (a) {
+        case "attf": U.attF = d.v || ""; return MQ.renderNow();
+        case "attDayStep": U.attDay = A.addDays(U.attDay || todayL(), +d.v); if (U.attDay > todayL()) U.attDay = todayL(); return MQ.renderNow();
+        case "attToday": U.attDay = todayL(); return MQ.renderNow();
+        case "mapFocus": U.mapFocus = d.v || ""; delete U.mv_live; return MQ.renderNow();
+        case "attGoBranch": U.attBr = d.v; U.attF = ""; return MQ.go("att");
+        case "day": return openDay(d.emp, d.d);
+        case "manual": return openManual("", U.attDay || todayL());
+        case "addOut": return openManual(d.emp, d.d, "out", d.v);
+        case "rev": await review(d.id, d.v); toast(d.v === "approved" ? "Punch accepted" : "Punch rejected"); return MQ.renderNow();
+        case "revNear": { const list = pendingPunches().filter(p => { const b = branchBy(p.branchId); return p.status === "outside" && b && p.distance <= 2 * (b.radius_m || 150) && !(p.flags || []).includes("IMPOSSIBLE_TRAVEL"); });
+          if (!list.length) { toast("No punches within twice the zone radius."); return; }
+          return confirmBox(`Accept ${list.length} punches that are within twice their branch radius?`, async () => { for (const p of list) await review(p.id, "approved"); closeModal(); toast(`${list.length} punches accepted`); MQ.render(); }); }
+        case "req": await decide(d.id, d.v); toast(d.v === "approved" ? "Approved · punch added" : "Request rejected"); return MQ.renderNow();
+        case "importDev": return openImport();
+        case "lawRun": t.disabled = true; t.textContent = "Checking…"; return setTimeout(lawRun, 30);
+        case "sheetXlsx": return sheetXlsx();
+        case "toPayroll": return toPayroll();
+        case "brEdit": return openBranch(d.v);
+        case "shEdit": return openShift(d.v);
+        case "saveRules": await saveCfg({ geoMode: $("#r_geo").value, blockOutside: $("#r_blk").value === "1", maxAccuracyM: +$("#r_acc").value || 100, countOutside: $("#r_out").value === "1",
+          graceMin: +$("#r_gr").value || 0, earlyGraceMin: +$("#r_eg").value || 0, minOtMin: +$("#r_ot").value || 0, halfDayMin: +$("#r_hd").value || 0, incompleteAbsence: +$("#r_inc").value || 0, deductLate: $("#r_dl").value === "1",
+          weekend: [...document.querySelectorAll(".r_we:checked")].map(x => +x.value), trackingFrom: $("#r_tf").value || "" }); return toast("Rules saved");
+        case "holFill": { const y = +d.v, sg = A.suggestHolidays(y); const cur = (cfg().holidays || []).filter(x => x.date.slice(0, 4) !== String(y)); await saveCfg({ holidays: cur.concat(sg.holidays) }); return toast(`${sg.holidays.length} holidays added for ${y}. Confirm the Eid dates when MHRSD announces them.`); }
+        case "holDel": { const [dt, n] = d.v.split("|"); await saveCfg({ holidays: (cfg().holidays || []).filter(x => !(x.date === dt && x.name === n)) }); return; }
+        case "holAdd": { const dt = $("#hol_d").value, to = $("#hol_t").value || dt, n = $("#hol_n").value.trim(); if (!dt || !n) { toast("Choose a date and a name."); return; } await saveCfg({ holidays: (cfg().holidays || []).concat([{ date: dt, to: to < dt ? dt : to, name: n }]) }); return toast("Holiday added"); }
+        case "ramFill": { const y = +todayL().slice(0, 4); let sg = A.suggestHolidays(y).ramadan; if (sg.to && sg.to < todayL()) sg = A.suggestHolidays(y + 1).ramadan; $("#rm_f").value = sg.from; $("#rm_t").value = sg.to; return toast("Dates filled from Umm al-Qura. Save to apply."); }
+        case "ramSave": await saveCfg({ ramadan: { from: $("#rm_f").value, to: $("#rm_t").value, hoursDay: +$("#rm_h").value || 6, applyTo: $("#rm_a").value } }); return toast("Ramadan hours saved");
+        case "asgBulk": { const shv = $("#asgShift").value, brv = $("#asgBranch").value; if (!shv && !brv) { toast("Choose a shift or a branch to apply."); return; }
+          const list = staff().filter(e => !U.asgDept || e.department === U.asgDept);
+          return confirmBox(`Apply ${[shv ? "shift " + shv : "", brv ? "branch " + brv : ""].filter(Boolean).join(" and ")} to ${list.length} employees?`, async () => { for (const e of list) await setEmpHr(e.empNo, Object.assign({}, shv ? { shiftId: shv } : {}, brv ? { branchId: brv } : {})); closeModal(); toast("Assignments saved"); }); }
+        case "punch": return punchNow(d.v);
+        case "meLocate": return locate(true);
+        case "fakeLoc": U.fakeLoc = t.checked; S.att.pos = null; return locate(true);
+        case "meReq": return openReq();
+      }
+    } catch (x) { console.error(x); toast(errMsg(x)); }
+  }
+  async function setEmpHr(no, patch) { const e = MQ.empBy(no); if (!e) return; const o = JSON.parse(JSON.stringify(e)); delete o._id; o.hr = Object.assign({}, o.hr || {}, patch); Object.keys(patch).forEach(k => { if (patch[k] === "") delete o.hr[k]; }); await put("employees", o.empNo, o); }
+  function onChange(ev) {
+    const el = ev.target, id = el.id, v = el.value;
+    if (id === "attDay" && v) { U.attDay = v > todayL() ? todayL() : v; MQ.renderNow(); return true; }
+    if (id === "attM" && v) { U.attM = v; MQ.renderNow(); return true; }
+    if (id === "attBr") { U.attBr = v; MQ.renderNow(); return true; }
+    if (id === "attDept") { U.attDept = v; MQ.renderNow(); return true; }
+    if (id === "asgDept") { U.asgDept = v; MQ.renderNow(); return true; }
+    if (el.classList && el.classList.contains("asg")) { setEmpHr(el.dataset.emp, { [el.dataset.k]: el.dataset.k === "muslim" ? (v === "yes" ? true : "") : v.trim() }).then(() => toast("Saved")).catch(x => toast("Not saved: " + errMsg(x))); return true; }
+    return false;
+  }
+  let qT = null;
+  function onInput(ev) {
+    if (ev.target.id !== "attQ") return false;
+    U.attQ = ev.target.value; clearTimeout(qT); qT = setTimeout(() => { const pos = ev.target.selectionStart; MQ.renderNow(); const el = $("#attQ"); if (el) { el.focus(); el.setSelectionRange(pos, pos); } }, 220); return true;
+  }
+  // live clock on the check-in screen
+  setInterval(() => { const el = document.getElementById("meClock"); if (el) el.textContent = tLocal(nowISO()); }, 1000);
+
+  return { views: { att: vAtt, attmap: vMap, attsheet: vSheet, attreview: vReview, attsetup: vSetup, me: vMe },
+    start, startEss, act, onChange, onInput, badge, dashStrip, after: mountMaps };
+};
+
+</script>
 <script>/* i18n_ar.js */
 window.I18N_AR = window.I18N_AR || { exact: {
 "Dashboard":"لوحة المتابعة","Notifications":"التنبيهات","Employees":"الموظفون","Iqama Renewals":"تجديد الإقامات","Jawazat Services":"خدمات الجوازات",
@@ -3393,6 +4706,39 @@ window.I18N_AR = window.I18N_AR || { exact: {
 ["Iqama expiring in (\\d+) day\\(s\\)","الإقامة تنتهي خلال $1 يوم"],["Passport expires in (\\d+) day\\(s\\)","الجواز ينتهي خلال $1 يوم"],["Medical insurance expires in (\\d+) day\\(s\\)","التأمين الطبي ينتهي خلال $1 يوم"],
 ["Renewal (REN-\\d+) pending: (.+)","طلب التجديد $1 معلّق: $2"],["(\\d+) SAR / month","$1 ريال / شهرياً"]
 ] };
+
+</script>
+<script>/* i18n_att_ar.js */
+/* Arabic labels for the attendance module and sign-in page (merged into the main dictionary). */
+(function () {
+  var D = window.I18N_AR = window.I18N_AR || { exact: {}, patterns: [] };
+  Object.assign(D.exact, {
+    "Attendance": "الحضور", "Attendance today": "حضور اليوم", "Locations live": "المواقع مباشر", "Timesheet": "كشف الدوام", "Exceptions": "الاستثناءات",
+    "Shifts & Branches": "الورديات والفروع", "My check-in": "تسجيل حضوري", "Check in": "تسجيل حضور", "Check out": "تسجيل انصراف", "Start break": "بدء استراحة", "End break": "إنهاء الاستراحة",
+    "Sign in": "تسجيل الدخول", "Work email": "البريد الإلكتروني للعمل", "Password": "كلمة المرور", "New password": "كلمة مرور جديدة", "Show": "إظهار", "Hide": "إخفاء",
+    "Forgot password?": "نسيت كلمة المرور؟", "Email me a sign-in link": "أرسل لي رابط الدخول", "or": "أو", "First time here?": "أول مرة هنا؟", "Set your password": "عيّن كلمة المرور",
+    "Use your work email and password.": "استخدم بريد العمل وكلمة المرور.", "Reset your password": "إعادة تعيين كلمة المرور", "Send reset link": "إرسال رابط إعادة التعيين",
+    "Back to sign in": "العودة لتسجيل الدخول", "Create password": "إنشاء كلمة المرور", "Choose a new password": "اختر كلمة مرور جديدة", "Save password": "حفظ كلمة المرور",
+    "Need access? Ask your HR administrator to add your work email.": "تحتاج صلاحية؟ اطلب من مسؤول الموارد البشرية إضافة بريدك.",
+    "Check in and out from your phone inside the branch zone": "سجّل حضورك وانصرافك من جوالك داخل نطاق الفرع",
+    "Iqama, passport and insurance reminders before they expire": "تذكير بالإقامة والجواز والتأمين قبل انتهائها",
+    "Payroll with GOSI, overtime from attendance and the Mudad file": "الرواتب مع التأمينات والعمل الإضافي من الحضور وملف مدد",
+    "Present": "حاضر", "Late": "متأخر", "Absent": "غائب", "On leave": "في إجازة", "Review": "مراجعة", "Early": "انصراف مبكر", "Not in": "لم يحضر",
+    "On time": "في الوقت", "Working": "على رأس العمل", "Not checked in": "لم يسجّل حضوره", "Shift not started": "لم تبدأ الوردية", "Day off": "يوم راحة", "Holiday": "عطلة",
+    "No check-out": "بدون انصراف", "Half day": "نصف يوم", "Outside zone": "خارج النطاق", "Inside zone": "داخل النطاق", "Weak GPS": "إشارة GPS ضعيفة", "Entered by HR": "أدخلها الموارد البشرية",
+    "Manual": "يدوي", "Location jump": "قفزة في الموقع", "Approved": "معتمد", "Rejected": "مرفوض", "Accept": "قبول", "Reject": "رفض", "Approve": "اعتماد",
+    "Employee": "الموظف", "In": "دخول", "Out": "خروج", "Worked": "ساعات العمل", "Status": "الحالة", "Time": "الوقت", "Type": "النوع", "Result": "النتيجة", "Distance": "المسافة", "Branch": "الفرع",
+    "Add punch": "إضافة بصمة", "Locations map": "خريطة المواقع", "Today": "اليوم", "All branches": "كل الفروع", "All departments": "كل الأقسام", "Search employee…": "ابحث عن موظف…",
+    "Show everyone": "عرض الجميع", "Export Excel": "تصدير إكسل", "Send to payroll": "إرسال للرواتب", "Add branch": "إضافة فرع", "Add shift": "إضافة وردية", "Edit": "تعديل", "Edit zone": "تعديل النطاق", "See staff": "عرض الموظفين",
+    "Refresh location": "تحديث الموقع", "Fix a missed punch": "تصحيح بصمة فائتة", "Send to HR": "إرسال للموارد البشرية", "Today": "اليوم", "Good morning": "صباح الخير", "Good afternoon": "مساء الخير", "Good evening": "مساء الخير",
+    "Correction requests": "طلبات التصحيح", "Branch check-in zones": "نطاقات الفروع", "Location rules": "قواعد الموقع", "Time rules": "قواعد الوقت", "Shifts": "الورديات", "Ramadan hours": "ساعات رمضان",
+    "Who works where": "توزيع الموظفين", "Save rules": "حفظ القواعد", "Save zone": "حفظ النطاق", "Save shift": "حفظ الوردية", "Use my current location": "استخدم موقعي الحالي",
+    "Import device / Excel file": "استيراد ملف جهاز البصمة / إكسل", "Import punches": "استيراد البصمات", "Cancel": "إلغاء", "Close": "إغلاق", "Save punch": "حفظ البصمة",
+    "Finding your location…": "جارٍ تحديد موقعك…", "GPS signal is weak": "إشارة GPS ضعيفة", "Outside the zone": "خارج النطاق", "Days present": "أيام الحضور", "Overtime h": "ساعات إضافية",
+    "Preview with sample data.": "معاينة ببيانات تجريبية.", "Your account": "حسابك", "Sign out": "تسجيل الخروج",
+    "Check in at your branch, request leave and follow your Iqama, while HR runs attendance, payroll and GOSI from the same records.": "سجّل حضورك في فرعك، واطلب إجازتك، وتابع إقامتك، بينما تدير الموارد البشرية الحضور والرواتب والتأمينات من نفس السجلات."
+  });
+})();
 
 </script>
 <script>
@@ -3509,7 +4855,7 @@ function makeGasDb(){
   const snapCol=c=>({docs:(data[c]||[]).map(d=>({id:d._id,exists:true,data:()=>clean(d)}))});
   const snapDoc=(c,id)=>{ const d=(data[c]||[]).find(x=>x._id===id); return {id,exists:!!d,data:()=>d?clean(d):undefined}; };
   const emit=c=>{ (subs[c]||[]).forEach(cb=>cb(snapCol(c))); Object.keys(docSubs).forEach(p=>{ const [pc,pid]=p.split("/"); if(pc===c) docSubs[p].forEach(cb=>cb(snapDoc(pc,pid))); }); };
-  async function refresh(){ const j=JSON.parse(await run("loadAll")); me=j.user||""; ["employees","renewals","visas","contracts","leaves","loans","payruns","config"].forEach(c=>{ data[c]=j[c]||[]; emit(c); }); return j; }
+  async function refresh(){ const j=JSON.parse(await run("loadAll")); me=j.user||""; ["employees","renewals","visas","contracts","leaves","loans","payruns","config","attendance","attreq"].forEach(c=>{ data[c]=j[c]||[]; emit(c); }); return j; }
   const docRef=(c,id)=>({
     set:async obj=>{ await run("saveDoc",c,id,JSON.stringify(obj)); const arr=data[c]=data[c]||[]; const i=arr.findIndex(x=>x._id===id); const v=Object.assign({},obj,{_id:id}); if(i>=0) arr[i]=v; else arr.push(v); emit(c); },
     delete:async()=>{ await run("deleteDoc",c,id); data[c]=(data[c]||[]).filter(x=>x._id!==id); emit(c); },
@@ -3520,15 +4866,166 @@ function makeGasDb(){
     doc:path=>{ const i=path.indexOf("/"); return docRef(path.slice(0,i),path.slice(i+1)); } };
 }
 
+/* ---------- Supabase backend (GitHub Pages hosting): same interface, Postgres table "records" + sign-in + roles ---------- */
+const SUPA_CFG = !(typeof google!=="undefined"&&google.script) && window.MUQEEM_CONFIG && window.MUQEEM_CONFIG.supabaseUrl && window.supabase ? window.MUQEEM_CONFIG : null;
+let sb=null, appRole=null;
+function makeSupaDb(client){
+  const data={}, subs={}, docSubs={};
+  const clean=d=>{ const o=Object.assign({},d); delete o._id; return o; };
+  const snapCol=c=>({docs:(data[c]||[]).map(d=>({id:d._id,exists:true,data:()=>clean(d)}))});
+  const snapDoc=(c,id)=>{ const d=(data[c]||[]).find(x=>x._id===id); return {id,exists:!!d,data:()=>d?clean(d):undefined}; };
+  const emit=c=>{ (subs[c]||[]).forEach(cb=>cb(snapCol(c))); Object.keys(docSubs).forEach(p=>{ const i=p.indexOf("/"); if(p.slice(0,i)===c) docSubs[p].forEach(cb=>cb(snapDoc(c,p.slice(i+1)))); }); };
+  const fail=e=>{ const err={code:/permission|policy|42501/i.test((e&&e.message)||"")?"invalid_argument":"unavailable",message:(e&&e.message)||String(e)}; throw err; };
+  function put1(c,id,obj){ const arr=data[c]=data[c]||[]; const i=arr.findIndex(x=>x._id===id); const v=Object.assign({},obj,{_id:id}); if(i>=0) arr[i]=v; else arr.push(v); }
+  async function refresh(){
+    const all=[]; for(let from=0;;from+=1000){ const {data:rows,error}=await client.from("records").select("collection,id,data").range(from,from+999); if(error) fail(error); all.push(...rows); if(rows.length<1000) break; }
+    ["employees","renewals","visas","contracts","leaves","loans","payruns","config"].forEach(c=>{ data[c]=all.filter(r=>r.collection===c).map(r=>Object.assign({},r.data,{_id:r.id})); emit(c); });
+  }
+  client.channel("records-live").on("postgres_changes",{event:"*",schema:"public",table:"records"},p=>{
+    const r=p.new&&p.new.collection?p.new:p.old; if(!r||!r.collection) return;
+    if(p.eventType==="DELETE") data[r.collection]=(data[r.collection]||[]).filter(x=>x._id!==r.id); else put1(r.collection,r.id,p.new.data||{});
+    emit(r.collection); }).subscribe();
+  const docRef=(c,id)=>({
+    set:async obj=>{ const {error}=await client.from("records").upsert({collection:c,id,data:obj}); if(error) fail(error); put1(c,id,obj); emit(c); },
+    delete:async()=>{ const {error}=await client.from("records").delete().eq("collection",c).eq("id",id); if(error) fail(error); data[c]=(data[c]||[]).filter(x=>x._id!==id); emit(c); },
+    onSnapshot:cb=>{ const p=c+"/"+id; (docSubs[p]=docSubs[p]||[]).push(cb); if(data[c]) cb(snapDoc(c,id)); return ()=>{}; },
+    acquire:async()=>({acquired:true}) });
+  return { supa:true, refresh,
+    collection:c=>({ doc:id=>docRef(c,id), onSnapshot:cb=>{ (subs[c]=subs[c]||[]).push(cb); if(data[c]) cb(snapCol(c)); return ()=>{}; } }),
+    doc:path=>{ const i=path.indexOf("/"); return docRef(path.slice(0,i),path.slice(i+1)); } };
+}
+/* ---------- sign-in page: live Riyadh clock + Hijri date, Al-Sadu band, password / link / reset flows ---------- */
+function loginClock(){
+  const el=$("#lgTime"); if(!el) return false;
+  const now=new Date(), z={timeZone:"Asia/Riyadh"};
+  const t=now.toLocaleTimeString("en-GB",Object.assign({hour:"2-digit",minute:"2-digit",hour12:false},z));
+  const s=String(now.toLocaleTimeString("en-GB",Object.assign({second:"2-digit"},z))).slice(-2).padStart(2,"0");
+  const ar=window.I18N&&I18N.lang==="ar";
+  const d=now.toLocaleDateString(ar?"ar-SA-u-ca-gregory-nu-latn":"en-GB",Object.assign({weekday:"long",day:"numeric",month:"long",year:"numeric"},z));
+  let hj=""; try{ hj=new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura",Object.assign({day:"numeric",month:"long",year:"numeric"},z)).format(now); }catch(e){}
+  el.innerHTML=`${t}<small>${s}</small>`; $("#lgDate").textContent=d; $("#lgHijri").textContent=hj; return true;
+}
+function showSignIn(msg,mode){
+  const old=$("#signin"); if(old) old.remove();
+  const st=settings(); const co=st.company&&st.company!=="Company name"?st.company:"Muqeem Desk";
+  const box=document.createElement("div"); box.className="login"; box.id="signin";
+  const pt=(ic,txt)=>`<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ic}</svg><span>${txt}</span></li>`;
+  box.innerHTML=`<section class="lg-art">
+    <div class="lg-brand"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.2c.6-1.5 1.8-2.2 3.2-2.2s2.6.7 3.2 2.2M14.5 10h4M14.5 13.5h3"/></svg></span><div><b>${h(co)}</b><span class="ar">مكتب مقيم · الموارد البشرية</span></div></div>
+    <div class="lg-clock"><div class="t" id="lgTime"></div><div class="d" id="lgDate"></div><div class="hj" id="lgHijri"></div></div>
+    <p class="lg-lede">Check in at your branch, request leave and follow your Iqama, while HR runs attendance, payroll and GOSI from the same records.</p>
+    <ul class="lg-points">
+      ${pt('<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',"Check in and out from your phone inside the branch zone")}
+      ${pt('<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M14.5 10h4M14.5 13.5h3"/>',"Iqama, passport and insurance reminders before they expire")}
+      ${pt('<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/>',"Payroll with GOSI, overtime from attendance and the Mudad file")}
+    </ul></section>
+  <div class="lg-sadu" aria-hidden="true"></div>
+  <section class="lg-form"><div class="lg-top"><div class="langsw" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="${I18N.lang!=="ar"}">EN</button><button type="button" data-lang="ar" aria-pressed="${I18N.lang==="ar"}">عربي</button></div></div>
+    <form class="lg-card" id="lgForm" novalidate></form>
+    <div class="lg-foot">Need access? Ask your HR administrator to add your work email.</div></section>`;
+  document.body.appendChild(box);
+  loginClock(); const tick=setInterval(()=>{ if(!loginClock()) clearInterval(tick); },1000);
+  const F=$("#lgForm"); let busy=false;
+  const say=(t,k)=>{ const m=$("#lg_m"); if(m){ m.className="lg-msg "+(k||"err"); m.textContent=t||""; m.hidden=!t; m.setAttribute("role",k==="err"||!k?"alert":"status"); } };
+  const email=()=>($("#lg_e")?$("#lg_e").value:"").trim().toLowerCase();
+  const working=(on,label)=>{ busy=on; const b=$("#lg_go"); if(b){ b.disabled=on; b.innerHTML=on?`<span class="spin"></span>${h(label)}`:h(b.dataset.label); } };
+  const field=(id,label,type,ac,extra)=>`<div class="lg-field"><label for="${id}">${label}</label><div class="in"><input id="${id}" type="${type}" autocomplete="${ac}" ${extra||""}>${type==="password"?`<button type="button" class="eye" data-eye="${id}" aria-label="Show password">Show</button>`:""}</div></div>`;
+  const views={
+    signin:()=>`<h1>Sign in</h1><p class="lead">Use your work email and password.</p><div id="lg_m" hidden></div>
+      ${field("lg_e","Work email","email","username",'inputmode="email" required')}
+      ${field("lg_p","Password","password","current-password","required")}
+      <div class="lg-row"><span></span><button type="button" class="linkish" data-lgv="reset">Forgot password?</button></div>
+      <button class="btn pri lg-submit" id="lg_go" data-label="Sign in" type="submit">Sign in</button>
+      <div class="lg-or">or</div><button type="button" class="btn lg-alt" id="lg_link">Email me a sign-in link</button>
+      <div class="lg-foot">First time here? <button type="button" class="linkish" data-lgv="setup"><b>Set your password</b></button></div>`,
+    setup:()=>`<h1>Set your password</h1><p class="lead">Your administrator added your email. Choose a password of at least 10 characters, then confirm it from the email we send.</p><div id="lg_m" hidden></div>
+      ${field("lg_e","Work email","email","username",'inputmode="email" required')}
+      ${field("lg_p","New password","password","new-password","required minlength=10")}
+      <button class="btn pri lg-submit" id="lg_go" data-label="Create password" type="submit">Create password</button>
+      <div class="lg-foot"><button type="button" class="linkish" data-lgv="signin">Back to sign in</button></div>`,
+    reset:()=>`<h1>Reset your password</h1><p class="lead">Enter your work email. We will send a link to choose a new password.</p><div id="lg_m" hidden></div>
+      ${field("lg_e","Work email","email","username",'inputmode="email" required')}
+      <button class="btn pri lg-submit" id="lg_go" data-label="Send reset link" type="submit">Send reset link</button>
+      <div class="lg-foot"><button type="button" class="linkish" data-lgv="signin">Back to sign in</button></div>`,
+    newpass:()=>`<h1>Choose a new password</h1><p class="lead">At least 10 characters.</p><div id="lg_m" hidden></div>
+      ${field("lg_p","New password","password","new-password","required minlength=10")}
+      <button class="btn pri lg-submit" id="lg_go" data-label="Save password" type="submit">Save password</button>`
+  };
+  let cur=mode||"signin";
+  const show=v=>{ const keep=email(); cur=v; F.innerHTML=views[v](); if($("#lg_e")) $("#lg_e").value=keep; if(msg){ say(msg,"info"); msg=null; } const f=F.querySelector("input"); if(f) f.focus(); };
+  F.addEventListener("click",ev=>{ const v=ev.target.closest("[data-lgv]"); if(v){ show(v.dataset.lgv); return; }
+    const eye=ev.target.closest("[data-eye]"); if(eye){ const i=$("#"+eye.dataset.eye); const on=i.type==="password"; i.type=on?"text":"password"; eye.textContent=on?"Hide":"Show"; eye.setAttribute("aria-label",on?"Hide password":"Show password"); return; }
+    if(ev.target.closest("#lg_link")) linkIn(); });
+  const okEmail=()=>{ if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email())){ say("Enter your work email, for example name@company.com."); $("#lg_e").focus(); return false; } return true; };
+  async function linkIn(){ if(busy||!okEmail()) return; say("");
+    try{ const {error}=await sb.auth.signInWithOtp({email:email(),options:{emailRedirectTo:location.href.split("#")[0],shouldCreateUser:false}});
+      if(error) say(/not.*found|signups/i.test(error.message)?"This email has no account yet. Use “Set your password” first.":error.message); else say("Sign-in link sent to "+email()+". Open it on this device.","ok"); }
+    catch(e){ say("Can't reach the server. Check your connection and try again."); } }
+  F.addEventListener("submit",async ev=>{ ev.preventDefault(); if(busy) return; say("");
+    const pw=$("#lg_p")?$("#lg_p").value:"";
+    try{
+      if(cur==="signin"){ if(!okEmail()) return; if(!pw){ say("Enter your password."); $("#lg_p").focus(); return; }
+        working(true,"Signing in…"); const {error}=await sb.auth.signInWithPassword({email:email(),password:pw});
+        if(error){ working(false); say(/invalid/i.test(error.message)?"Email or password is wrong. Try again or reset your password.":/confirm/i.test(error.message)?"Confirm your email first: open the link we sent you.":error.message); $("#lg_p").select(); return; }
+        working(true,"Opening…"); location.reload(); }
+      else if(cur==="setup"){ if(!okEmail()) return; if(pw.length<10){ say("Use a password of at least 10 characters."); return; }
+        working(true,"Creating…"); const {error}=await sb.auth.signUp({email:email(),password:pw,options:{emailRedirectTo:location.href.split("#")[0]}}); working(false);
+        say(error?error.message:"Check your inbox to confirm your email, then sign in.",error?"err":"ok"); }
+      else if(cur==="reset"){ if(!okEmail()) return; working(true,"Sending…"); const {error}=await sb.auth.resetPasswordForEmail(email(),{redirectTo:location.href.split("#")[0]}); working(false);
+        say(error?error.message:"If "+email()+" has an account, a reset link is on its way.",error?"err":"ok"); }
+      else if(cur==="newpass"){ if(pw.length<10){ say("Use a password of at least 10 characters."); return; } working(true,"Saving…"); const {error}=await sb.auth.updateUser({password:pw}); working(false);
+        if(error) say(error.message); else { say("Password saved. Opening…","ok"); setTimeout(()=>location.replace(location.href.split("#")[0]),900); } }
+    }catch(e){ working(false); say("Can't reach the server. Check your connection and try again."); }
+  });
+  show(cur);
+}
+async function signOut(){ if(sb){ await sb.auth.signOut(); location.reload(); } }
+
+function subscribeAll(){
+  COLS.forEach(c=>db.collection(c).onSnapshot(snap=>{ S[c]=snap.docs.map(d=>Object.assign({_id:d.id},d.data())); S.loaded[c]=true; scheduleRender(); },()=>{ const conn=$("#conn"); conn.textContent="Sync stopped — reload"; conn.className="conn bad"; }));
+  db.doc("config/settings").onSnapshot(s=>{ S.settings=s.exists?s.data():{}; scheduleRender(); },()=>{});
+  db.doc("config/acks").onSnapshot(s=>{ S.acks=s.exists?(s.data().items||{}):{}; scheduleRender(); },()=>{});
+}
+function showUser(){
+  const el=$("#userChip"); if(!el||!uid) return; el.hidden=false;
+  const ini=(uid.split("@")[0].split(/[._-]/).filter(Boolean).slice(0,2).map(x=>x[0]).join("")||"U").toUpperCase();
+  el.innerHTML=`<span class="av">${h(ini)}</span><span class="only-desk">${h(appRole||"")}</span>`; el.title=uid;
+}
 async function connect(){
+  const conn=$("#conn");
+  if(window.Demo&&/[?&]demo\b/.test(location.search)){
+    db=window.Demo.memDb(window.Demo.seed(today())); S.demo=true; appRole="admin"; uid="hr.manager@preview.sa";
+    conn.textContent="Preview · not saved"; conn.className="conn bad"; showUser(); subscribeAll(); if(AU) AU.start(); return;
+  }
+  if(SUPA_CFG){
+    conn.textContent="Connecting…";
+    sb=window.supabase.createClient(SUPA_CFG.supabaseUrl,SUPA_CFG.supabaseKey,{auth:{persistSession:true,detectSessionInUrl:true}});
+    const recovery=/type=recovery/.test(location.hash);
+    sb.auth.onAuthStateChange(ev=>{ if(ev==="PASSWORD_RECOVERY") showSignIn(null,"newpass"); });
+    let session=null; try{ ({data:{session}}=await sb.auth.getSession()); }catch(e){}
+    const stop=(t)=>{ conn.textContent=t; conn.className="conn bad"; S.noDb=true; S.signedOut=true; COLS.forEach(c=>S.loaded[c]=true); render(); };
+    if(recovery&&session){ stop("Set a new password"); showSignIn(null,"newpass"); return; }
+    if(!session){ stop("Signed out"); showSignIn(); return; }
+    uid=(session.user.email||"").toLowerCase();
+    try{ const {data:r}=await sb.rpc("app_role"); appRole=r||null; }catch(e){ appRole=null; }
+    if(!appRole){ stop("No access"); showSignIn(`${uid} is signed in but has no access yet. Ask an administrator to add this email.`); return; }
+    readOnly=appRole==="viewer"; showUser();
+    if(appRole==="employee"){
+      S.essOnly=true; S.ui.view="me"; COLS.forEach(c=>S.loaded[c]=true);
+      conn.textContent="Live · employee"; conn.className="conn ok";
+      db=makeSupaDb(sb); if(AU) await AU.startEss(); render(); return;
+    }
+    db=makeSupaDb(sb);
+    try{ await db.refresh(); }catch(e){ conn.textContent="Database unavailable — reload"; conn.className="conn bad"; S.noDb=true; COLS.forEach(c=>S.loaded[c]=true); render(); return; }
+    conn.textContent=`Live · ${appRole}`; conn.className="conn ok";
+    subscribeAll(); if(AU) AU.start(); return;
+  }
   if(GAS){
-    const conn=$("#conn"); conn.textContent="Loading from Google Sheet…";
+    conn.textContent="Loading from Google Sheet…";
     db=makeGasDb();
     try{ await db.refresh(); }catch(e){ conn.textContent="Google Sheet unavailable — reload"; conn.className="conn bad"; S.noDb=true; COLS.forEach(c=>S.loaded[c]=true); render(); return; }
-    uid=db.me(); conn.textContent="Live · Google Sheet"; conn.className="conn ok";
-    COLS.forEach(c=>db.collection(c).onSnapshot(snap=>{ S[c]=snap.docs.map(d=>Object.assign({_id:d.id},d.data())); S.loaded[c]=true; scheduleRender(); }));
-    db.doc("config/settings").onSnapshot(s=>{ S.settings=s.exists?s.data():{}; scheduleRender(); });
-    db.doc("config/acks").onSnapshot(s=>{ S.acks=s.exists?(s.data().items||{}):{}; scheduleRender(); });
+    uid=db.me(); appRole="admin"; conn.textContent="Live · Google Sheet"; conn.className="conn ok"; showUser();
+    subscribeAll(); if(AU) AU.start();
     setInterval(()=>{ if(document.visibilityState==="visible"&&!$("#ov")) db.refresh().catch(()=>{}); },45000);
     return;
   }
@@ -3536,15 +5033,9 @@ async function connect(){
   try{ user = window.claude && await window.claude.use("user"); }catch(e){ user=null; }
   try{ dl = window.claude && await window.claude.use("downloads"); }catch(e){ dl=null; }
   if(user){ try{ uid = await user.id(); }catch(e){} try{ const w=await user.can("data.write"); if(w===false) readOnly=true; }catch(e){} }
-  const conn=$("#conn");
   if(!db){ conn.textContent="Not connected"; conn.className="conn bad"; S.noDb=true; COLS.forEach(c=>S.loaded[c]=true); render(); return; }
   conn.textContent = readOnly ? "Live · view only" : "Live · synced"; conn.className="conn ok";
-  COLS.forEach(c=>{
-    db.collection(c).onSnapshot(snap=>{ S[c]=snap.docs.map(d=>Object.assign({_id:d.id},d.data())); S.loaded[c]=true; scheduleRender(); },
-      err=>{ conn.textContent="Sync stopped — reload"; conn.className="conn bad"; });
-  });
-  db.doc("config/settings").onSnapshot(s=>{ S.settings=s.exists?s.data():{}; scheduleRender(); },()=>{});
-  db.doc("config/acks").onSnapshot(s=>{ S.acks=s.exists?(s.data().items||{}):{}; scheduleRender(); },()=>{});
+  subscribeAll(); if(AU) AU.start();
 }
 
 /* ---------- alerts / notifications ---------- */
@@ -3576,6 +5067,13 @@ const VIEWS=[
   {grp:"Overview"},
   {id:"dashboard",en:"Dashboard",ar:"لوحة المتابعة"},
   {id:"alerts",en:"Notifications",ar:"التنبيهات",badge:true},
+  {grp:"Attendance"},
+  {id:"att",en:"Attendance today",ar:"حضور اليوم"},
+  {id:"attmap",en:"Locations live",ar:"المواقع مباشر"},
+  {id:"attsheet",en:"Timesheet",ar:"كشف الدوام"},
+  {id:"attreview",en:"Exceptions",ar:"الاستثناءات",badge2:true},
+  {id:"attsetup",en:"Shifts & Branches",ar:"الورديات والفروع"},
+  {id:"me",en:"My check-in",ar:"تسجيل حضوري"},
   {grp:"Employees & Jawazat"},
   {id:"employees",en:"Employees",ar:"الموظفون"},
   {id:"renewals",en:"Iqama Renewals",ar:"تجديد الإقامات"},
@@ -3614,14 +5112,20 @@ const IC={
   eosb:'<path d="M12 3v18M17 7.5c0-1.9-2.2-3.5-5-3.5S7 5.6 7 7.5 9.2 11 12 11.5s5 1.6 5 3.5-2.2 3.5-5 3.5-5-1.6-5-3.5"/>',
   loans:'<path d="M3 7h18v10H3z"/><path d="M7 7V5h10v2M12 10v4M10 12h4"/>',
   org:'<rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/>',
+  att:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/>',
+  attmap:'<path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
+  attsheet:'<rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M9 9.5V21M15 9.5V21M3 15.2h18"/>',
+  attreview:'<path d="M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  attsetup:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  me:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><circle cx="12" cy="10" r="2.6"/>',
   more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
 };
 const svgI=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||""}</svg>`;
-const TABS=["dashboard","alerts","employees","renewals"];
+const TABS=["dashboard","att","me","employees"];
 function renderNav(cnt){
   $("#nav").innerHTML=VIEWS.map(v=>v.grp?`<div class="grp">${h(v.grp)}</div>`:
-    `<button data-nav="${v.id}" aria-current="${S.ui.view===v.id}" title="${h(v.en)}"><span class="ico">${svgI(v.id)}</span><span class="lbl">${h(v.en)}<br><small>${h(v.ar)}</small></span>${v.badge&&cnt?`<span class="badge">${cnt}</span>`:""}</button>`).join("");
-  const short={dashboard:"Home",alerts:"Alerts",employees:"People",renewals:"Renewals"};
+    `<button data-nav="${v.id}" aria-current="${S.ui.view===v.id}" title="${h(v.en)}"><span class="ico">${svgI(v.id)}</span><span class="lbl">${h(v.en)}<br><small>${h(v.ar)}</small></span>${v.badge&&cnt?`<span class="badge">${cnt}</span>`:""}${v.badge2&&AU&&AU.badge()?`<span class="badge" style="background:var(--amber)">${AU.badge()}</span>`:""}</button>`).join("");
+  const short={dashboard:"Home",att:"Attendance",me:"Check in",employees:"People",alerts:"Alerts"};
   const inMore=!TABS.includes(S.ui.view);
   $("#tabbar").innerHTML=TABS.map(id=>`<button data-nav="${id}" aria-current="${S.ui.view===id}"><span class="tico">${svgI(id)}</span>${short[id]}${id==="alerts"&&cnt?`<span class="badge">${cnt}</span>`:""}</button>`).join("")+
     `<button data-act="more" aria-current="${inMore}"><span class="tico">${svgI("more")}</span>More</button>`;
@@ -3647,12 +5151,16 @@ function render(){
   if(!S.gsInit&&db&&!db.gas&&gsId()&&COLS.every(c=>S.loaded[c])){ S.gsInit=true; setTimeout(()=>gsSync(false),3000); }
   const v=VIEWS.find(x=>x.id===S.ui.view)||VIEWS[1];
   $("#viewTitle").innerHTML=`${h(v.en)}<small>${h(v.ar)}</small>`;
-  const fn={dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,leases:vLeases,hr:vHR,leave:vLeave,payroll:vPayroll,eosb:vEOSB,loans:vLoans,org:vOrg,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
+  document.body.classList.toggle("ess",!!S.essOnly);
+  if(S.essOnly) S.ui.view="me";
+  const db0=$("#demoBar"); if(db0) db0.innerHTML=S.demo?`<div class="demo-bar"><b>Preview with sample data.</b><span>Nothing you change here is saved. Open the app without <code>?demo</code> to use your live records.</span></div>`:"";
+  const fn={...(AU?AU.views:{}),dashboard:vDashboard,alerts:vAlerts,employees:vEmployees,renewals:vRenewals,visas:vVisas,contracts:vContracts,leases:vLeases,hr:vHR,leave:vLeave,payroll:vPayroll,eosb:vEOSB,loans:vLoans,org:vOrg,amort:vAmort,journal:vJournal,settings:vSettings,guide:vGuide}[S.ui.view]||vDashboard;
   const loaded=COLS.every(c=>S.loaded[c]);
   const vw=$("#view"); vw.classList.toggle("enter",!!S.ui.animate&&loaded);
   $("#bellBtn").classList.toggle("urgent",urgent>0&&!S.ui.rang&&loaded); if(urgent&&loaded) S.ui.rang=true;
+  if(S.signedOut){ vw.innerHTML=""; return; }
   if(S.noDb&&S.ui.view!=="guide"){ vw.innerHTML=`<div class="panel"><div class="empty"><b>This copy is not connected to your data · هذه النسخة غير متصلة ببياناتك</b>Open your live Muqeem Desk (Google web app) to see and save your records.<div style="margin-top:14px"><a class="btn pri" style="text-decoration:none;display:inline-block" href="https://script.google.com/macros/s/AKfycbxBLNAzEoVBHAulbqjOKERJVzw4k1sj6mT-aFFC-h1XcJdpsKcYm5oKcFoUf8X3nzcm/exec" target="_blank" rel="noopener">فتح النظام المباشر · Open live app</a></div></div></div>`; return; }
-  try{ vw.innerHTML = loaded||S.ui.view==="guide" ? fn() : `<div class="empty"><b>Loading records…</b>Employees, renewals, visas and contracts appear here as soon as they sync.</div>`; }
+  try{ vw.innerHTML = loaded||S.ui.view==="guide" ? fn() : `<div class="empty"><b>Loading records…</b>Employees, renewals, visas and contracts appear here as soon as they sync.</div>`; if(AU) AU.after(); }
   catch(e){ console.error(e); $("#view").innerHTML=`<div class="warnbox">This screen could not be drawn: ${h(e.message)}</div>`; }
   if(loaded&&S.ui.animate){ countUp(); S.ui.animate=false; }
 }
@@ -3678,7 +5186,7 @@ function vDashboard(){
     return `<div class="panel"><div class="empty"><b>No records yet</b>Start by importing your employee sheet (Excel) or adding employees one by one. Employee numbers are generated automatically.<div class="row" style="justify-content:center;margin-top:14px"><button class="btn pri" data-act="import">Import employees from Excel</button><button class="btn" data-act="addEmp">Add employee</button><button class="btn" data-act="addCon">Add rent contract</button></div></div></div>`;
   }
   const noExp=activeEmps.filter(e=>!e.saudi&&!E.effectiveExpiry(e,S.renewals)).length;
-  return `${noExp?`<div class="warnbox row" style="margin-bottom:14px"><span><b>${noExp} active employees have no Iqama expiry date</b>, so they cannot get reminders yet. Add the dates (or re-import with an expiry column).</span><span class="spacer"></span><button class="btn sm" data-act="showNoExp">Show them</button></div>`:""}
+  return `${AU?AU.dashStrip():""}${noExp?`<div class="warnbox row" style="margin-bottom:14px"><span><b>${noExp} active employees have no Iqama expiry date</b>, so they cannot get reminders yet. Add the dates (or re-import with an expiry column).</span><span class="spacer"></span><button class="btn sm" data-act="showNoExp">Show them</button></div>`:""}
   <div class="kpis">
     <button class="kpi red" data-goalert="expired"><span class="tag"><i></i>Expired</span><span class="v" data-n="${health[0].v}">${health[0].v}</span><span class="l">Iqamas expired · منتهية</span></button>
     <button class="kpi red" data-goalert="critical"><span class="tag"><i></i>Urgent</span><span class="v" data-n="${health[1].v}">${health[1].v}</span><span class="l">Iqamas due ≤ 15 days</span></button>
@@ -4737,12 +6245,13 @@ function confirmBox(msg,fn){ openModal("Please confirm",`<p>${h(msg)}</p>`,[{lab
 
 /* ---------- events ---------- */
 document.addEventListener("click",async ev=>{
-  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-lease],[data-lact],[data-profile],[data-loan],[data-letter],[data-leavef],[data-leaveact],[data-eosb],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],[data-lang],#bellBtn,#ov");
+  const t=ev.target.closest("[data-nav],[data-act],[data-editemp],[data-renewemp],[data-openren],[data-step],[data-renfilter],[data-openvisa],[data-visafilter],[data-editcon],[data-lease],[data-lact],[data-profile],[data-loan],[data-letter],[data-leavef],[data-leaveact],[data-eosb],[data-payinst],[data-amcat],[data-alertcat],[data-alertact],[data-goalert],[data-mbtn],[data-close],[data-lang],[data-a],#bellBtn,#ov");
   if(!t) return;
   if(t.id==="ov"){ if(ev.target.id==="ov") closeModal(); return; }
   if(t.id==="bellBtn") return go("alerts");
   if(t.dataset.lang){ const was=I18N.lang; if(was===t.dataset.lang) return; if(t.dataset.lang==="en"){ try{localStorage.setItem("mqd-lang","en");}catch(e){} location.reload(); return; } I18N.set(t.dataset.lang); return; }
   const d=t.dataset;
+  if(d.a&&AU&&!t.closest("#ov .modal footer")){ return AU.act(d.a,t,ev); }
   if(d.close){ closeModal(); if(!d.nav) return; }
   if(d.mbtn!=null){ const b=modalBtns[+d.mbtn]; if(b&&b.fn){ t.disabled=true; try{ await b.fn(); }catch(e){ console.error(e); } finally{ t.disabled=false; } } return; }
   if(d.renewemp){ ev.stopPropagation(); const open=S.renewals.find(r=>r.empNo===d.renewemp&&E.renewalStatus(r)!=="Completed"); return open?openRenewal(open.id):openRenewal(null,d.renewemp); }
@@ -4779,6 +6288,7 @@ document.addEventListener("click",async ev=>{
     return; }
   switch(d.act){
     case "more": return openMore();
+    case "userMenu": return openModal("Your account",`<div class="who"><span class="av">${h((uid||"U")[0].toUpperCase())}</span><div><b>${h(uid||"")}</b><span class="sub">Role: ${h(appRole||"—")}${S.demo?" · preview":""}</span></div></div>`,[sb?{label:"Sign out",cls:"danger",fn:signOut}:null,{label:"Close",fn:closeModal}].filter(Boolean));
     case "addLeave": return openLeave();
     case "addLoan": return openLoan(null);
     case "hrImport": return openHrImport();
@@ -4804,10 +6314,12 @@ document.addEventListener("click",async ev=>{
 });
 document.addEventListener("input",ev=>{
   const id=ev.target.id;
+  if(AU&&AU.onInput(ev)) return;
   if(id==="empQ"){ S.ui.empQ=ev.target.value; clearTimeout(window._q); window._q=setTimeout(()=>{ const pos=ev.target.selectionStart; render(); const el=$("#empQ"); if(el){ el.focus(); el.setSelectionRange(pos,pos);} },200); }
 });
 document.addEventListener("change",ev=>{
   const id=ev.target.id, v=ev.target.value;
+  if(AU&&AU.onChange(ev)) return;
   if(id==="empStatus"){ S.ui.empStatus=v; render(); }
   if(id==="empAlert"){ S.ui.empAlert=v; render(); }
   if(id==="empFees"){ S.ui.empFees=v; render(); }
@@ -4824,6 +6336,10 @@ document.addEventListener("mouseover",ev=>{ const t=ev.target.closest&&ev.target
 document.addEventListener("mousemove",ev=>{ if(tipEl.hidden) return; const w=tipEl.offsetWidth, hh=tipEl.offsetHeight; let x=ev.clientX+14, y=ev.clientY+14; if(x+w>innerWidth-8) x=ev.clientX-w-14; if(y+hh>innerHeight-8) y=ev.clientY-hh-14; tipEl.style.left=x+"px"; tipEl.style.top=y+"px"; });
 document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&$("#ov")) closeModal(); });
 
+const MQ={S,$,h,money,money0,fd,hj,today,toast,openModal,closeModal,confirmBox,put,del,withNumberLock,nextId,settings,hrCfg,activeStaff,empBy,empName,svgI,go,saveFile,
+  render:()=>scheduleRender(),renderNow:()=>render(),E,IO,HRX,COLS,
+  get db(){return db;},get sb(){return sb;},get uid(){return uid;},get role(){return appRole;},get readOnly(){return readOnly;}};
+const AU=window.AttendanceUI?window.AttendanceUI(MQ):null;
 window.__rerender=render; if(window.I18N) I18N.start(); render(); connect();
 })();
 </script>

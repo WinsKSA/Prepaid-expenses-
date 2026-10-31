@@ -6,7 +6,7 @@
  * Deploy: Extensions → Apps Script → paste Code.gs + Index.html → Deploy → New deployment → Web app
  *         Execute as: Me · Who has access: Only myself (or anyone in your organization).
  */
-var COLLECTIONS = ['employees', 'renewals', 'visas', 'contracts', 'leaves', 'loans', 'payruns', 'config'];
+var COLLECTIONS = ['employees', 'renewals', 'visas', 'contracts', 'leaves', 'loans', 'payruns', 'config', 'attendance', 'attreq'];
 var DB_PREFIX = '_db_';
 
 function doGet() {
