@@ -23,8 +23,8 @@ def inline_css(m):
     css = open(path, encoding="utf-8").read().replace("</style", "<\\/style")
     return "<style>/* %s */\n%s\n</style>" % (m.group(1), css)
 
-body = re.sub(r'<script src="([a-z0-9_]+\.js)"></script>', inline, src)
-body = re.sub(r'<link rel="stylesheet" href="([a-z0-9_]+\.css)">', inline_css, body)
+body = re.sub(r'<script src="([a-z0-9_]+\.js)(?:\?v=[\w.]+)?"></script>', inline, src)
+body = re.sub(r'<link rel="stylesheet" href="([a-z0-9_]+\.css)(?:\?v=[\w.]+)?">', inline_css, body)
 out = ('<!doctype html><html><head><base target="_top"><meta charset="utf-8">'
        '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
        '<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}</style></head><body>'

@@ -462,7 +462,7 @@ body.ess .main{padding-bottom:40px}
 .mapbox{border-radius:12px;overflow:hidden;border:1px solid var(--line);height:220px;background:var(--surface-2)}
 .mapbox iframe{width:100%;height:100%;border:0;display:block}
 </style>
-<link rel="stylesheet" href="design.css">
+<link rel="stylesheet" href="design.css?v=20261031d">
 
 <div class="shell">
   <aside class="rail">
@@ -494,17 +494,17 @@ body.ess .main{padding-bottom:40px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
-<script src="config.js"></script>
-<script src="engine.js"></script>
-<script src="io.js"></script>
-<script src="lease.js"></script>
-<script src="rental.js"></script>
-<script src="hr.js"></script>
-<script src="attendance.js"></script>
-<script src="demo.js"></script>
-<script src="attendance_ui.js"></script>
-<script src="i18n_ar.js"></script>
-<script src="i18n_att_ar.js"></script>
+<script src="config.js?v=20261031d"></script>
+<script src="engine.js?v=20261031d"></script>
+<script src="io.js?v=20261031d"></script>
+<script src="lease.js?v=20261031d"></script>
+<script src="rental.js?v=20261031d"></script>
+<script src="hr.js?v=20261031d"></script>
+<script src="attendance.js?v=20261031d"></script>
+<script src="demo.js?v=20261031d"></script>
+<script src="attendance_ui.js?v=20261031d"></script>
+<script src="i18n_ar.js?v=20261031d"></script>
+<script src="i18n_att_ar.js?v=20261031d"></script>
 <script>
 /* Language layer: translates rendered text nodes + attributes when Arabic is on; flips the page to RTL. */
 (function(){
@@ -1636,7 +1636,7 @@ function vHR(){
   return `${missPay||missHire?`<div class="warnbox row" style="margin-bottom:14px"><span><b>Salary data needed:</b> ${missPay} active employees have no basic salary and ${missHire} have no hire date${missIban?`, ${missIban} have no IBAN`:""}. Payroll, end of service and leave values include only employees with complete data.</span><span class="spacer"></span><button class="btn sm" data-act="hrImport">Import salaries from Excel</button></div>`:""}
   <div class="kpis">
     <button class="kpi" data-nav="employees"><span class="tag"><i></i>Workforce</span><span class="v">${act.length}</span><span class="l">Active employees</span></button>
-    <div class="kpi ${nq.pct<0.1?"amber":"green"}"><span class="tag"><i></i>Nitaqat</span><span class="v">${((nq.pct||0)*100).toFixed(1)}%</span><span class="l">Saudization (${nq.saudiWeighted} weighted Saudis)</span></div>
+    <div class="kpi ${(nq.pct||0)<10?"amber":"green"}"><span class="tag"><i></i>Nitaqat</span><span class="v">${(+nq.pct||0).toFixed(1)}%</span><span class="l">Saudization (${nq.saudiWeighted} weighted Saudis)</span></div>
     <button class="kpi green" data-nav="payroll"><span class="tag"><i></i>Payroll</span><span class="v">${money0((run.totals||{}).gross)}</span><span class="l">Gross payroll this month (SAR)</span></button>
     <button class="kpi blue" data-nav="eosb"><span class="tag"><i></i>Provision</span><span class="v">${money0(prov.total)}</span><span class="l">End of service liability (SAR)</span></button>
     <div class="kpi blue"><span class="tag"><i></i>Leave</span><span class="v">${money0(lv)}</span><span class="l">Leave liability (SAR)</span></div>
@@ -2107,4 +2107,4 @@ const AU=window.AttendanceUI?window.AttendanceUI(MQ):null;
 window.__rerender=render; if(window.I18N) I18N.start(); render(); connect();
 })();
 </script>
-<script src="design.js"></script>
+<script src="design.js?v=20261031d"></script>
