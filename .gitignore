@@ -4,3 +4,5 @@ node_modules/
 *.pdf
 data/
 .claude/
+gas/
+supabase/migrations/002_first_admin.sql
