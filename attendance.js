@@ -14,7 +14,10 @@
     earlyGraceMin: 10,           // early leave only when check-out is more than this before shift end
     minOtMin: 30,                // overtime counted only when it reaches this many minutes
     halfDayMin: 240,             // a day with less than 4 h worked counts as half a day absent
-    maxAccuracyM: 100,           // GPS fixes worse than this need review
+    accuracyTolerance: true,     // allow for the reported GPS error (capped at 50 m) when deciding inside/outside
+  deviceLock: false,           // true = a new phone cannot punch until HR approves it
+  selfie: false,               // true = ask for a photo at each punch
+  maxAccuracyM: 100,           // GPS fixes worse than this need review
     geoMode: "any",              // "any" = nearest active branch, "assigned" = only the employee's assigned branches
     blockOutside: false,         // true = refuse punches outside the zone instead of recording them for review
     countOutside: true,          // punches outside the geofence still count (flagged for review); rejected ones never count
@@ -265,12 +268,14 @@
   /* allowedIds: the employee's assigned branch ids. cfg.geoMode "any" = nearest active branch, "assigned" = only assigned branches.
      cfg.blockOutside = refuse the punch (instead of recording it for review) when it is not inside a zone with a usable GPS fix. */
   function allowedBranches(emp) { var r = (emp && emp.hr) || {}; var ids = [].concat(r.branchIds || [], r.branchId ? [r.branchId] : []); return ids.filter(function (x, i) { return x && ids.indexOf(x) === i; }); }
-  function evaluatePunch(branches, lat, lng, accuracy, cfg, allowedIds) {
-    cfg = C(cfg); var best = null, bestD = null;
+  function evaluatePunch(branches, lat, lng, accuracy, cfg, allowedIds, policy) {
+    cfg = C(cfg); var best = null, bestD = null, mode = policy === "any" || policy === "assigned" ? policy : cfg.geoMode;
+    if (policy === "none") return { branchId: null, branch: null, distance: null, inside: false, status: "none", blocked: true, reason: "Check-in is switched off for you. Ask HR" };
     var list = (branches || []).filter(function (b) { return b && b.active !== false && isFinite(b.lat) && isFinite(b.lng); });
-    if (cfg.geoMode === "assigned" && allowedIds && allowedIds.length) list = list.filter(function (b) { return allowedIds.indexOf(b.id) >= 0; });
+    if (mode === "assigned" && allowedIds && allowedIds.length) list = list.filter(function (b) { return allowedIds.indexOf(b.id) >= 0; });
     list.forEach(function (b) { var d = haversine(lat, lng, +b.lat, +b.lng); if (bestD == null || d < bestD) { bestD = d; best = b; } });
-    var inside = !!(best && bestD <= (+best.radius_m || +best.radius || 150));
+    var tol = cfg.accuracyTolerance === false ? 0 : Math.min(Math.max(+accuracy || 0, 0), 50);
+    var inside = policy === "anywhere" || !!(best && bestD - tol <= (+best.radius_m || +best.radius || 150));
     var status = accuracy == null || accuracy > cfg.maxAccuracyM ? "low_accuracy" : inside ? "ok" : "outside";
     return { branchId: best ? best.id : null, branch: best, distance: bestD == null ? null : Math.round(bestD * 10) / 10, inside: inside, status: status,
       blocked: !!cfg.blockOutside && status !== "ok", reason: status === "ok" ? "" : status === "low_accuracy" ? "GPS accuracy is too weak (±" + Math.round(accuracy || 0) + " m)" : !best ? "No branch zone is set up" : "Outside " + (best.name || best.id) + " by " + Math.round(bestD - (+best.radius_m || 150)) + " m" };

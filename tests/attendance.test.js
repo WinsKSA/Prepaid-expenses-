@@ -186,4 +186,20 @@ t('Umm al-Qura holiday suggestions for 2027 include both Eids and Ramadan', () =
   assert.strictEqual(s.holidays[0].name, 'Founding Day');
 });
 
+t('geofence allows for reported GPS error, capped at 50 m', () => {
+  const zone = [{ id: 'B', lat: 24.7, lng: 46.7, radius_m: 150 }];
+  assert.strictEqual(A.evaluatePunch(zone, 24.7016, 46.7, 40).status, 'ok');        // ~178 m, +-40 m
+  assert.strictEqual(A.evaluatePunch(zone, 24.7016, 46.7, 10).status, 'outside');   // ~178 m, +-10 m
+  assert.strictEqual(A.evaluatePunch(zone, 24.7022, 46.7, 95).status, 'outside');   // ~245 m: tolerance stops at 50 m
+  assert.strictEqual(A.evaluatePunch(zone, 24.7016, 46.7, 40, { accuracyTolerance: false }).status, 'outside');
+});
+t('employee punch policy overrides the company rule', () => {
+  const two = [{ id: 'A', lat: 24.7, lng: 46.7, radius_m: 150 }, { id: 'B', lat: 25.7, lng: 46.7, radius_m: 150 }];
+  assert.strictEqual(A.evaluatePunch(two, 25.7, 46.7, 10, {}, ['A'], 'assigned').status, 'outside');
+  assert.strictEqual(A.evaluatePunch(two, 25.7, 46.7, 10, { geoMode: 'assigned' }, ['A'], 'any').status, 'ok');
+  assert.strictEqual(A.evaluatePunch(two, 26.9, 46.7, 10, {}, [], 'anywhere').status, 'ok');
+  assert.strictEqual(A.evaluatePunch(two, 26.9, 46.7, 500, {}, [], 'anywhere').status, 'low_accuracy');
+  const off = A.evaluatePunch(two, 24.7, 46.7, 10, {}, [], 'none'); assert.strictEqual(off.blocked, true);
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);

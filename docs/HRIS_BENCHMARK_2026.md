@@ -177,3 +177,63 @@ Platform
 Rankings
 - [70] Bayzat KSA buyer's guide (vendor-written): https://www.bayzat.com/blog/?p=26314
 - [71] OrangeHRM Middle East top 10 (competitor-written): https://www.orangehrmlive.com/resources/blog/top-ten-hr-software-in-the-uae-and-middle-east-2026
+
+
+---
+
+## D. ERP suites and global workforce systems (added 2026-11-07)
+
+Scope: public documentation only. REA was loaded again; it analyses shipped binaries, packages and captured traffic, and we hold no such artifacts for these products, so it has no target here. "Not confirmed" means no public source was found, not that the feature is missing.
+
+| Product | Location check-in | Geofence | Face / photo | Kiosk | Source quality |
+|---|---|---|---|---|---|
+| Odoo 18/19 Attendances | Backend, kiosk, badge, mobile | Not confirmed in official docs; third-party modules add server-side radius checks | Add-ons | **Yes, documented** | Official for kiosk; blogs and add-on listings for the rest [D1][D2][D3] |
+| ERPNext / Frappe HR | **Yes**: "Allow Geolocation Tracking" records location at check-in | No radius enforcement in core, per a vendor selling an add-on | Add-ons | Not confirmed | Official docs [D4]; add-on page [D5] |
+| Zoho People | **Yes**, web and mobile | **Yes**: geo boundaries, can combine with IP limits | **Yes**: AI match to profile photo, can be set per shift group | **Yes** | Official docs [D6][D7][D8] |
+| UKG | Clocks, mobile, desktop, telephony | Not confirmed natively | InTouch DX touch-free face | Hardware clocks | Vendor page [D9] |
+| ADP Workforce Now | Not confirmed natively | Marketplace add-ons, with offline punch capture | Marketplace add-ons | Add-ons | Marketplace listing [D10] |
+| Microsoft Dynamics 365 HR, Oracle NetSuite SuitePeople, Dayforce | Not confirmed | Not confirmed | Not confirmed | Not confirmed | Search returned add-ons only; verify with each vendor |
+| Daftra, Menaitech (KSA/MENA) | Daftra lists an HR and attendance module | Not confirmed | Not confirmed | Not confirmed | Listings only [D11] |
+
+**What this changed in Muqeem Desk**
+
+| Finding | Action taken |
+|---|---|
+| Kiosks are standard (Odoo, Zoho, Bayzat) and most of our staff have no email | Built the branch kiosk: employee number + PIN, server decides in or out, 5 wrong PINs lock for 15 minutes |
+| Zoho warns that browser location can be altered, and recommends the mobile app | Kept server-side checks and added device binding, shared-phone detection and an optional selfie. A web app still cannot detect fake GPS directly |
+| Zoho sets face checks per shift group | Not yet: selfie is company-wide. Candidate for later |
+| ADP add-ons capture punches offline | Not built: offline punches would rely on the phone clock, which weakens server time |
+| TrackTik and Oracle let admins choose block or flag | Already built (`blockOutside`) |
+
+**Status of the section B list after migration 004**
+
+| # | Feature | Status |
+|---|---|---|
+| 1 | Punch policy per employee | **Done**: company rule, assigned, any, anywhere, not allowed. Named branch groups use `hr.branchIds` |
+| 2 | Block or record-and-flag | **Done** |
+| 3 | Accuracy-aware geofence | **Done**: tolerance capped at 50 m so a client cannot widen a zone |
+| 4 | Fake-GPS heuristics | **Done**: impossible travel, zero accuracy, repeated exact fix. Never rejects alone |
+| 5 | Device binding | **Done**: first phone auto-approved, later phones go to HR, optional hard lock |
+| 6 | Selfie | **Done, off by default**: photo only, private bucket, no face matching. Tell staff first (PDPL) |
+| 7 | Clocking windows | Partly: grace and early-leave exist; earliest and latest clock-in do not |
+| 8–9 | Penalty ladder and deduction guards | Open |
+| 10 | Excuse requests, correction caps | Partly: corrections exist, no monthly cap |
+| 11 | Overtime pre-approval, TOIL | Open |
+| 12 | Ramadan hours | **Done** |
+| 13 | Art. 80 absence counters | **Done** (`lawPanel`) |
+| 14 | Device import robustness | Partly: import exists, no failed-rows retry |
+| 15 | Field-visit punches | Open; "anywhere" policy covers drivers for now |
+
+**Sources (section D)**
+- [D1] Odoo 18 Attendances: https://www.odoo.com/documentation/18.0/zh_TW/applications/hr/attendances.html
+- [D2] Odoo 19 setup (third party): https://deploymonkey.com/blog/how-to-setup-attendance-tracking-odoo-19
+- [D3] Odoo geofence add-on: https://apps.odoo.com/apps/modules/18.0/eh_hr_attendance_geofence
+- [D4] Frappe HR Employee Checkin: https://docs.frappe.io/erpnext/user/manual/en/employee_checkin
+- [D5] ERPNext geofence add-on: https://ecosire.com/apps/erpnext/erpnext-geofence-attendance
+- [D6] Zoho People geo restrictions: https://help.zoho.com/portal/en/kb/people/administrator-guide/common-settings/articles/geo-restrictions
+- [D7] Zoho People IP and geo restrictions: https://www.zoho.com/people/help/adminguide/ipandgeorestrictions.html
+- [D8] Zoho People attendance: https://www.zoho.com/people/attendance-tracker.html
+- [D9] UKG time and attendance: https://www.ukg.com/for-llms/products/features/time-and-attendance
+- [D10] Findd for ADP Workforce Now: https://apps.adp.com/en-US/apps/616966/findd-time-labor-for-adp-workforce-now/features
+- [D11] KSA attendance overview (vendor blog): https://ibos.io/top-10-hr-attendance-tracking-software-in-saudi-arabia/
+- TrackTik geofence clock-ins: https://support.tracktik.com/hc/en-us/articles/1500001570922-Use-geofences-to-manage-mobile-clock-ins

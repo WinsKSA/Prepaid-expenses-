@@ -38,10 +38,30 @@ window.AttendanceUI = function (MQ) {
   const LOC = () => (window.I18N && I18N.lang === "ar" ? "ar-SA-u-ca-gregory-nu-latn" : "en-GB");
   const T = x => (window.I18N ? I18N.tr(x) : x);
   const errMsg = e => (e && (e.message || e.details)) || String(e);
+  const TRUST = { NEW_DEVICE: "New phone", SHARED_DEVICE: "Phone used by another employee", ZERO_ACCURACY: "Unusual GPS reading", SAME_FIX: "Same exact location as an earlier day", NO_PHOTO: "No selfie", NO_DEVICE_ID: "Phone not identified" };
+  const trustFlags = p => (p.flags || []).filter(f => TRUST[f]);
+  const policyOf = e => (e && e.hr && e.hr.punchPolicy) || "";
+  const deviceId = () => { try { let d = localStorage.getItem("mq_device"); if (!d) { d = crypto.randomUUID(); localStorage.setItem("mq_device", d); } return d; } catch (e) { return null; } };
+  const deviceLabel = () => (navigator.userAgentData && navigator.userAgentData.platform) || (navigator.userAgent || "").replace(/^[^(]*\(([^)]*)\).*$/, "$1").slice(0, 100);
+  const newPin = () => String(1000 + crypto.getRandomValues(new Uint32Array(1))[0] % 9000);
+  function shrink(file) { return new Promise((res, rej) => { const url = URL.createObjectURL(file), im = new Image(); im.onload = () => { const k = Math.min(1, 480 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(url); c.toBlob(b => (b ? res(b) : rej(new Error("Photo failed"))), "image/jpeg", 0.72); }; im.onerror = () => rej(new Error("Photo failed")); im.src = url; }); }
+  function takeSelfie() {
+    return new Promise(res => {
+      openModal("Selfie · صورة الحضور", `<div class="sub" style="margin-bottom:12px">A photo confirms it is you. Only HR can see it.</div><label class="btn pri" style="display:flex;justify-content:center;padding:14px;cursor:pointer"><input type="file" id="sfIn" accept="image/*" capture="user" hidden>Open camera</label>`,
+        [{ label: "Continue without photo", fn: () => { closeModal(); res(null); } }]);
+      $("#sfIn").addEventListener("change", async ev => { const f = ev.target.files[0]; closeModal(); if (!f) return res(null); try { res(await shrink(f)); } catch (x) { res(null); } });
+    });
+  }
+  async function uploadPhoto(folder, blob) {
+    if (!blob) return null;
+    const path = `${folder}/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+    const { error } = await MQ.sb.storage.from("punch-photos").upload(path, blob, { contentType: "image/jpeg" });
+    if (error) { console.error(error); return null; } return path;
+  }
 
   /* ---------- data ---------- */
   const normP = r => ({ id: String(r.id), empNo: r.emp_no, email: r.email, kind: r.kind, at: r.at, lat: r.lat, lng: r.lng, accuracy: r.accuracy_m, branchId: r.branch_id,
-    distance: r.distance_m, inside: r.inside, status: r.status, note: r.note, device: r.device, reviewedBy: r.reviewed_by, reviewedAt: r.reviewed_at, flags: r.flags || [] });
+    distance: r.distance_m, inside: r.inside, status: r.status, note: r.note, device: r.device, reviewedBy: r.reviewed_by, reviewedAt: r.reviewed_at, flags: r.flags || [], deviceId: r.device_id, photo: r.photo_path, source: r.source });
   const normR = r => ({ id: String(r.id), empNo: r.emp_no, email: r.email, day: r.day, kind: r.kind, time: r.at_time, reason: r.reason, status: r.status, createdAt: r.created_at, reviewedBy: r.reviewed_by, reviewNote: r.review_note });
   function upsertP(p) { const i = S.att.punches.findIndex(x => x.id === p.id); if (i >= 0) S.att.punches[i] = p; else S.att.punches.push(p); }
   function upsertR(r) { const i = S.att.requests.findIndex(x => x.id === r.id); if (i >= 0) S.att.requests[i] = r; else S.att.requests.push(r); }
@@ -56,6 +76,11 @@ window.AttendanceUI = function (MQ) {
   async function loadSupaSide() {
     const sb = MQ.sb;
     try { const { data } = await sb.from("branches").select("*").order("name"); S.att.branches = data || []; } catch (e) { console.error(e); }
+    if (MQ.role !== "employee") {
+      try { const { data } = await sb.from("devices").select("*").order("first_seen", { ascending: false }); S.att.devices = data || []; } catch (e) {}
+      if (MQ.role === "admin" || MQ.role === "hr") { try { const { data } = await sb.rpc("pins_set"); S.att.pins = data || []; } catch (e) {} }
+      if (MQ.role === "admin") { try { const { data } = await sb.from("app_users").select("*").order("email"); S.att.users = data || []; } catch (e) {} }
+    }
     try { const since = new Date(Date.now() - 62 * 86400000).toISOString().slice(0, 10); const { data, error } = await sb.from("attendance_requests").select("*").gte("day", since).order("created_at", { ascending: false }); if (!error) S.att.requests = (data || []).map(normR); } catch (e) {}
     sb.channel("att-live").on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, p => { if (p.new && p.new.id) { upsertP(normP(p.new)); MQ.render(); } })
       .on("postgres_changes", { event: "*", schema: "public", table: "attendance_requests" }, p => { if (p.new && p.new.id) { upsertR(normR(p.new)); MQ.render(); } })
@@ -80,7 +105,14 @@ window.AttendanceUI = function (MQ) {
     catch (e) { try { const { data } = await sb.rpc("app_emp_no"); if (data) S.me = { empNo: data, emp: { empNo: data } }; } catch (x) {} }
     await loadSupaSide();
     try { const since = new Date(Date.now() - 45 * 86400000).toISOString(); const rows = await supaAll(() => sb.from("attendance").select("*").gte("at", since).order("at")); rows.forEach(r => upsertP(normP(r))); } catch (e) { console.error(e); }
+    try { const { data } = await sb.rpc("device_hello", { p_device_id: deviceId(), p_label: deviceLabel() }); S.att.device = data; } catch (e) {}
     locate(); setInterval(() => { if (document.visibilityState === "visible") MQ.renderNow(); }, 30000);
+  }
+  async function startKiosk() {
+    const sb = MQ.sb;
+    try { const { data } = await sb.rpc("kiosk_config"); S.attCfg = Object.assign({}, S.attCfg, data || {}); } catch (e) {}
+    try { const { data } = await sb.from("branches").select("*").order("name"); S.att.branches = data || []; } catch (e) {}
+    U.k = {};
   }
   const meEmp = () => { if (!S.me) return null; return MQ.empBy(S.me.empNo) || S.me.emp || { empNo: S.me.empNo }; };
 
@@ -91,9 +123,10 @@ window.AttendanceUI = function (MQ) {
     try {
       const pos = await locate(true);
       if (!pos || pos.err) throw new Error((pos && pos.err) || "Location is needed to check in. Allow location access and try again.");
-      const ev = A.evaluatePunch(branches(), pos.lat, pos.lng, pos.acc, cfg(), A.allowedBranches(e));
+      const ev = A.evaluatePunch(branches(), pos.lat, pos.lng, pos.acc, cfg(), A.allowedBranches(e), policyOf(e));
       if (isSupa()) {
-        const { data, error } = await MQ.sb.rpc("punch", { p_kind: kind, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.acc, p_device: (navigator.userAgent || "").slice(0, 280), p_note: null });
+        const photo = cfg().selfie ? await uploadPhoto(e.empNo, await takeSelfie()) : null;
+        const { data, error } = await MQ.sb.rpc("punch", { p_kind: kind, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.acc, p_device: (navigator.userAgent || "").slice(0, 280), p_note: null, p_device_id: deviceId(), p_photo: photo });
         if (error) throw error; const p = normP(data); upsertP(p); done(p);
       } else {
         if (ev.blocked) throw new Error(ev.reason + ". Check-in is only allowed inside the zone.");
@@ -108,7 +141,7 @@ window.AttendanceUI = function (MQ) {
     } catch (x) { toast(errMsg(x)); }
     finally { S.att.busy = false; MQ.renderNow(); }
     function done(p) { const b = branchBy(p.branchId); const lbl = { in: "Checked in", out: "Checked out", break_start: "Break started", break_end: "Break ended" }[p.kind];
-      toast(`${lbl} at ${tLocal(p.at)}${b ? " · " + b.name : ""}${p.status !== "ok" ? " · outside the zone, HR will review" : ""}`); }
+      toast(`${lbl} at ${tLocal(p.at)}${b ? " · " + b.name : ""}${p.status !== "ok" ? " · outside the zone, HR will review" : trustFlags(p).length ? " · HR will review" : ""}`); }
   }
   function locate(fresh) {
     return new Promise(res => {
@@ -298,11 +331,11 @@ window.AttendanceUI = function (MQ) {
     return `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr>${withWho ? "<th>Employee</th>" : ""}<th>Time</th><th>Type</th><th>Result</th><th class="n">Distance</th><th class="n">GPS ±</th><th>Branch</th><th></th></tr></thead><tbody>
       ${list.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).map(p => { const e = MQ.empBy(p.empNo) || { empNo: p.empNo }; const b = branchBy(p.branchId);
         const res = { ok: ["p-green", "Inside zone"], outside: ["p-red", "Outside zone"], low_accuracy: ["p-amber", "Weak GPS"], manual: ["p-blue", "Entered by HR"], approved: ["p-green", "Approved"], rejected: ["p-grey", "Rejected"] }[p.status] || ["p-grey", p.status];
-        const pend = p.status === "outside" || p.status === "low_accuracy";
+        const pend = p.status === "outside" || p.status === "low_accuracy" || (p.status === "ok" && trustFlags(p).length > 0);
         return `<tr>${withWho ? `<td>${who(e)}</td>` : ""}<td class="mono">${fd(dLocal(p.at))} ${tLocal(p.at)}</td><td>${h({ in: "Check-in", out: "Check-out", break_start: "Break start", break_end: "Break end" }[p.kind] || p.kind)}</td>
-          <td><span class="pill ${res[0]}">${h(res[1])}</span>${(p.flags || []).includes("IMPOSSIBLE_TRAVEL") ? ` <span class="flag r">Location jump</span>` : ""}${p.note ? `<div class="sub" style="white-space:normal;max-width:260px">${h(p.note)}</div>` : ""}</td>
+          <td><span class="pill ${res[0]}">${h(res[1])}</span>${(p.flags || []).includes("IMPOSSIBLE_TRAVEL") ? ` <span class="flag r">Location jump</span>` : ""}${trustFlags(p).map(f => ` <span class="flag a">${h(TRUST[f])}</span>`).join("")}${p.source === "kiosk" ? ` <span class="flag">Kiosk</span>` : ""}${p.note ? `<div class="sub" style="white-space:normal;max-width:260px">${h(p.note)}</div>` : ""}</td>
           <td class="n">${p.distance != null ? Math.round(p.distance).toLocaleString("en-US") + " m" : "—"}</td><td class="n">${p.accuracy != null ? Math.round(p.accuracy) + " m" : "—"}</td><td>${h(b ? b.name : "—")}</td>
-          <td>${p.lat != null ? `<a class="btn sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lng}#map=18/${p.lat}/${p.lng}">Map</a> ` : ""}${pend && canEdit() ? `<button class="btn sm pri" data-a="rev" data-v="approved" data-id="${h(p.id)}">Accept</button> <button class="btn sm" data-a="rev" data-v="rejected" data-id="${h(p.id)}">Reject</button>` : ""}</td></tr>`; }).join("")}
+          <td>${p.photo ? `<button class="btn sm" data-a="photo" data-v="${h(p.photo)}">Photo</button> ` : ""}${p.lat != null ? `<a class="btn sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lng}#map=18/${p.lat}/${p.lng}">Map</a> ` : ""}${pend && canEdit() ? `<button class="btn sm pri" data-a="rev" data-v="approved" data-id="${h(p.id)}">Accept</button> <button class="btn sm" data-a="rev" data-v="rejected" data-id="${h(p.id)}">Reject</button>` : ""}</td></tr>`; }).join("")}
       </tbody></table></div>`;
   }
 
@@ -382,8 +415,9 @@ window.AttendanceUI = function (MQ) {
   }
 
   /* ---------- view: exceptions ---------- */
-  function pendingPunches() { const since = Date.now() - 45 * 86400000; return S.att.punches.filter(p => (p.status === "outside" || p.status === "low_accuracy") && Date.parse(p.at) >= since); }
-  function badge() { return pendingPunches().length + S.att.requests.filter(r => r.status === "pending").length; }
+  function pendingPunches() { const since = Date.now() - 45 * 86400000; return S.att.punches.filter(p => (p.status === "outside" || p.status === "low_accuracy" || (p.status === "ok" && trustFlags(p).length)) && Date.parse(p.at) >= since); }
+  const pendingDevices = () => (S.att.devices || []).filter(d => d.status === "pending");
+  function badge() { return pendingPunches().length + pendingDevices().length + S.att.requests.filter(r => r.status === "pending").length; }
   function vReview() {
     const reqs = S.att.requests.filter(r => r.status === "pending").sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
     const pp = pendingPunches();
@@ -394,8 +428,10 @@ window.AttendanceUI = function (MQ) {
       ${reqs.length ? `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Day</th><th>Missing punch</th><th>Reason</th><th></th></tr></thead><tbody>${reqs.map(r => { const e = MQ.empBy(r.empNo) || { empNo: r.empNo };
         return `<tr><td>${who(e)}</td><td>${fd(r.day)}</td><td>${h({ in: "Check-in", out: "Check-out", break_start: "Break start", break_end: "Break end" }[r.kind])} at <b>${h(r.time)}</b></td><td style="white-space:normal;max-width:340px">${h(r.reason)}</td>
         <td>${canEdit() ? `<button class="btn sm pri" data-a="req" data-v="approved" data-id="${h(r.id)}">Approve</button> <button class="btn sm" data-a="req" data-v="rejected" data-id="${h(r.id)}">Reject</button>` : ""}</td></tr>`; }).join("")}</tbody></table></div>` : `<div class="empty"><b>No requests waiting</b>Employees ask for corrections from their check-in screen.</div>`}</div>
+    ${pendingDevices().length ? `<div class="panel" style="padding:0;margin-bottom:16px"><div style="padding:16px 18px 6px"><h2>New phones waiting <small>أجهزة جديدة</small><span class="spacer"></span><span class="pill p-amber">${pendingDevices().length}</span></h2><div class="sub">Each employee's first phone is accepted automatically. Approve a second phone only if the employee really changed phones.</div></div>
+      <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Phone</th><th>First seen</th><th></th></tr></thead><tbody>${pendingDevices().map(d => { const e = MQ.empBy(d.emp_no) || { empNo: d.emp_no }; return `<tr><td>${who(e)}</td><td style="white-space:normal;max-width:300px">${h(d.label || "Unknown")}</td><td class="mono">${fd(dLocal(d.first_seen))} ${tLocal(d.first_seen)}</td><td>${canEdit() ? `<button class="btn sm pri" data-a="devSet" data-v="approved" data-id="${h(d.emp_no + "|" + d.device_id)}">Approve</button> <button class="btn sm" data-a="devSet" data-v="revoked" data-id="${h(d.emp_no + "|" + d.device_id)}">Block</button>` : ""}</td></tr>`; }).join("")}</tbody></table></div></div>` : ""}
     <div class="panel" style="padding:0;margin-bottom:16px"><div style="padding:16px 18px 6px"><h2>Location exceptions · last 45 days <small>خارج النطاق</small><span class="spacer"></span>${pp.length && canEdit() ? `<button class="btn sm" data-a="revNear">Accept all within 2× zone</button>` : ""}</h2></div>
-      ${pp.length ? punchTable(pp, true) : `<div class="empty"><b>Every punch was inside a zone</b>Nothing to review.</div>`}</div>
+      ${pp.length ? punchTable(pp, true) : `<div class="empty"><b>No punches to review</b>Every punch was inside a zone, on the employee's own phone.</div>`}</div>
     <div class="panel" style="padding:0"><div style="padding:16px 18px 6px"><h2>Missing check-outs · last 30 days <small>بدون انصراف</small><span class="spacer"></span><span class="pill ${inc.length ? "p-amber" : "p-green"}">${inc.length}</span></h2></div>
       ${inc.length ? `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Day</th><th>Checked in</th><th>Shift end</th><th></th></tr></thead><tbody>${inc.sort((a, b) => b.x.date.localeCompare(a.x.date)).map(({ r, x }) => `<tr><td>${who(r.emp)}</td><td>${fd(x.date)}</td><td>${fmtM(x.firstIn)}</td><td>${fmtM(x.shift.end)}</td><td>${canEdit() ? `<button class="btn sm" data-a="addOut" data-emp="${h(r.empNo)}" data-d="${h(x.date)}" data-v="${h(fmtM(x.shift.end))}">Add check-out</button>` : ""}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty"><b>No missing check-outs</b></div>`}</div>
     ${lawPanel()}`;
@@ -453,8 +489,11 @@ window.AttendanceUI = function (MQ) {
         <div class="field"><label for="r_geo">Where can an employee check in?</label><select id="r_geo" ${ro ? "disabled" : ""}><option value="any" ${c.geoMode !== "assigned" ? "selected" : ""}>At any branch zone</option><option value="assigned" ${c.geoMode === "assigned" ? "selected" : ""}>Only at their assigned branch</option></select></div>
         <div class="field"><label for="r_blk">Outside the zone</label><select id="r_blk" ${ro ? "disabled" : ""}><option value="0" ${!c.blockOutside ? "selected" : ""}>Record it and send to HR review</option><option value="1" ${c.blockOutside ? "selected" : ""}>Refuse the check-in</option></select></div>
         <div class="field"><label for="r_acc">Weakest GPS accepted (m)</label><input id="r_acc" type="number" min="10" max="1000" value="${h(c.maxAccuracyM)}" ${ro ? "disabled" : ""}></div>
+        <div class="field"><label for="r_tol">GPS error</label><select id="r_tol" ${ro ? "disabled" : ""}><option value="1" ${c.accuracyTolerance !== false ? "selected" : ""}>Allow for it, up to 50 m</option><option value="0" ${c.accuracyTolerance === false ? "selected" : ""}>Use the exact zone edge</option></select></div>
+        <div class="field"><label for="r_dev">New phones</label><select id="r_dev" ${ro ? "disabled" : ""}><option value="0" ${!c.deviceLock ? "selected" : ""}>Allow the punch, send to HR review</option><option value="1" ${c.deviceLock ? "selected" : ""}>Refuse until HR approves</option></select></div>
+        <div class="field"><label for="r_sf">Selfie at check-in</label><select id="r_sf" ${ro ? "disabled" : ""}><option value="0" ${!c.selfie ? "selected" : ""}>Off</option><option value="1" ${c.selfie ? "selected" : ""}>On (tell staff first)</option></select></div>
         <div class="field"><label for="r_out">Outside-zone punches in the timesheet</label><select id="r_out" ${ro ? "disabled" : ""}><option value="1" ${c.countOutside ? "selected" : ""}>Count until HR rejects</option><option value="0" ${!c.countOutside ? "selected" : ""}>Count only after HR accepts</option></select></div>
-      </div><div class="sub" style="margin-top:10px">The server measures the distance again on every punch, so a changed phone clock or app cannot move it. Punches more than 5 km from the previous one at an impossible speed are flagged as a location jump.</div>
+      </div><div class="sub" style="margin-top:10px">The server measures the distance again on every punch, so a changed phone clock or app cannot move it. Punches more than 5 km from the previous one at an impossible speed are flagged as a location jump. One phone used by two employees within 12 hours, and a new phone, go to HR review. These signs never reject a punch by themselves.</div>
       <h2 style="margin-top:18px">Time rules <small>قواعد الوقت</small></h2><div class="fgrid">
         <div class="field"><label for="r_gr">Late after (grace, min)</label><input id="r_gr" type="number" min="0" max="120" value="${h(c.graceMin)}" ${ro ? "disabled" : ""}></div>
         <div class="field"><label for="r_eg">Early leave after (min)</label><input id="r_eg" type="number" min="0" max="120" value="${h(c.earlyGraceMin)}" ${ro ? "disabled" : ""}></div>
@@ -477,11 +516,23 @@ window.AttendanceUI = function (MQ) {
         ${ro ? "" : `<div class="row" style="margin-top:12px"><button class="btn sm" data-a="ramFill">Use Umm al-Qura dates</button><span class="spacer"></span><button class="btn sm pri" data-a="ramSave">Save</button></div>`}</div></div>
     <div class="panel" style="padding:0"><div style="padding:16px 18px 6px"><h2>Who works where <small>توزيع الموظفين</small></h2><div class="sub">Each employee's shift, branch zone and device user ID (for fingerprint imports). Changes save straight away.</div>
       ${ro ? "" : `<div class="row" style="margin:10px 0 4px">${deptSel("asgDept", U.asgDept)}<select class="sel" id="asgShift"><option value="">Shift…</option>${sh.map(s => `<option value="${h(s.id)}">${h(s.name || s.id)}</option>`).join("")}</select>${branchSel("asgBranch", "", "Branch…")}<button class="btn sm" data-a="asgBulk">Apply to ${U.asgDept ? h(U.asgDept) : "everyone shown"}</button></div>`}</div>
-      <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Department</th><th>Shift</th><th>Branch zone</th><th>Device ID</th><th>Ramadan hours</th></tr></thead><tbody>${emps.filter(e => !U.asgDept || e.department === U.asgDept).map(e => { const r = e.hr || {};
+      <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Department</th><th>Shift</th><th>Branch zone</th><th>Punch rule</th><th>Device ID</th><th>Ramadan hours</th><th>Kiosk PIN</th></tr></thead><tbody>${emps.filter(e => !U.asgDept || e.department === U.asgDept).map(e => { const r = e.hr || {};
         return `<tr><td>${who(e)}</td><td>${h(e.department || "")}</td><td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="shiftId" ${ro ? "disabled" : ""}><option value="">Default (${h(c.defaultShiftId)})</option>${sh.map(s => `<option value="${h(s.id)}" ${r.shiftId === s.id ? "selected" : ""}>${h(s.name || s.id)}</option>`).join("")}</select></td>
           <td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="branchId" ${ro ? "disabled" : ""}><option value="">Any branch</option>${branches().map(b => `<option value="${h(b.id)}" ${r.branchId === b.id ? "selected" : ""}>${h(b.name)}</option>`).join("")}</select></td>
+          <td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="punchPolicy" ${ro ? "disabled" : ""}><option value="">Company rule</option><option value="assigned" ${r.punchPolicy === "assigned" ? "selected" : ""}>Assigned branch only</option><option value="any" ${r.punchPolicy === "any" ? "selected" : ""}>Any branch</option><option value="anywhere" ${r.punchPolicy === "anywhere" ? "selected" : ""}>Anywhere (field staff)</option><option value="none" ${r.punchPolicy === "none" ? "selected" : ""}>May not punch</option></select></td>
           <td><input class="sel asg" data-emp="${h(e.empNo)}" data-k="deviceId" value="${h(r.deviceId || "")}" style="width:90px" ${ro ? "disabled" : ""}></td>
-          <td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="muslim" ${ro ? "disabled" : ""}><option value="">${c.ramadan.applyTo === "muslims" ? "No" : "Yes (all staff)"}</option><option value="yes" ${r.muslim === true ? "selected" : ""}>Yes (Muslim)</option></select></td></tr>`; }).join("")}</tbody></table></div></div>`;
+          <td><select class="sel asg" data-emp="${h(e.empNo)}" data-k="muslim" ${ro ? "disabled" : ""}><option value="">${c.ramadan.applyTo === "muslims" ? "No" : "Yes (all staff)"}</option><option value="yes" ${r.muslim === true ? "selected" : ""}>Yes (Muslim)</option></select></td>
+          <td>${ro || !isSupa() ? "" : `<button class="btn sm" data-a="pinOne" data-v="${h(e.empNo)}">${(S.att.pins || []).includes(e.empNo) ? "Reset" : "Create"}</button>`}</td></tr>`; }).join("")}</tbody></table></div></div>
+    ${isSupa() && !ro ? accessPanel() : ""}`;
+  }
+  function accessPanel() {
+    const users = S.att.users, emps = staff(), noPin = emps.filter(e => !(S.att.pins || []).includes(e.empNo)).length, ROLES = ["employee", "kiosk", "hr", "finance", "viewer", "admin"];
+    return `<div class="panel" style="margin-top:16px"><h2>Branch kiosk <small>جهاز الفرع</small><span class="spacer"></span><span class="pill ${noPin ? "p-amber" : "p-green"}">${emps.length - noPin} of ${emps.length} have a PIN</span></h2>
+      <div class="sub prose">For staff without an email or a smartphone. A tablet or a supervisor's phone at the branch signs in with a kiosk account; staff enter their employee number and PIN, and the system records check-in or check-out at that location. Five wrong PINs lock the number for 15 minutes.</div>
+      <div class="row" style="margin-top:12px"><span class="spacer"></span><button class="btn pri" data-a="pinAll" ${noPin ? "" : "disabled"}>Create PINs for ${noPin} staff and download the list</button></div></div>
+    ${users ? `<div class="panel" style="padding:0;margin-top:16px"><div style="padding:16px 18px 6px"><h2>Who can sign in <small>صلاحيات الدخول</small></h2><div class="sub">Add an email here, then that person opens the site and chooses “Set your password”. An employee login must be linked to an employee number.</div>
+      <div class="row" style="margin:10px 0 4px"><input id="au_e" class="sel" type="email" placeholder="name@example.com" style="flex:1;min-width:190px"><select id="au_r" class="sel">${ROLES.map(r => `<option value="${r}">${h(T(r[0].toUpperCase() + r.slice(1)))}</option>`).join("")}</select><input id="au_n" class="sel" placeholder="EMP-0001" style="width:110px">${branchSel("au_b", "", "Branch…")}<button class="btn sm pri" data-a="auAdd">Add</button></div></div>
+      <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Email</th><th>Role</th><th>Employee</th><th>Branch</th><th></th></tr></thead><tbody>${users.map(u => { const e = u.emp_no ? MQ.empBy(u.emp_no) : null, b = branchBy(u.branch_id); return `<tr><td>${h(u.email)}</td><td>${h(T(u.role[0].toUpperCase() + u.role.slice(1)))}</td><td>${e ? who(e) : h(u.emp_no || "—")}</td><td>${h(b ? b.name : "—")}</td><td>${u.email === MQ.uid ? `<span class="sub">You</span>` : `<button class="btn sm" data-a="auDel" data-v="${h(u.email)}">Remove</button>`}</td></tr>`; }).join("")}</tbody></table></div></div>` : ""}`;
   }
   function openBranch(id) {
     const b0 = id ? branchBy(id) : null; const b = Object.assign({ id: "", name: "", lat: "", lng: "", radius_m: 150, active: true }, b0 || {});
@@ -545,15 +596,17 @@ window.AttendanceUI = function (MQ) {
     if (!U.meLocated) { U.meLocated = true; setTimeout(() => locate(), 50); }
     const t = todayL(), c = cfg(); const mine = S.att.punches.filter(p => p.empNo === e.empNo);
     const r = A.day(e, t, mine, ctx()); const todayP = r.punches; const next = A.nextAction(todayP); const pos = S.att.pos;
-    const ev = pos && !pos.err ? A.evaluatePunch(branches(), pos.lat, pos.lng, pos.acc, c, A.allowedBranches(e)) : null;
+    const pol = policyOf(e); const ev = pos && !pos.err ? A.evaluatePunch(branches(), pos.lat, pos.lng, pos.acc, c, A.allowedBranches(e), pol) : null;
     const br = branchBy(empBranch(e)); const sh = r.shift;
     const locTxt = S.att.locating ? ["Finding your location…", "Keep this screen open for a few seconds."]
       : !pos ? ["Location not checked yet", "Tap “Refresh location”."] : pos.err ? ["Location unavailable", pos.err]
+      : ev.status === "none" ? ["Check-in is switched off for you", "Ask HR."]
+      : pol === "anywhere" && ev.status === "ok" ? ["You can check in from anywhere", `GPS ±${Math.round(pos.acc)} m`]
       : !ev.branch ? ["No branch zone is set up", "Ask HR to add your branch."]
       : ev.status === "ok" ? [`Inside ${ev.branch.name}`, `${Math.round(ev.distance)} m from the centre · zone ${ev.branch.radius_m || 150} m · GPS ±${Math.round(pos.acc)} m`]
       : ev.status === "low_accuracy" ? ["GPS signal is weak", `±${Math.round(pos.acc)} m. Step outside or near a window, then refresh.`]
       : [`Outside the zone`, `${Math.round(ev.distance).toLocaleString("en-US")} m from ${ev.branch.name} (zone ${ev.branch.radius_m || 150} m).${c.blockOutside ? " Check-in is only allowed inside." : " You can still punch; HR will review it."}`];
-    const blocked = c.blockOutside && ev && ev.status !== "ok";
+    const devBad = S.att.device === "revoked" || (S.att.device === "pending" && c.deviceLock); const blocked = devBad || (ev && ev.blocked) || (c.blockOutside && ev && ev.status !== "ok");
     const btn = { in: ["Check in", ""], out: ["Check out", "out"], break_end: ["End break", "out"] }[next];
     const m = A.month([e], mine, ctx(), t.slice(0, 8) + "01"), mt = m.rows[0] ? m.rows[0].totals : {}; const days = m.rows[0] ? m.rows[0].days : [];
     const first = A.weekday(t.slice(0, 8) + "01"); const myReq = S.att.requests.filter(x => x.empNo === e.empNo).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 5);
@@ -563,6 +616,7 @@ window.AttendanceUI = function (MQ) {
       <div class="me-hello">${av(e)}<div><h2>${h(greet())}, ${h(nm(e).split(" ")[0])}</h2><div class="sub">${h([e.jobTitle, br ? br.name : null].filter(Boolean).join(" · "))}</div></div></div>
       <div class="me-card me-clock"><div class="t" id="meClock">${h(tLocal(nowISO()))}</div><div class="d">${new Date().toLocaleDateString(LOC(), { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Riyadh" })} · <bdi dir="rtl" class="ar">${h(MQ.hj(t))} هـ</bdi></div>
         <div class="me-shift">${sh.workday ? `<span class="pill p-grey">Shift ${fmtM(sh.start)}–${fmtM(sh.end)}${sh.ramadan ? " · Ramadan" : ""}</span>` : `<span class="pill p-grey">${r.holiday ? h(r.holiday.name) : "Day off today"}</span>`}${sh.workday && !r.holiday ? statusPill(r) : ""}${r.workedMin ? `<span class="pill p-blue" id="meWorked">Worked ${durS(r.workedMin)}</span>` : ""}</div></div>
+      ${S.att.device === "pending" || S.att.device === "revoked" ? `<div class="me-card"><b>${S.att.device === "revoked" ? "This phone was removed from your account" : "HR has not approved this phone yet"}</b><div class="sub">${S.att.device === "revoked" ? "Ask HR." : c.deviceLock ? "You can check in once HR approves it." : "You can still check in. HR will review it."}</div></div>` : ""}
       <div class="me-card"><div class="radar">${radar(pos, ev)}<div><div class="st" style="color:${ev && ev.status === "ok" ? "var(--accent)" : ev ? "var(--sadu)" : "inherit"}">${h(locTxt[0])}</div><div class="ds">${h(locTxt[1])}</div>
         <div class="row" style="margin-top:10px"><button class="btn sm" data-a="meLocate" ${S.att.locating ? "disabled" : ""}>Refresh location</button>${S.demo ? `<label class="check"><input type="checkbox" data-a="fakeLoc" ${U.fakeLoc ? "checked" : ""}> Preview: stand at my branch</label>` : ""}</div></div></div>
         <div style="margin-top:16px"><button class="punch ${btn[1]}" data-a="punch" data-v="${next}" ${S.att.busy || S.att.locating || blocked || (S.essOnly && MQ.readOnly) ? "disabled" : ""}>${S.att.busy ? `<span class="spin"></span>Saving…` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${next === "in" ? '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>' : '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'}</svg>${btn[0]}`}</button>
@@ -573,6 +627,31 @@ window.AttendanceUI = function (MQ) {
       ${myReq.length ? `<div class="me-card"><h2 style="font-size:15px;margin-bottom:8px">My correction requests</h2>${myReq.map(q => `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>${fd(q.day)} · ${h(kindL[q.kind] || q.kind)} ${h(q.time)}</span><span class="spacer"></span><span class="pill ${q.status === "approved" ? "p-green" : q.status === "rejected" ? "p-red" : "p-amber"}">${h(q.status[0].toUpperCase() + q.status.slice(1))}</span></div>`).join("")}</div>` : ""}
       ${S.essOnly ? `<div class="row" style="justify-content:center"><button class="btn" data-act="userMenu">Account · sign out</button></div>` : ""}</div>`;
   }
+  function vKiosk() {
+    const k = U.k || (U.k = {}), busy = S.att.busy, t = todayL();
+    return `<div class="me"><div class="me-card me-clock"><div class="t" id="meClock">${h(tLocal(nowISO()))}</div><div class="d">${new Date().toLocaleDateString(LOC(), { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Riyadh" })} · <bdi dir="rtl" class="ar">${h(MQ.hj(t))} هـ</bdi></div></div>
+      ${k.msg ? `<div class="me-card" role="status" style="text-align:center"><div style="font-family:var(--f-display);font-size:24px;font-weight:600;color:${k.ok ? "var(--accent)" : "var(--sadu)"}">${h(k.msg)}</div>${k.sub ? `<div class="sub" style="margin-top:6px">${h(k.sub)}</div>` : ""}</div>` : ""}
+      <div class="me-card"><div class="fgrid"><div class="field"><label for="k_no">Employee number</label><input id="k_no" inputmode="numeric" autocomplete="off" style="font-size:22px;height:56px" ${busy ? "disabled" : ""}></div>
+        <div class="field"><label for="k_pin">PIN</label><input id="k_pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" style="font-size:22px;height:56px" ${busy ? "disabled" : ""}></div></div>
+        <div style="margin-top:16px"><button class="punch" data-a="kioskGo" ${busy ? "disabled" : ""}>${busy ? `<span class="spin"></span>Saving…` : "Record attendance"}</button></div></div>
+      <div class="row" style="justify-content:center"><button class="btn" data-act="userMenu">Account · sign out</button></div></div>`;
+  }
+  let kT = null;
+  async function kioskGo() {
+    const no = $("#k_no").value.trim(), pin = $("#k_pin").value.trim(); if (!no || !pin) { toast("Enter your number and PIN."); return; }
+    if (S.att.busy) return; const show = (msg, ok, sub) => { U.k = { msg, ok, sub }; clearTimeout(kT); kT = setTimeout(() => { U.k = {}; MQ.renderNow(); }, 7000); };
+    S.att.busy = true; MQ.renderNow();
+    try {
+      const pos = await locate(); if (!pos || pos.err) throw new Error((pos && pos.err) || "Location is needed.");
+      const photo = cfg().selfie ? await uploadPhoto("kiosk/" + todayL(), await takeSelfie()) : null;
+      const { data, error } = await MQ.sb.rpc("kiosk_punch", { p_emp: no, p_pin: pin, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.acc, p_device: deviceLabel(), p_photo: photo });
+      if (error) throw error;
+      if (!data.ok) show(T(data.error), false);
+      else show(`${T(data.kind === "in" ? "Checked in" : "Checked out")} ${tLocal(data.at)}`, true, data.name + (data.status !== "ok" ? " · " + T("HR will review") : ""));
+    } catch (x) { show(errMsg(x), false); }
+    finally { S.att.busy = false; MQ.renderNow(); const el = $("#k_no"); if (el) el.focus(); }
+  }
+  function saveCsv(name, rows) { const csv = "\ufeff" + rows.map(r => r.map(x => `"${String(x == null ? "" : x).replace(/"/g, '""')}"`).join(",")).join("\r\n"); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
   function greet() { const hr = +new Date().toLocaleTimeString("en-GB", { hour: "2-digit", hour12: false, timeZone: "Asia/Riyadh" }); return hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening"; }
   function openReq() {
     const e = meEmp(); if (!e) return;
@@ -620,7 +699,7 @@ window.AttendanceUI = function (MQ) {
         case "toPayroll": return toPayroll();
         case "brEdit": return openBranch(d.v);
         case "shEdit": return openShift(d.v);
-        case "saveRules": await saveCfg({ geoMode: $("#r_geo").value, blockOutside: $("#r_blk").value === "1", maxAccuracyM: +$("#r_acc").value || 100, countOutside: $("#r_out").value === "1",
+        case "saveRules": await saveCfg({ geoMode: $("#r_geo").value, blockOutside: $("#r_blk").value === "1", accuracyTolerance: $("#r_tol").value === "1", deviceLock: $("#r_dev").value === "1", selfie: $("#r_sf").value === "1", maxAccuracyM: +$("#r_acc").value || 100, countOutside: $("#r_out").value === "1",
           graceMin: +$("#r_gr").value || 0, earlyGraceMin: +$("#r_eg").value || 0, minOtMin: +$("#r_ot").value || 0, halfDayMin: +$("#r_hd").value || 0, incompleteAbsence: +$("#r_inc").value || 0, deductLate: $("#r_dl").value === "1",
           weekend: [...document.querySelectorAll(".r_we:checked")].map(x => +x.value), trackingFrom: $("#r_tf").value || "" }); return toast("Rules saved");
         case "holFill": { const y = +d.v, sg = A.suggestHolidays(y); const cur = (cfg().holidays || []).filter(x => x.date.slice(0, 4) !== String(y)); await saveCfg({ holidays: cur.concat(sg.holidays) }); return toast(`${sg.holidays.length} holidays added for ${y}. Confirm the Eid dates when MHRSD announces them.`); }
@@ -632,6 +711,18 @@ window.AttendanceUI = function (MQ) {
           const list = staff().filter(e => !U.asgDept || e.department === U.asgDept);
           return confirmBox(`Apply ${[shv ? "shift " + shv : "", brv ? "branch " + brv : ""].filter(Boolean).join(" and ")} to ${list.length} employees?`, async () => { for (const e of list) await setEmpHr(e.empNo, Object.assign({}, shv ? { shiftId: shv } : {}, brv ? { branchId: brv } : {})); closeModal(); toast("Assignments saved"); }); }
         case "punch": return punchNow(d.v);
+        case "kioskGo": return kioskGo();
+        case "photo": { const { data, error } = await MQ.sb.storage.from("punch-photos").createSignedUrl(d.v, 120); if (error) throw error; return openModal("Selfie · صورة الحضور", `<img src="${h(data.signedUrl)}" alt="Selfie taken at the punch" style="display:block;width:100%;border-radius:12px">`, [{ label: "Close", fn: closeModal }]); }
+        case "devSet": { const [en, id] = d.id.split("|"); const { error } = await MQ.sb.from("devices").update({ status: d.v, reviewed_by: MQ.uid, reviewed_at: nowISO() }).eq("emp_no", en).eq("device_id", id); if (error) throw error; const x = (S.att.devices || []).find(z => z.emp_no === en && z.device_id === id); if (x) x.status = d.v; toast(d.v === "approved" ? "Phone approved" : "Phone blocked"); return MQ.renderNow(); }
+        case "pinOne": { const pin = newPin(); const { error } = await MQ.sb.rpc("set_pin", { p_emp: d.v, p_pin: pin }); if (error) throw error; S.att.pins = [...new Set([...(S.att.pins || []), d.v])]; const e = MQ.empBy(d.v); return openModal("Kiosk PIN · رمز الحضور", `<div class="sub">${h(nm(e))} · ${h(d.v)}${e && e.hrNo ? " · HR " + h(e.hrNo) : ""}</div><div style="font-family:var(--f-display);font-size:44px;font-weight:600;letter-spacing:.2em;text-align:center;margin:14px 0">${h(pin)}</div><div class="sub">Give this PIN to the employee now. It is not shown again.</div>`, [{ label: "Done", cls: "pri", fn: () => { closeModal(); MQ.renderNow(); } }]); }
+        case "pinAll": { const list = staff().filter(e => !(S.att.pins || []).includes(e.empNo));
+          return confirmBox(`Create PINs for ${list.length} employees and download them as a file? Keep the file private and delete it after handing out the PINs.`, async () => { const rows = [["Employee no", "HR no", "Name", "PIN"]]; for (const e of list) { const pin = newPin(); const { error } = await MQ.sb.rpc("set_pin", { p_emp: e.empNo, p_pin: pin }); if (error) { toast(errMsg(error)); break; } rows.push([e.empNo, e.hrNo || "", nm(e), pin]); S.att.pins = [...(S.att.pins || []), e.empNo]; } closeModal(); saveCsv(`kiosk-pins-${todayL()}.csv`, rows); toast(`${rows.length - 1} PINs created`); MQ.render(); }); }
+        case "auAdd": { const email = $("#au_e").value.trim().toLowerCase(), role = $("#au_r").value, emp_no = $("#au_n").value.trim().toUpperCase() || null, branch_id = $("#au_b").value || null;
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast("Enter a valid email."); return; }
+          if (role === "employee" && !(emp_no && MQ.empBy(emp_no))) { toast("An employee login needs a valid employee number."); return; }
+          const { data, error } = await MQ.sb.from("app_users").upsert({ email, role, emp_no, branch_id }).select().single(); if (error) throw error;
+          S.att.users = (S.att.users || []).filter(u => u.email !== email).concat([data]).sort((a, b) => a.email.localeCompare(b.email)); toast("Saved"); return MQ.renderNow(); }
+        case "auDel": return confirmBox(`Remove sign-in access for ${d.v}?`, async () => { const { error } = await MQ.sb.from("app_users").delete().eq("email", d.v); if (error) { toast(errMsg(error)); return; } S.att.users = S.att.users.filter(u => u.email !== d.v); closeModal(); toast("Access removed"); MQ.render(); });
         case "meLocate": return locate(true);
         case "fakeLoc": U.fakeLoc = t.checked; S.att.pos = null; return locate(true);
         case "meReq": return openReq();
@@ -657,6 +748,6 @@ window.AttendanceUI = function (MQ) {
   // live clock on the check-in screen
   setInterval(() => { const el = document.getElementById("meClock"); if (el) el.textContent = tLocal(nowISO()); }, 1000);
 
-  return { views: { att: vAtt, attmap: vMap, attsheet: vSheet, attreview: vReview, attsetup: vSetup, me: vMe },
-    start, startEss, act, onChange, onInput, badge, dashStrip, after: mountMaps };
+  return { views: { att: vAtt, attmap: vMap, attsheet: vSheet, attreview: vReview, attsetup: vSetup, me: vMe, kiosk: vKiosk },
+    start, startEss, startKiosk, act, onChange, onInput, badge, dashStrip, after: mountMaps };
 };
