@@ -4,7 +4,7 @@ window.AttendanceUI = function (MQ) {
   "use strict";
   const { S, $, h, fd, toast, openModal, closeModal, confirmBox, put, E } = MQ;
   const A = window.Attendance;
-  S.att = { punches: [], requests: [], branches: [], months: {}, pos: null, locating: false };
+  S.att = { punches: [], requests: [], hrq: [], branches: [], months: {}, pos: null, locating: false };
   S.attCfg = S.attCfg || {};
   const U = S.ui;
 
@@ -59,6 +59,54 @@ window.AttendanceUI = function (MQ) {
     if (error) { console.error(error); return null; } return path;
   }
 
+  /* ---------- employee requests ---------- */
+  const RQ = {
+    salary_certificate: { l: "Salary certificate", f: ["to"] }, employment_letter: { l: "Employment letter", f: ["to"] }, noc: { l: "No-objection letter (NOC)", f: ["to"] },
+    exit_reentry: { l: "Exit / re-entry visa", f: ["from", "until"] }, salary_advance: { l: "Salary advance", f: ["amount"] },
+    excuse: { l: "Permission / excuse", f: ["date", "time", "until_time"] }, overtime: { l: "Overtime approval", f: ["date", "hours"] },
+    expense: { l: "Expense claim", f: ["date", "amount"] }, data_change: { l: "Update my details", f: [] }, grievance: { l: "Complaint", f: [] }, other: { l: "Other request", f: [] } };
+  const RF = { to: ["Addressed to", "text"], from: ["From", "date"], until: ["Until", "date"], date: ["Date", "date"], time: ["From time", "time"], until_time: ["To time", "time"], amount: ["Amount (SAR)", "number"], hours: ["Hours", "number"] };
+  const normQ = r => ({ id: String(r.id), empNo: r.emp_no, type: r.type, details: r.details || {}, note: r.note, status: r.status, createdAt: r.created_at, decidedBy: r.decided_by, decidedAt: r.decided_at, decisionNote: r.decision_note });
+  function upsertQ(q) { const a = S.att.hrq, i = a.findIndex(x => x.id === q.id); if (i >= 0) a[i] = q; else a.push(q); }
+  const rqSummary = q => (RQ[q.type] ? RQ[q.type].f : []).filter(k => q.details[k] != null && q.details[k] !== "").map(k => `${T(RF[k][0])}: ${q.details[k]}`).join(" · ");
+  const rqPill = st => `<span class="pill ${st === "approved" ? "p-green" : st === "rejected" ? "p-red" : st === "cancelled" ? "p-grey" : "p-amber"}">${h(T(st[0].toUpperCase() + st.slice(1)))}</span>`;
+  async function loadRequests() {
+    if (!isSupa()) return;
+    try { const rows = await supaAll(() => MQ.sb.from("hr_requests").select("*").order("created_at", { ascending: false })); S.att.hrq = rows.map(normQ); MQ.render(); } catch (e) { console.error(e); }
+    MQ.sb.channel("hrq-live").on("postgres_changes", { event: "*", schema: "public", table: "hr_requests" }, p => { if (p.new && p.new.id) { upsertQ(normQ(p.new)); MQ.render(); } }).subscribe();
+  }
+  function openNewRequest() {
+    const e = meEmp(); if (!e) return;
+    const fields = t => RQ[t].f.map(k => `<div class="field"><label for="nq_${k}">${h(RF[k][0])}</label><input id="nq_${k}" type="${RF[k][1]}" ${RF[k][1] === "number" ? 'min="0" step="any"' : ""}></div>`).join("");
+    openModal("New request · طلب جديد", `<div class="fgrid"><div class="field" style="grid-column:1/-1"><label for="nq_t">What do you need?</label><select id="nq_t">${Object.keys(RQ).map(k => `<option value="${k}">${h(RQ[k].l)}</option>`).join("")}</select></div></div>
+      <div class="fgrid" id="nq_f" style="margin-top:10px">${fields("salary_certificate")}</div><div class="fgrid" style="margin-top:10px"><div class="field" style="grid-column:1/-1"><label for="nq_n">Details</label><input id="nq_n" maxlength="1000"></div></div>`,
+      [{ label: "Cancel", fn: closeModal }, { label: "Send to HR", cls: "pri", fn: async () => {
+        const type = $("#nq_t").value, details = {}; RQ[type].f.forEach(k => { const v = $("#nq_" + k).value.trim(); if (v) details[k] = RF[k][1] === "number" ? +v : v; });
+        const note = $("#nq_n").value.trim(); if (RQ[type].f.some(k => details[k] == null && k !== "to") || (!RQ[type].f.length && note.length < 3)) { toast("Fill in the details."); return; }
+        const { data, error } = await MQ.sb.from("hr_requests").insert({ emp_no: e.empNo, email: MQ.uid, type, details, note: note || null }).select().single();
+        if (error) { toast("Not sent: " + errMsg(error)); return; } upsertQ(normQ(data)); closeModal(); toast("Request sent to HR"); MQ.render(); } }]);
+    $("#nq_t").addEventListener("change", ev => { $("#nq_f").innerHTML = fields(ev.target.value); if (window.I18N && I18N.apply) I18N.apply(); });
+  }
+  function myRequests(e) {
+    const mine = S.att.hrq.filter(q => q.empNo === e.empNo).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 8);
+    return `<div class="me-card"><div class="row"><h2 style="font-size:15px">My requests</h2><span class="spacer"></span><button class="btn sm pri" data-a="rqNew">New request</button></div>
+      ${mine.length ? mine.map(q => `<div class="row" style="padding:8px 0;border-bottom:1px solid var(--line)"><span><b>${h((RQ[q.type] || {}).l || q.type)}</b><span class="sub" style="display:block">${fd(dLocal(q.createdAt))}${q.decisionNote ? " · " + h(q.decisionNote) : ""}</span></span><span class="spacer"></span>${rqPill(q.status)}${q.status === "pending" ? ` <button class="btn sm" data-a="rqCancel" data-v="${h(q.id)}">Cancel</button>` : ""}</div>`).join("") : `<div class="sub" style="margin-top:6px">Letters, exit visas, advances, permissions, overtime and expenses.</div>`}</div>`;
+  }
+  function vRequests() {
+    const all = S.att.hrq.slice().sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")), f = U.rqF || "pending", list = all.filter(q => f === "all" || q.status === f), n = all.filter(q => q.status === "pending").length, can = MQ.role === "admin" || MQ.role === "hr";
+    if (!isSupa()) return `<div class="panel"><div class="empty"><b>Requests need the live database</b>Sign in on the online version.</div></div>`;
+    return `<div class="att-bar"><div class="row">${[["pending", `Waiting (${n})`], ["approved", "Approved"], ["rejected", "Rejected"], ["all", "All"]].map(([k, l]) => `<button class="btn sm ${f === k ? "pri" : ""}" data-a="rqF" data-v="${k}">${h(l)}</button>`).join("")}</div></div>
+    <div class="panel" style="padding:0">${list.length ? `<div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Employee</th><th>Request</th><th>Details</th><th>Sent</th><th>Status</th><th></th></tr></thead><tbody>${list.map(q => { const e = MQ.empBy(q.empNo) || { empNo: q.empNo };
+      return `<tr><td>${who(e)}</td><td><b>${h((RQ[q.type] || {}).l || q.type)}</b></td><td style="white-space:normal;max-width:340px">${h(rqSummary(q))}${q.note ? `<div class="sub">${h(q.note)}</div>` : ""}${q.decisionNote ? `<div class="sub">${h(q.decisionNote)}</div>` : ""}</td><td class="mono">${fd(dLocal(q.createdAt))}</td><td>${rqPill(q.status)}</td>
+      <td>${q.status === "pending" && can ? `<button class="btn sm pri" data-a="rqDecide" data-v="approved" data-id="${h(q.id)}">Approve</button> <button class="btn sm" data-a="rqDecide" data-v="rejected" data-id="${h(q.id)}">Reject</button>` : ""}</td></tr>`; }).join("")}</tbody></table></div>` : `<div class="empty"><b>No requests here</b>Requests from staff phones appear here straight away.</div>`}</div>`;
+  }
+  function decideRequest(id, status) {
+    const q = S.att.hrq.find(x => x.id === id); if (!q) return;
+    openModal(status === "approved" ? "Approve request" : "Reject request", `<div class="field"><label for="rq_dn">Note to the employee (optional)</label><input id="rq_dn" maxlength="500"></div>`, [{ label: "Cancel", fn: closeModal }, { label: status === "approved" ? "Approve" : "Reject", cls: "pri", fn: async () => {
+      const { data, error } = await MQ.sb.from("hr_requests").update({ status, decided_by: MQ.uid, decided_at: nowISO(), decision_note: $("#rq_dn").value.trim() || null }).eq("id", +id).select().single();
+      if (error) { toast(errMsg(error)); return; } upsertQ(normQ(data)); closeModal(); toast(status === "approved" ? "Approved" : "Rejected"); MQ.render(); } }]);
+  }
+
   /* ---------- data ---------- */
   const normP = r => ({ id: String(r.id), empNo: r.emp_no, email: r.email, kind: r.kind, at: r.at, lat: r.lat, lng: r.lng, accuracy: r.accuracy_m, branchId: r.branch_id,
     distance: r.distance_m, inside: r.inside, status: r.status, note: r.note, device: r.device, reviewedBy: r.reviewed_by, reviewedAt: r.reviewed_at, flags: r.flags || [], deviceId: r.device_id, photo: r.photo_path, source: r.source });
@@ -90,7 +138,7 @@ window.AttendanceUI = function (MQ) {
     const db = MQ.db;
     db.doc("config/attendance").onSnapshot(s => { S.attCfg = s.exists ? s.data() : {}; MQ.render(); }, () => {});
     if (isSupa()) {
-      await loadSupaSide(); loadMonth(ym(todayL()));
+      await loadSupaSide(); loadMonth(ym(todayL())); loadRequests();
       try { const { data } = await MQ.sb.rpc("app_emp_no"); if (data) S.me = { empNo: data }; } catch (e) {}
     } else {
       db.collection("attendance").onSnapshot(s => { S.att.punches = s.docs.map(d => Object.assign({ id: d.id }, d.data(), { id: d.id })); MQ.render(); }, () => {});
@@ -105,6 +153,7 @@ window.AttendanceUI = function (MQ) {
     catch (e) { try { const { data } = await sb.rpc("app_emp_no"); if (data) S.me = { empNo: data, emp: { empNo: data } }; } catch (x) {} }
     await loadSupaSide();
     try { const since = new Date(Date.now() - 45 * 86400000).toISOString(); const rows = await supaAll(() => sb.from("attendance").select("*").gte("at", since).order("at")); rows.forEach(r => upsertP(normP(r))); } catch (e) { console.error(e); }
+    loadRequests();
     try { const { data } = await sb.rpc("device_hello", { p_device_id: deviceId(), p_label: deviceLabel() }); S.att.device = data; } catch (e) {}
     locate(); setInterval(() => { if (document.visibilityState === "visible") MQ.renderNow(); }, 30000);
   }
@@ -417,6 +466,7 @@ window.AttendanceUI = function (MQ) {
   /* ---------- view: exceptions ---------- */
   function pendingPunches() { const since = Date.now() - 45 * 86400000; return S.att.punches.filter(p => (p.status === "outside" || p.status === "low_accuracy" || (p.status === "ok" && trustFlags(p).length)) && Date.parse(p.at) >= since); }
   const pendingDevices = () => (S.att.devices || []).filter(d => d.status === "pending");
+  function rqBadge() { return S.att.hrq.filter(q => q.status === "pending").length; }
   function badge() { return pendingPunches().length + pendingDevices().length + S.att.requests.filter(r => r.status === "pending").length; }
   function vReview() {
     const reqs = S.att.requests.filter(r => r.status === "pending").sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
@@ -625,6 +675,7 @@ window.AttendanceUI = function (MQ) {
       <div class="me-card"><h2 style="font-size:15px;margin-bottom:10px">${new Date().toLocaleDateString(LOC(), { month: "long", timeZone: "Asia/Riyadh" })} so far</h2>
         <div class="me-stats"><div><b>${mt.present || 0}</b><span>Days present</span></div><div><b>${mt.late || 0}</b><span>Late</span></div><div><b>${mt.absent || 0}</b><span>Absent</span></div><div><b>${+((mt.otMin || 0) / 60).toFixed(1)}</b><span>Overtime h</span></div></div><div class="me-cal">${cal}</div></div>
       ${myReq.length ? `<div class="me-card"><h2 style="font-size:15px;margin-bottom:8px">My correction requests</h2>${myReq.map(q => `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>${fd(q.day)} · ${h(kindL[q.kind] || q.kind)} ${h(q.time)}</span><span class="spacer"></span><span class="pill ${q.status === "approved" ? "p-green" : q.status === "rejected" ? "p-red" : "p-amber"}">${h(q.status[0].toUpperCase() + q.status.slice(1))}</span></div>`).join("")}</div>` : ""}
+      ${isSupa() ? myRequests(e) : ""}
       ${S.essOnly ? `<div class="row" style="justify-content:center"><button class="btn" data-act="userMenu">Account · sign out</button></div>` : ""}</div>`;
   }
   function vKiosk() {
@@ -712,6 +763,10 @@ window.AttendanceUI = function (MQ) {
           return confirmBox(`Apply ${[shv ? "shift " + shv : "", brv ? "branch " + brv : ""].filter(Boolean).join(" and ")} to ${list.length} employees?`, async () => { for (const e of list) await setEmpHr(e.empNo, Object.assign({}, shv ? { shiftId: shv } : {}, brv ? { branchId: brv } : {})); closeModal(); toast("Assignments saved"); }); }
         case "punch": return punchNow(d.v);
         case "kioskGo": return kioskGo();
+        case "rqNew": return openNewRequest();
+        case "rqF": U.rqF = d.v; return MQ.renderNow();
+        case "rqDecide": return decideRequest(d.id, d.v);
+        case "rqCancel": { const { error } = await MQ.sb.rpc("cancel_request", { p_id: +d.v }); if (error) throw error; const q = S.att.hrq.find(x => x.id === d.v); if (q) q.status = "cancelled"; toast("Request cancelled"); return MQ.renderNow(); }
         case "photo": { const { data, error } = await MQ.sb.storage.from("punch-photos").createSignedUrl(d.v, 120); if (error) throw error; return openModal("Selfie · صورة الحضور", `<img src="${h(data.signedUrl)}" alt="Selfie taken at the punch" style="display:block;width:100%;border-radius:12px">`, [{ label: "Close", fn: closeModal }]); }
         case "devSet": { const [en, id] = d.id.split("|"); const { error } = await MQ.sb.from("devices").update({ status: d.v, reviewed_by: MQ.uid, reviewed_at: nowISO() }).eq("emp_no", en).eq("device_id", id); if (error) throw error; const x = (S.att.devices || []).find(z => z.emp_no === en && z.device_id === id); if (x) x.status = d.v; toast(d.v === "approved" ? "Phone approved" : "Phone blocked"); return MQ.renderNow(); }
         case "pinOne": { const pin = newPin(); const { error } = await MQ.sb.rpc("set_pin", { p_emp: d.v, p_pin: pin }); if (error) throw error; S.att.pins = [...new Set([...(S.att.pins || []), d.v])]; const e = MQ.empBy(d.v); return openModal("Kiosk PIN · رمز الحضور", `<div class="sub">${h(nm(e))} · ${h(d.v)}${e && e.hrNo ? " · HR " + h(e.hrNo) : ""}</div><div style="font-family:var(--f-display);font-size:44px;font-weight:600;letter-spacing:.2em;text-align:center;margin:14px 0">${h(pin)}</div><div class="sub">Give this PIN to the employee now. It is not shown again.</div>`, [{ label: "Done", cls: "pri", fn: () => { closeModal(); MQ.renderNow(); } }]); }
@@ -748,6 +803,6 @@ window.AttendanceUI = function (MQ) {
   // live clock on the check-in screen
   setInterval(() => { const el = document.getElementById("meClock"); if (el) el.textContent = tLocal(nowISO()); }, 1000);
 
-  return { views: { att: vAtt, attmap: vMap, attsheet: vSheet, attreview: vReview, attsetup: vSetup, me: vMe, kiosk: vKiosk },
-    start, startEss, startKiosk, act, onChange, onInput, badge, dashStrip, after: mountMaps };
+  return { views: { att: vAtt, attmap: vMap, attsheet: vSheet, attreview: vReview, attsetup: vSetup, me: vMe, kiosk: vKiosk, requests: vRequests },
+    start, startEss, startKiosk, rqBadge, act, onChange, onInput, badge, dashStrip, after: mountMaps };
 };

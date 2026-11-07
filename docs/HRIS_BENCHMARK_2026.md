@@ -237,3 +237,32 @@ Scope: public documentation only. REA was loaded again; it analyses shipped bina
 - [D10] Findd for ADP Workforce Now: https://apps.adp.com/en-US/apps/616966/findd-time-labor-for-adp-workforce-now/features
 - [D11] KSA attendance overview (vendor blog): https://ibos.io/top-10-hr-attendance-tracking-software-in-saudi-arabia/
 - TrackTik geofence clock-ins: https://support.tracktik.com/hc/en-us/articles/1500001570922-Use-geofences-to-manage-mobile-clock-ins
+
+---
+
+## E. Code-level comparison with Odoo and ERPNext (added 2026-11-07)
+
+Method: module and field lists read from the open-source code itself (Odoo Community branch 19.0, 642 addons; Frappe HR and ERPNext branch version-15). Nothing was copied. REA does not apply to source repositories, so normal tools were used. Odoo Enterprise and paid or regional add-ons were not examined, so a "No" below means "not in this open-source code".
+
+| Capability | Odoo Community 19 | ERPNext + Frappe HR 15 | Muqeem Desk |
+|---|---|---|---|
+| Accounting, inventory, manufacturing, POS, website | **Yes, full** | **Yes, full** | No. QuickBooks journals only |
+| Payroll | No `hr_payroll` in Community | **Yes** | Yes, with GOSI and Mudad file |
+| Iqama, GOSI, Mudad, Muqeem, Nitaqat | No (0 files named for these) | No (0 files named for these) | **Yes** |
+| Saudi end of service, Art. 84/85 | Not found | Generic gratuity rules | **Yes** |
+| Hijri dates, Arabic-first screens | Not assessed | Not assessed | **Yes** |
+| IFRS 16 and prepaid amortisation for leases | Not assessed | Not assessed | **Yes** |
+| GPS at check-in | Stores latitude, longitude, IP, browser | Stores latitude, longitude | **Yes** |
+| Zone radius | None in the attendance model | **Yes**: `shift_location.checkin_radius` | **Yes**, with GPS-error tolerance |
+| Phone approval, shared-phone and location-jump flags | Not found | Not found | **Yes** |
+| Kiosk | **Yes** | Not found | **Yes** |
+| Recruitment | **Yes** | **Yes** | No |
+| Appraisal | No `hr_appraisal` in Community | **Yes** | No |
+| Onboarding, separation, clearance | Not found as a module | **Yes** | Exit and settlement only |
+| Expense claims | **Yes** | **Yes** | Request and approval only |
+| Training, skills, grievances, travel | Skills yes | **Yes** | Complaint request only |
+| Employee requests | Separate apps; `approvals` not in Community | Separate document types | **One inbox** (migration 005) |
+
+**Conclusion.** Muqeem Desk leads on Saudi workforce compliance and location attendance. It does not compete with either product as a whole-company ERP.
+
+Correction to section D: ERPNext's row said radius enforcement was absent, based on a vendor's page. The code has a check-in radius field on `shift_location`.
